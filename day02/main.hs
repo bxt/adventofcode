@@ -10,12 +10,16 @@ giftList = many (gift <* endOfLine) <* eof
         int  = read <$> many1 digit
 
 paper :: Gift -> Int
-paper (Gift l w h) = 2 * sum sides + minimum sides
-  where sides = [l*w, w*h, h*l]
+paper (Gift l w h) = wrapping + slack
+  where wrapping = 2 * sum faces
+        slack    = minimum faces
+        faces    = [l*w, w*h, h*l]
 
 ribbon :: Gift -> Int
-ribbon (Gift l w h) = l*w*h + 2 * minimum perimeters
-  where perimeters = [l+w, w+h, h+l]
+ribbon (Gift l w h) = wrap + bow
+  where wrap       = 2 * minimum perimeters
+        perimeters = [l+w, w+h, h+l]
+        bow        = l*w*h
 
 main :: IO()
 main = main_p2 where
