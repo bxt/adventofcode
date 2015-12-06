@@ -5,11 +5,11 @@ class Light
   def initialize(width, height)
     @width = width
     @height = height
-    @lights = height.times.map {|x| width.times.map {|y| :off}}
+    @lights = height.times.map {|x| width.times.map {|y| 0}}
   end
 
   def count_active_lights
-    @lights.map { |line| line.count(:on) }.sum
+    @lights.map { |line| line.sum }.sum
   end
 
   def process_file file
@@ -30,53 +30,70 @@ class Light
 
   def toggle from, to
     each_light from, to do |light|
-      light == :on ? :off : :on
+      light == 1 ? 0 : 1
     end
   end
 
   def turn_on from, to
     each_light from, to do |light|
-      :on
+      1
     end
   end
 
   def turn_off from, to
     each_light from, to do |light|
-      :off
+      0
     end
   end
 
   def to_s
     @lights.map do |line|
       line.map do |light|
-        light == :on ? "○" : "●"
+        ["●", "○"][light]
       end.join(' ')
     end.join("\n")
   end
 
+  COLORS = [ChunkyPNG::Color.rgba(  0,  50,   0, 255),
+            ChunkyPNG::Color.rgba(255, 255, 100, 255)]
+
   def to_png file
+    max = @lights.map { |line| line.max }.max
+
     png = ChunkyPNG::Image.new(@width, @height, ChunkyPNG::Color::TRANSPARENT)
     (0...@height).each do |y|
       (0...@width).each do |x|
-        png[x,y] = color(@lights[y][x])
+        png[x,y] = ChunkyPNG::Color.interpolate_quick(COLORS[1], COLORS[0], @lights[y][x]*255/max)
       end
     end
 
     png.save(file)
   end
-
-private
-
-  COLORS = {on: ChunkyPNG::Color.rgba(255, 255, 100, 255),
-           off: ChunkyPNG::Color.rgba(  0,  50,   0, 255)}
-
-  def color light
-    COLORS[light]
-  end
-
 end
 
-l = Light.new(1000, 1000)
+class DimmableLight < Light
+  def toggle from, to
+    each_light from, to do |light|
+      light + 2
+    end
+  end
+
+  def turn_on from, to
+    each_light from, to do |light|
+      light + 1
+    end
+  end
+
+  def turn_off from, to
+    each_light from, to do |light|
+      light - 1
+    end
+  end
+end
+
+lClass = {part1: Light, part2: DimmableLight}
+
+l = lClass[:part2].new(1000, 1000)
 
 l.process_file 'input.txt'
 puts l.count_active_lights
