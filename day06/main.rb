@@ -86,7 +86,7 @@ class DimmableLight < Light
 
   def turn_off from, to
     each_light from, to do |light|
-      light - 1
+      [0, light - 1].max
     end
   end
 end
