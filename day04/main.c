@@ -20,12 +20,11 @@ int startsWithSixZeros(unsigned char* r) {
   return r[0] == 0 && r[1] == 0 && r[2] == 0;
 }
 
-// not found up to 200000000 /:
 int startsWithSevenZeros(unsigned char* r) {
   return r[0] == 0 && r[1] == 0 && r[2] == 0 && r[3] < 16;
 }
 
-const int SEARCH_MAX = 200000000;
+const int SEARCH_MAX = 333333333;
 
 int main(int argc, char *argv[]) {
 
