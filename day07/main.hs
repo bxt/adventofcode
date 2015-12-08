@@ -11,11 +11,11 @@ import Control.Monad.State.Lazy
 type Value = Word16
 type Values = Map.Map String Gate
 
-data Operation = AND | OR | RSHIFT | LSHIFT deriving (Show, Eq, Read)
-data Gate = Constant Value
-          | Wire String
+data Operation = AND | OR | LSHIFT | RSHIFT deriving (Show, Eq, Read)
+data Gate = Gate2 Gate Operation Gate
           | Not Gate
-          | Gate2 Gate Operation Gate
+          | Constant Value
+          | Wire String
           deriving (Show, Eq)
 
 valueMap :: Parsec String u Values
@@ -26,9 +26,9 @@ valueMap = Map.fromList <$> many (assignment <* endOfLine) <* eof
         biOperation = read <$> biOpName where
           biOpName  = choice $ map string ["AND", "OR", "LSHIFT", "RSHIFT"]
         not         = string "NOT " *> (Not <$> value)
-        value       = wire <|> constant
-        wire        = Wire <$> wireName
+        value       = constant <|> wire
         constant    = Constant . read <$> many1 digit
+        wire        = Wire <$> wireName
         wireName    = many1 lower
 
 calculate :: String -> Values -> Value
@@ -41,13 +41,13 @@ setGate :: String -> Gate -> State Values ()
 setGate name gate = modify (Map.insert name gate)
 
 runGate :: Gate -> State Values Value
+runGate (Gate2 gate1 op gate2) = runOperation op <$> runGate gate1 <*> runGate gate2
+runGate (Not gate)   = complement <$> runGate gate
 runGate (Constant v) = return v
 runGate (Wire name)  = do
   v <- runGate =<< getGate name
   setGate name $ Constant v
   return v
-runGate (Not gate)   = complement <$> runGate gate
-runGate (Gate2 gate1 op gate2) = runOperation op <$> runGate gate1 <*> runGate gate2
 
 runOperation :: Operation -> Value -> Value -> Value
 runOperation AND    a b = a .&. b
