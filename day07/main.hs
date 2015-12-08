@@ -40,12 +40,13 @@ getGate name = gets (Map.! name)
 setGate :: String -> Gate -> State Values ()
 setGate name gate = modify (Map.insert name gate)
 
+infixl 1 =>>
+(=>>) :: Monad m => m a -> (a -> m b) -> m a
+a =>> b = a >>= liftM2 (>>) b return
+
 runGate :: Gate -> State Values Value
 runGate (Constant v) = return v
-runGate (Wire name)  = do
-  v <- getGate name >>= runGate
-  setGate name . Constant $ v
-  return v
+runGate (Wire name)  = getGate name >>= runGate =>> setGate name . Constant
 runGate (Not gate)   = complement <$> runGate gate
 runGate (Gate2 gate1 op gate2) = runOperation op <$> runGate gate1 <*> runGate gate2
 
