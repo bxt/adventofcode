@@ -1,4 +1,4 @@
-import Text.Parsec
+import Text.Parsec hiding (State)
 import Text.Parsec.Char
 import Text.Parsec.String
 import Data.Word
@@ -6,21 +6,21 @@ import Data.Bits
 import qualified Data.Map as Map
 import Data.Maybe
 import Data.List
+import Control.Monad.State.Lazy
 
 type Value = Word16
-type Values = Map.Map String Value
+type Values = Map.Map String Gate
 
 data Operation = AND | OR | RSHIFT | LSHIFT deriving (Show, Eq, Read)
-data Assignment = Assignment {gate :: Gate, to :: String} deriving (Show, Eq)
 data Gate = Constant Value
           | Wire String
           | Not Gate
           | Gate2 Gate Operation Gate
           deriving (Show, Eq)
 
-gateList :: Parsec String u [Assignment]
-gateList = many (assignment <* endOfLine) <* eof
-  where assignment  = Assignment <$> gate <*> (string " -> " *> wireName)
+valueMap :: Parsec String u Values
+valueMap = Map.fromList <$> many (assignment <* endOfLine) <* eof
+  where assignment  = flip (,) <$> gate <*> (string " -> " *> wireName)
         gate        = try gate2 <|> not <|> constant <|> wire
         gate2       = Gate2 <$> (value <* space) <*> (biOperation <* space) <*> value
         biOperation = read <$> biOpName where
@@ -31,25 +31,23 @@ gateList = many (assignment <* endOfLine) <* eof
         constant    = Constant . read <$> many1 digit
         wireName    = many1 lower
 
-loopAssignments :: [Assignment] -> Values
-loopAssignments as = snd $ fromJust $ find (null.fst) (iterate runAssignments (as, Map.empty))
+calculate :: String -> Values -> Value
+calculate v = evalState (getGate v >>= runGate)
 
-runAssignments :: ([Assignment], Values) -> ([Assignment], Values)
-runAssignments ([]  , vs) = ([], vs)
-runAssignments (a:as, vs) = ((if run then (a:) else id) as', vs'')
-  where (vs', run)  = runAssignment a vs
-        (as', vs'') = runAssignments (as, vs')
+getGate :: String -> State Values Gate
+getGate name = gets (Map.! name)
 
-runAssignment :: Assignment -> Values -> (Values, Bool)
-runAssignment a vs = fromMaybe (vs, True) (do
-  v <- runGate (gate a) vs
-  return (Map.insert (to a) v vs, False))
+setGate :: String -> Gate -> State Values ()
+setGate name gate = modify (Map.insert name gate)
 
-runGate :: Gate -> Values -> Maybe Value
-runGate (Constant w) _  = Just w
-runGate (Wire name)  vs = Map.lookup name vs
-runGate (Not gate)   vs = complement <$> runGate gate vs
-runGate (Gate2 gate1 op gate2) vs = runOperation op <$> runGate gate1 vs <*> runGate gate2 vs
+runGate :: Gate -> State Values Value
+runGate (Constant v) = return v
+runGate (Wire name)  = do
+  v <- getGate name >>= runGate
+  setGate name . Constant $ v
+  return v
+runGate (Not gate)   = complement <$> runGate gate
+runGate (Gate2 gate1 op gate2) = runOperation op <$> runGate gate1 <*> runGate gate2
 
 runOperation :: Operation -> Value -> Value -> Value
 runOperation AND    a b = a .&. b
@@ -57,12 +55,8 @@ runOperation OR     a b = a .|. b
 runOperation LSHIFT a b = shiftL a (fromIntegral b)
 runOperation RSHIFT a b = shiftR a (fromIntegral b)
 
-replace :: Eq a => a -> a -> [a] -> [a]
-replace x y = map (\z -> if z == x then y else z)
-
 main :: IO()
-main = mainP2 where
+main = mainP1 where
   mainP1 = main' id
-  mainP2 = main' (replace (h 14146) (h 956)) where
-    h x = Assignment (Constant x) "b"
-  main' f = parseFromFile gateList "input.txt" >>= print . fmap ((Map.!"a").loopAssignments.f)
+  mainP2 = main' (Map.insert "b" (Constant 956))
+  main' f = parseFromFile valueMap "input.txt" >>= print . fmap (calculate "a" . f)
