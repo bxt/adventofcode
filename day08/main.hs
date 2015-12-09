@@ -1,6 +1,5 @@
 import Text.Parsec
-import Text.Parsec.Char
-import Text.Parsec.String
+import Text.Parsec.String (parseFromFile)
 import Numeric
 import Data.List
 import Data.List.Split (splitOn)

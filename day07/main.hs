@@ -1,10 +1,8 @@
 import Text.Parsec hiding (State)
-import Text.Parsec.Char
-import Text.Parsec.String
+import Text.Parsec.String (parseFromFile)
 import Data.Word
 import Data.Bits
 import qualified Data.Map as Map
-import Data.Maybe
 import Data.List
 import Control.Monad.State.Lazy
 

@@ -1,6 +1,5 @@
 import Text.Parsec
-import Text.Parsec.Char
-import Text.Parsec.String
+import Text.Parsec.String (parseFromFile)
 
 data Gift = Gift Int Int Int
 
