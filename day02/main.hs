@@ -6,7 +6,7 @@ data Gift = Gift Int Int Int
 
 giftList :: Parsec String u [Gift]
 giftList = many (gift <* endOfLine) <* eof
-  where gift = Gift <$> (int <* char 'x') <*> (int <* char 'x') <*> int
+  where gift = Gift <$> int <* char 'x' <*> int <* char 'x' <*> int
         int  = read <$> many1 digit
 
 paper :: Gift -> Int

@@ -10,8 +10,8 @@ type DistanceTable = Map.Map (String, String) Int
 
 distanceTable :: Parsec String u DistanceTable
 distanceTable = Map.fromList <$> many (distance <* endOfLine) <* eof
-  where distance    = (,) <$> cities <*> (string " = " *> value)
-        cities      = (,) <$> city <*> (string " to " *> city)
+  where distance    = (,) <$> cities <* string " = " <*> value
+        cities      = (,) <$> city <* string " to " <*> city
         value       = read <$> many1 digit
         city        = (:) <$> upper <*> many letter
 

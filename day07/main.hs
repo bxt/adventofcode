@@ -20,9 +20,9 @@ data Gate = Gate2 Gate Operation Gate
 
 valueMap :: Parsec String u Values
 valueMap = Map.fromList <$> many (assignment <* endOfLine) <* eof
-  where assignment  = flip (,) <$> gate <*> (string " -> " *> wireName)
+  where assignment  = flip (,) <$> gate <* string " -> " <*> wireName
         gate        = try gate2 <|> not <|> constant <|> wire
-        gate2       = Gate2 <$> (value <* space) <*> (biOperation <* space) <*> value
+        gate2       = Gate2 <$> value <* space <*> biOperation <* space <*> value
         biOperation = read <$> biOpName where
           biOpName  = choice $ map string ["AND", "OR", "LSHIFT", "RSHIFT"]
         not         = string "NOT " *> (Not <$> value)
