@@ -1,10 +1,9 @@
 import Text.Parsec
-import Text.Parsec.Char
 import Text.Parsec.String (parseFromFile)
 import qualified Data.Map as Map
 import Data.Maybe
 import Data.List
-import Control.Monad.Reader
+import Control.Monad
 
 type City = String
 type DistanceTable = Map.Map (String, String) Int
