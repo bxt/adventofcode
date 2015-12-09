@@ -17,7 +17,7 @@ distanceTable = Map.fromList <$> many (distance <* endOfLine) <* eof
         city        = (:) <$> upper <*> many letter
 
 pairs :: [a] -> [(a, a)]
-pairs x@(_:y) = zip x y
+pairs x = zip x $ tail x
 
 distance :: (City, City) -> DistanceTable -> Int
 distance (f, t) = fmap fromJust $ mplus <$> Map.lookup (t, f) <*> Map.lookup (f, t)
@@ -26,7 +26,7 @@ routeLength :: [City] -> DistanceTable -> Int
 routeLength = liftM sum . mapM distance . pairs
 
 cities :: DistanceTable -> [City]
-cities = nub . ap [fst, snd] . Map.keys . ask
+cities = nub . ap [fst, snd] . Map.keys
 
 routeLengths :: DistanceTable -> [Int]
 routeLengths = mapM routeLength . permutations =<< cities
@@ -38,4 +38,4 @@ main :: IO()
 main = mainP2 where
   mainP1 = main' minimum
   mainP2 = main' maximum
-  main' f = parseFromFile distanceTable "input.txt" >>= print . (f <$> routeLengths) . fromRight
+  main' f = parseFromFile distanceTable "input.txt" >>= print . fmap f routeLengths . fromRight
