@@ -8,5 +8,5 @@ def process_file file, regex, values
   end.sum
 end
 
-puts "part1: #{process_file("input.txt", /(\\")|(\\\\)|(\\x[0-9a-f]{2})/, [1, 1, 3])}" 
+puts "part1: #{process_file("input.txt", /(\\")|(\\\\)|(\\x[0-9a-f]{2})/, [1, 1, 3])}"
 puts "part2: #{process_file("input.txt", /(\\)|(")/, [1, 1])}"
