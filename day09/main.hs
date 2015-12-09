@@ -37,4 +37,4 @@ main :: IO()
 main = mainP2 where
   mainP1 = main' minimum
   mainP2 = main' maximum
-  main' f = parseFromFile distanceTable "input.txt" >>= print . fmap f routeLengths . fromRight
+  main' f = parseFromFile distanceTable "input.txt" >>= print . f . routeLengths . fromRight
