@@ -6,14 +6,14 @@ import Data.List
 import Control.Monad
 
 type City = String
-type DistanceTable = Map.Map (String, String) Int
+type DistanceTable = Map.Map (City, City) Int
 
 distanceTable :: Parsec String u DistanceTable
 distanceTable = Map.fromList <$> many (distance <* endOfLine) <* eof
-  where distance    = (,) <$> cities <* string " = " <*> value
-        cities      = (,) <$> city <* string " to " <*> city
-        value       = read <$> many1 digit
-        city        = (:) <$> upper <*> many letter
+  where distance = (,) <$> cities <* string " = " <*> value
+        cities   = (,) <$> city <* string " to " <*> city
+        value    = read <$> many1 digit
+        city     = (:) <$> upper <*> many letter
 
 pairs :: [a] -> [(a, a)]
 pairs x = zip x $ tail x
