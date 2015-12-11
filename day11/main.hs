@@ -20,16 +20,9 @@ twoPairs = (>=2)
          . group
 
 next :: Password -> Password
-next = reverse
-     . tail
-     . map fst
-     . scanl aux (sentinel, succ)
-     . reverse
-  where aux (_, b) c = let c' = b c
-                        in (if c' == succ last then (first, succ) else (c', id))
-        sentinel = '-'
-        first    = 'a'
-        last     = 'z'
+next = reverse . aux . reverse
+  where aux (x:xs) | x == 'z'  = 'a' : aux xs
+                   | otherwise = succ x : xs
 
 nextPassword :: Password -> Password
 nextPassword = head
