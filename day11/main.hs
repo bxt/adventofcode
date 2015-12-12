@@ -2,27 +2,27 @@ import Data.List
 
 type Password = String
 
-validPassword, mistakeChars, straight, twoPairs :: Password -> Bool
+validPassword :: Password -> Bool
+validPassword p = hasStraight p && (countPairs p >= 2)
 
-validPassword p = all ($p) [straight, mistakeChars, twoPairs]
+hasStraight :: Password -> Bool
+hasStraight (a:b:c:xs) = (succ a == b && succ b == c) || hasStraight (b:c:xs)
+hasStraight _          = False
 
-mistakeChars = and . mapM notElem "oil"
-
-straight (a:b:c:xs) = (succ a == b && succ b == c) || straight (b:c:xs)
-straight _          = False
-
-twoPairs = (>=2)
-         . length
-         . nub
-         . sort
-         . map head
-         . filter ((>=2) . length)
-         . group
+countPairs :: Password -> Int
+countPairs = length
+           . nub
+           . sort
+           . map head
+           . filter ((>=2) . length)
+           . group
 
 next :: Password -> Password
 next = reverse . aux . reverse
-  where aux (x:xs) | x == 'z'  = 'a' : aux xs
-                   | otherwise = succ x : xs
+  where aux (x:xs) | x == 'z'      =     'a' : aux xs
+                   | elem x' "oil" = succ x' : xs
+                   | otherwise     =      x' : xs
+          where x' = succ x
 
 nextPassword :: Password -> Password
 nextPassword = head
