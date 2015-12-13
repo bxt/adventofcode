@@ -32,8 +32,8 @@ int hasPairs(char* password) {
   int pairCount = 0;
   for (int i = 0; i < PLENGTH-1; i++) {
     if (password[i] == password[i+1]) {
-      pairs[password[i]-97]++;
-      if (pairs[password[i]-97] == 1) {
+      pairs[password[i]-'a']++;
+      if (pairs[password[i]-'a'] == 1) {
         pairCount++;
       }
       if (pairCount == 2) {
