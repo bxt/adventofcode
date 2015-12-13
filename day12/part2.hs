@@ -12,13 +12,11 @@ nonRedSum = sum . extract . fromJust . decode
 
 extract :: Value -> [S.Scientific]
 extract (Number n) = [n]
-extract (String _) = []
-extract (Bool   _) = []
-extract (Null    ) = []
 extract (Array  a) = concatMap extract a
 extract (Object o) | elem needle es = []
                    | otherwise      = concatMap extract es
                    where es     = elems o
                          needle = (String (pack "red"))
+extract _          = []
 
 main = print . nonRedSum =<< B.readFile "input.txt"
