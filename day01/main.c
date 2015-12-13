@@ -12,17 +12,21 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  int c;
-  while ((c = fgetc(fp)) != EOF) {
-    if (c == '(') {
-      floor++;
-    }
-    if (c == ')') {
-      floor--;
-    }
-    if (searchingBasement) {
-      basementAfter++;
-      searchingBasement = floor != -1;
+  static unsigned char buf[4096];
+  size_t n;
+  while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+    for (size_t i = 0; i < n; i++) {
+      char c = buf[i];
+      if (c == '(') {
+        floor++;
+      }
+      if (c == ')') {
+        floor--;
+      }
+      if (searchingBasement) {
+        basementAfter++;
+        searchingBasement = floor != -1;
+      }
     }
   }
 
