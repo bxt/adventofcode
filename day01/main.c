@@ -38,7 +38,5 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-// 1797 / 280
-
 // Run with e.g.:
 // gcc -Ofast -Wall main.c -o main && ./main && rm main

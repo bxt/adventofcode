@@ -2,7 +2,6 @@ File.open("input.txt", "r") do |file|
   floor = 0
   basementAfter = 0
   searchingBasement = true
-  c = "x"
 
   while c = file.getc do
     floor += if c == '(' then 1 else -1 end
