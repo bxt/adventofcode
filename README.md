@@ -10,7 +10,7 @@ Contents
 
 Day | C | Haskell | Ruby | Description
 ----|---|---------|------|-------------
-01  |   |   x     |      | [Parenthesis counting](http://adventofcode.com/day/1)
+01  | x |   x     |      | [Parenthesis counting](http://adventofcode.com/day/1)
 02  |   |   x     |      | [Wrapping paper](http://adventofcode.com/day/2)
 03  |   |   x     |      | [Routes delivering to houses](http://adventofcode.com/day/3)
 04  | x |         |      | [MD5 mining](http://adventofcode.com/day/4)
