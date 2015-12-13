@@ -14,7 +14,7 @@ Day | C | Haskell | Ruby | Description
 02  |   |   x     |      | [Wrapping paper](http://adventofcode.com/day/2)
 03  |   |   x     |      | [Routes delivering to houses](http://adventofcode.com/day/3)
 04  | x |         |      | [MD5 mining](http://adventofcode.com/day/4)
-05  |   |   x     |      | [Text processing](http://adventofcode.com/day/5)
+05  |   |   x     |  x   | [Text processing](http://adventofcode.com/day/5)
 06  |   |   x     |  x   | [Light installation](http://adventofcode.com/day/6)
 07  |   |   x     |      | [Bitwise signal wiring](http://adventofcode.com/day/7)
 08  |   |   x     |  x   | [String escaping](http://adventofcode.com/day/8)
