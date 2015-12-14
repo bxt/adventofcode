@@ -1,11 +1,12 @@
 class Race < Struct.new(:reindeer)
   def step
     reindeer.each &:step
-    furthest.points += 1
+    furthest.each { |r| r.points += 1 }
   end
 
   def furthest
-    reindeer.max_by &:distance
+    d = reindeer.map(&:distance).max
+    reindeer.select { |r| r.distance == d }
   end
 
   def leader
@@ -78,5 +79,5 @@ race = Race.new(reindeer)
 
 2503.times { race.step }
 
-puts "Part 1: #{race.furthest.distance}"
+puts "Part 1: #{race.furthest.first.distance}"
 puts "Part 2: #{race.leader.points}"

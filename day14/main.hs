@@ -9,6 +9,14 @@ data Reindeer = Reindeer { name     :: String
                          , restTime :: Time
                          } deriving Show
 
+maximaBy :: (a -> a -> Ordering) -> [a] -> [a]
+maximaBy cmp = foldr aux [] where
+  aux x []     = [x]
+  aux x (m:ms) = case cmp x m
+                   of GT -> [x]
+                      EQ -> x:m:ms
+                      _  ->   m:ms
+
 parseReindeer :: String -> [Reindeer]
 parseReindeer = map parseLine . lines
   where parseLine = parseWords . words . init
@@ -21,17 +29,20 @@ distanceAfter s r = cycles * cycleDistance r + min rest (flyTime r) * speed r
         cycleDuration  = liftM2 (+) flyTime restTime
         cycleDistance  = liftM2 (*) speed flyTime
 
-leaderAfter :: Time -> [Reindeer] -> Reindeer
-leaderAfter = maximumBy . comparing . distanceAfter
+leadersAfter :: Time -> [Reindeer] -> [Reindeer]
+leadersAfter = maximaBy . comparing . distanceAfter
 
-leaders :: [Reindeer] -> [Reindeer]
-leaders = mapM leaderAfter [1 .. raceDuration]
+leaders :: [Reindeer] -> [[Reindeer]]
+leaders = mapM leadersAfter [1 .. raceDuration]
+
+scores :: [Reindeer] -> [Int]
+scores = map length . group . sort . map name . concat . leaders
 
 raceDuration :: Time
 raceDuration = 2503
 
 main :: IO()
 main = mainP2 where
-  mainP1  = main' $ map (distanceAfter raceDuration)
-  mainP2  = main' $ map length . group . sort . map name . leaders
-  main' f = print . maximum . f . parseReindeer =<< readFile "input.txt"
+  mainP1  = main' $ maximum . map (distanceAfter raceDuration)
+  mainP2  = main' $ maximum . scores
+  main' f = print . f . parseReindeer =<< readFile "input.txt"
