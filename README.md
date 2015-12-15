@@ -24,7 +24,7 @@ Day | C | Haskell | Ruby | Description
 12  |   |   x     |      | [JSON number sums](http://adventofcode.com/day/12)
 13  |   |   x     |      | [Seating happiness](http://adventofcode.com/day/13)
 14  |   |   x     |  x   | [Racing Reindeer](http://adventofcode.com/day/14)
-15  |   |         |      | [tba](http://adventofcode.com/day/15)
+15  | x |         |      | [Optimize cookie reciept](http://adventofcode.com/day/15)
 16  |   |         |      | [tba](http://adventofcode.com/day/16)
 17  |   |         |      | [tba](http://adventofcode.com/day/17)
 18  |   |         |      | [tba](http://adventofcode.com/day/18)
