@@ -1,15 +1,13 @@
 import Text.Parsec
 import Text.Parsec.String (parseFromFile)
 import qualified Data.Map as Map
-import Data.Maybe
-import Data.List
 import Control.Monad
 import Data.Function (on)
 
+data Part = Part1 | Part2 deriving Show
+
 type CompoundTable = Map.Map String Int
 data Aunt = Aunt { name :: String, compounds :: CompoundTable } deriving Show
-
--- Sue 3: trees: 6, cars: 6, children: 4
 
 parseAunts :: Parsec String u [Aunt]
 parseAunts = many (aunt <* endOfLine) <* eof
@@ -19,8 +17,15 @@ parseAunts = many (aunt <* endOfLine) <* eof
         value     = read <$> many1 digit
         name      = many1 $ noneOf ":"
 
-matches :: Aunt -> Aunt -> Bool
-matches a b = and $ Map.elems $ ((Map.intersectionWith (==)) `on` compounds) a b
+matches :: Part -> Aunt -> Aunt -> Bool
+matches p a b = and $ Map.elems $ (intersection p `on` compounds) a b where
+  intersection Part1 = Map.intersectionWith (==)
+  intersection Part2 = Map.intersectionWithKey cmp where
+   cmp "cats"        = (<)
+   cmp "trees"       = (<)
+   cmp "pomeranians" = (>)
+   cmp "goldfish"    = (>)
+   cmp _             = (==)
 
 fromRight :: Show a => Either a b -> b
 fromRight = either (error . show) id
@@ -32,4 +37,6 @@ main :: IO()
 main = do
   as <- loadAunts "input.txt"
   a <- liftM head $ loadAunts "sue.txt"
-  print $ filter (matches a) as
+  forM_ [Part1, Part2] $ \p -> do
+    print p
+    print $ name $ head $ filter (matches p a) as
