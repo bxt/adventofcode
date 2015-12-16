@@ -20,20 +20,17 @@ parseIngreidents = map numbers . lines
 experiments :: Int -> Ingreidents -> [Cookie]
 experiments tsp is = map (bake is) $ recipes (length is) tsp
 
-scorePropCount :: Int
-scorePropCount = 4
-
 score :: Cookie -> Int
-score = product . map (max 0) . take scorePropCount
+score = product . map (max 0) . init
 
 calories :: Cookie -> Int
-calories = (!! scorePropCount)
+calories = last
 
 isDiet :: Cookie -> Bool
 isDiet = (== 500) . calories
 
 bake :: Ingreidents -> Recipe -> Cookie
-bake is p = map sum $ zipWith (zipWith (*)) (transpose is) (repeat p)
+bake is p = map (sum . zipWith (*) p) (transpose is)
 
 main :: IO()
 main = part2 where
