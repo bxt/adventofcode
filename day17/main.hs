@@ -1,7 +1,4 @@
-import Control.Monad
 import Data.Ord (comparing)
-
-data Part = Part1 | Part2 deriving Show
 
 minimaBy :: (a -> a -> Ordering) -> [a] -> [a]
 minimaBy cmp = foldr aux [] where
@@ -23,11 +20,7 @@ eggnog = 150
 
 main :: IO()
 main = do
-  containers <- liftM (map read . lines) $ readFile "input.txt"
-  forM_ [Part1, Part2] $ \part -> do
-    print part
-    print $ length $ select part $ possibleCombinations eggnog containers
-
-select :: Part -> [[Int]] -> [[Int]]
-select Part1 = id
-select Part2 = minimaBy (comparing length)
+  containers <- map read . lines <$> readFile "input.txt"
+  let pC = possibleCombinations eggnog containers
+  print $ length pC
+  print $ length $ minimaBy (comparing length) $ pC
