@@ -13,11 +13,11 @@ minimaBy cmp = foldr aux [] where
                       _  ->   m:ms
 
 possibleCombinationCount :: Int -> [Int] -> Int
-possibleCombinationCount 0 []     = 1
-possibleCombinationCount _ []     = 0
-possibleCombinationCount n (x:xs) | n < x     = possibleCombinationCount n xs
-                                  | otherwise = possibleCombinationCount (n-x) xs
-                                              + possibleCombinationCount n xs
+possibleCombinationCount n _ | n < 0  = 0
+possibleCombinationCount n _ | n == 0 = 1
+possibleCombinationCount _ []         = 0
+possibleCombinationCount n (x:xs)     = possibleCombinationCount (n-x) xs
+                                      + possibleCombinationCount n xs
 
 possibleCombinations :: Int -> [Int] -> Maybe [[Int]]
 possibleCombinations 0 _      = Just [[]]
