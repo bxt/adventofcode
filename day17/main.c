@@ -19,27 +19,40 @@ int main(int argc, char *argv[]) {
 
   fclose(fp);
 
-  //int dpCache[EGGNOG + 1][CLENGTH + 1] = {{0}};
-  //dpCache[0][0] = 1;
-  int dpCache[EGGNOG + 1] = {0};
-  dpCache[0] = 1;
+  int dpCache[EGGNOG + 1][CLENGTH + 1] = {{0}};
+  dpCache[0][0] = 1;
 
   for (int i = 0; i < CLENGTH; i++) {
     int size = containers[i];
     for (int k = EGGNOG + 1; k >= size; k--) {
-      dpCache[k] += dpCache[k - size];
+      for (int j = CLENGTH + 1; j >= 1; j--) {
+        dpCache[k][j] += dpCache[k - size][j - 1];
+      }
     }
   }
 
-  //for (int i = 0; i < CLENGTH + 1; i++) {
+  // Dump dpCache:
+  /*
+  for (int i = 0; i < CLENGTH + 1; i++) {
     for (int k = 0; k < EGGNOG + 1; k++) {
-      printf("%d ", dpCache[k]/*[i]*/);
+      printf("%d ", dpCache[k][i]);
     }
     printf("\n");
-  //}
+  }
+  */
 
-  printf("Part 1: %d\n", dpCache[EGGNOG]);
-  //printf("Part 2: %d\n", 222);
+  int possibleTotal = 0;
+  int possibleMin = -1;
+
+  for(int i = 0; i < CLENGTH + 1; i++) {
+    if(possibleMin < 0 && dpCache[EGGNOG][i] != 0) {
+      possibleMin = dpCache[EGGNOG][i];
+    }
+    possibleTotal += dpCache[EGGNOG][i];
+  }
+
+  printf("Part 1: %d\n", possibleTotal);
+  printf("Part 2: %d\n", possibleMin);
 
   return 0;
 }
