@@ -1,11 +1,9 @@
 #include <stdio.h>
+#include <string.h> /* memset */
 
-const int CLENGTH = 20;
 const int EGGNOG = 150;
 
 int main(int argc, char *argv[]) {
-
-  int containers[CLENGTH];
 
   FILE* fp = fopen("input.txt", "r");
   if(fp == 0) {
@@ -13,7 +11,12 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  for (int i = 0; i < CLENGTH; i++) {
+  int cLength = 0;
+  while (fscanf(fp, "%*d\n") != EOF) cLength++;
+  rewind(fp);
+
+  int containers[cLength];
+  for (int i = 0; i < cLength; i++) {
     fscanf(fp, "%d\n", containers + i);
   }
 
@@ -25,13 +28,14 @@ int main(int argc, char *argv[]) {
   opposed to about O(2^#containers) runtime. For the 20 containers in the input
   this does not matter at all, but at 50 containers, our Haskell solution takes
   about 35 seconds, while the C solution still only takes about 10ms. */
-  int dpCache[EGGNOG + 1][CLENGTH + 1] = {{0}};
+  int dpCache[EGGNOG + 1][cLength + 1];
+  memset(dpCache, 0, (EGGNOG + 1)*(cLength + 1)*sizeof(int));
   dpCache[0][0] = 1;
 
-  for (int i = 0; i < CLENGTH; i++) {
+  for (int i = 0; i < cLength; i++) {
     int size = containers[i];
     for (int k = EGGNOG + 1; k >= size; k--) {
-      for (int j = CLENGTH + 1; j >= 1; j--) {
+      for (int j = cLength + 1; j >= 1; j--) {
         dpCache[k][j] += dpCache[k - size][j - 1];
       }
     }
@@ -39,7 +43,7 @@ int main(int argc, char *argv[]) {
 
   // Dump dpCache:
   /*
-  for (int i = 0; i < CLENGTH + 1; i++) {
+  for (int i = 0; i < cLength + 1; i++) {
     for (int k = 0; k < EGGNOG + 1; k++) {
       printf("%d ", dpCache[k][i]);
     }
@@ -50,7 +54,7 @@ int main(int argc, char *argv[]) {
   int possibleTotal = 0;
   int possibleMin = -1;
 
-  for(int i = 0; i < CLENGTH + 1; i++) {
+  for(int i = 0; i < cLength + 1; i++) {
     if(possibleMin < 0 && dpCache[EGGNOG][i] != 0) {
       possibleMin = dpCache[EGGNOG][i];
     }
