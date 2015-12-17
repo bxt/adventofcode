@@ -26,7 +26,7 @@ Day | C | Haskell | Ruby | Description
 14  |   |   x     |  ☆   | [Racing Reindeer](http://adventofcode.com/day/14)
 15  | x |   x     |      | [Optimize cookie reciept](http://adventofcode.com/day/15)
 16  |   |   x     |      | [Aunt Detective](http://adventofcode.com/day/16)
-17  |   |         |      | [tba](http://adventofcode.com/day/17)
+17  |   |   x     |      | [Container bin packing with eggnog](http://adventofcode.com/day/17)
 18  |   |         |      | [tba](http://adventofcode.com/day/18)
 19  |   |         |      | [tba](http://adventofcode.com/day/19)
 20  |   |         |      | [tba](http://adventofcode.com/day/20)
