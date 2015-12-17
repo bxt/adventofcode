@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
 
   fclose(fp);
 
+  /* We use dynamic programming to cache the number of possibilities for each
+  amount of eggnog and for the number of containers used. This way we sacrifice
+  O(eggnog * #containers) memory and get O(eggnog * #containers^2) runtime as
+  opposed to about O(2^#containers) runtime. For the 20 containers in the input
+  this does not matter at all, but at 50 containers, our Haskell solution takes
+  about 35 seconds, while the C solution still only takes about 10ms. */
   int dpCache[EGGNOG + 1][CLENGTH + 1] = {{0}};
   dpCache[0][0] = 1;
 
