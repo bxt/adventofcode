@@ -27,7 +27,7 @@ Day | C | Haskell | Ruby | Description
 15  | x |   x     |      | [Optimize cookie reciept](http://adventofcode.com/day/15)
 16  |   |   x     |      | [Aunt Detective](http://adventofcode.com/day/16)
 17  | x |   x     |      | [Eggnog container subset sums](http://adventofcode.com/day/17)
-18  |   |         |      | [tba](http://adventofcode.com/day/18)
+18  |   |   x     |      | [GoL with Lights](http://adventofcode.com/day/18)
 19  |   |         |      | [tba](http://adventofcode.com/day/19)
 20  |   |         |      | [tba](http://adventofcode.com/day/20)
 21  |   |         |      | [tba](http://adventofcode.com/day/21)
