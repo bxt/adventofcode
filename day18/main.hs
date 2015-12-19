@@ -1,5 +1,4 @@
 import Data.Array.IArray
-import Control.Monad
 import Data.List (transpose, delete)
 
 type Coords = (Int, Int)
