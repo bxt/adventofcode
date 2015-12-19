@@ -13,11 +13,11 @@ findWithDefault def i a | inRange (bounds a) i = a!i
                         | otherwise            = def
 
 listsArray :: [[a]] -> Array Coords a
-listsArray aas = array bounds list
-  where xMax   = pred $ length $ head aas
-        yMax   = pred $ length aas
-        bounds = ((0, 0), (xMax, yMax))
-        list   = zip (range bounds) $ concat $ transpose aas
+listsArray = do
+  cols <- pred . length . head
+  rows <- pred . length
+  let bounds = ((0, 0), (cols, rows))
+  array bounds . zip (range bounds) . concat . transpose
 
 gol :: Coords -> Array Coords Light -> Light
 gol (x,y) a | a!(x,y) == 1 && n `elem` [2,3] = 1
