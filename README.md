@@ -29,7 +29,7 @@ Day | C | Haskell | Ruby | Description
 17  | x |   x     |      | [Eggnog container subset sums](http://adventofcode.com/day/17)
 18  |   |   x     |      | [GoL with Lights](http://adventofcode.com/day/18)
 19  |   |         |      | [tba](http://adventofcode.com/day/19)
-20  |   |         |      | [tba](http://adventofcode.com/day/20)
+20  | x |         |      | [Elves delivering by factor sums](http://adventofcode.com/day/20)
 21  |   |         |      | [tba](http://adventofcode.com/day/21)
 22  |   |         |      | [tba](http://adventofcode.com/day/22)
 23  |   |         |      | [tba](http://adventofcode.com/day/23)
