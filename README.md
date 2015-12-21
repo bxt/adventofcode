@@ -30,7 +30,7 @@ Day | C | Haskell | Ruby | Description
 18  |   |   x     |      | [GoL with Lights](http://adventofcode.com/day/18)
 19  |   |   x     |      | [Medicine with molecules and grammars](http://adventofcode.com/day/19)
 20  | x |         |      | [Elves delivering by factor sums](http://adventofcode.com/day/20)
-21  |   |         |      | [tba](http://adventofcode.com/day/21)
+21  |   |   x     |      | [Bossfight with items](http://adventofcode.com/day/21)
 22  |   |         |      | [tba](http://adventofcode.com/day/22)
 23  |   |         |      | [tba](http://adventofcode.com/day/23)
 24  |   |         |      | [tba](http://adventofcode.com/day/24)
