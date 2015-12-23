@@ -40,7 +40,7 @@ Day | C | Haskell | Ruby | Description
 20  | x |         |      | [Elves delivering by factor sums](http://adventofcode.com/day/20)
 21  |   |   x     |      | [Bossfight with items](http://adventofcode.com/day/21)
 22  |   |         |      | [Bossfight with Wizard and mana](http://adventofcode.com/day/22)
-23  |   |         |      | [tba](http://adventofcode.com/day/23)
+23  |   |         |      | [RAM Computer Simulation](http://adventofcode.com/day/23)
 24  |   |         |      | [tba](http://adventofcode.com/day/24)
 25  |   |         |      | [tba](http://adventofcode.com/day/25)
 Σ   | 6 |   19    |  5   |
