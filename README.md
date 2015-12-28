@@ -44,3 +44,10 @@ Day | C | Haskell | Ruby | Description
 24  |   |   x     |      | [Optimizing partitions](http://adventofcode.com/day/24)
 25  |   |   x     |      | [Cantor pairing and residue field](http://adventofcode.com/day/25)
 Σ   | 6 |   23    |  5   |
+
+Completion
+----------
+
+I finally completed all the puzzles:
+
+![image](https://cloud.githubusercontent.com/assets/639509/12027377/c69893f8-adc5-11e5-9a52-608641c6b3ee.png)
