@@ -41,6 +41,6 @@ Day | C | Haskell | Ruby | Description
 21  |   |   x     |      | [Bossfight with items](http://adventofcode.com/day/21)
 22  |   |         |      | [Bossfight with Wizard and mana](http://adventofcode.com/day/22)
 23  |   |   x     |      | [RAM Computer Simulation](http://adventofcode.com/day/23)
-24  |   |         |      | [Optimizing partitions](http://adventofcode.com/day/24)
+24  |   |   x     |      | [Optimizing partitions](http://adventofcode.com/day/24)
 25  |   |         |      | [tba](http://adventofcode.com/day/25)
-Σ   | 6 |   20    |  5   |
+Σ   | 6 |   21    |  5   |
