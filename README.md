@@ -45,6 +45,27 @@ Day | C | Haskell | Ruby | Description
 25  |   |   x     |      | [Cantor pairing and residue field](http://adventofcode.com/day/25)
 Σ   | 6 |   23    |  5   |
 
+Takeaways
+---------
+
+In addition to having a lot of fun solving the puzzles, I also applied some interesting programming techniques for the first time in **C** or **Ruby**:
+
+* Reading a file letter by letter [in C](day01/main.c), [in Haksell](day01/main.hs) and [in Ruby](day01/main.rb).
+* Using [Pointer arithmetics, function pointers and calling MD5 in C](day04/main.c).
+* Some advanced Regex usage in Ruby [here](day05/main.rb) and [here](day08/main.rb).
+* Creating [PNGs with Ruby](day06/main.rb).
+* Doing a neat [OOP simulation in Ruby](day14/main.rb).
+* Comparing a [naive Haskell solution](day17/main.hs) with a [fast C solution using DP](day17/main.c).
+
+Also I learned and applied these new concepts about **Haskell**:
+
+* Parsec, [very basicly](day02/main.hs) and in [complex situations](day07/main.hs)
+* [`->` as reader monad](day09/main.hs)
+* [Regexes](day15/main.hs)
+* [Arrays](day18/main.hs)
+* [Stacking monad transformers](day22/main.hs)
+* [Interpreting a very simple programming language](day23/main.hs)
+
 Completion
 ----------
 
