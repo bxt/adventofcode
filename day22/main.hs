@@ -11,7 +11,7 @@ data Character = Character { nick :: String, baseStats :: Stats } deriving (Show
 data Stats = Stats { hp, damage, armor, mana :: Int } deriving (Show, Eq)
 data EffectType = Shield | Poison | Recharge deriving (Show, Eq)
 data Effect = Effect { from :: EffectType, ticksLeft :: Int} deriving Show
-data Game = Game { c1, c2 :: Character, effects :: [Effect], manaUse :: Int } deriving Show
+data Game = Game { player, boss :: Character, effects :: [Effect], manaUse :: Int } deriving Show
 
 type Move a = MaybeT (StateT Game []) a
 
@@ -23,82 +23,64 @@ instance Monoid Stats where
                           , mana   = mana   s1 + mana   s2
                           }
 
-parseNumber :: Parsec String u Int
-parseNumber = read <$> many1 digit
-
 parseInput :: String -> Parsec String u Character
 parseInput n = Character n <$> parseStats <* eof where
-  parseStats = (\h d -> mempty {hp = h, damage = d}) <$> the "Hit Points" <*> the "Damage"
+  parseStats = (\h d -> mempty { hp = h, damage = d }) <$> the "Hit Points" <*> the "Damage"
   the s      = string (s ++ ": ") *> parseNumber <* endOfLine
+  parseNumber = read <$> many1 digit
 
-magicMissile , drain, shield, poison, recharge :: Move()
-spells :: Move()
-spells = join $ (lift.lift) [magicMissile , drain, shield, poison, recharge]
+loose, win :: Move()
+loose = lift $ lift []
+win = fail "Le boss is dead!"
 
-magicMissile = useMana 53 >> damageBoss 4
-
-drain = useMana 73 >> damagePlayer (-2) >> damageBoss 2
-
-shield = do
-  useMana 113
-  armorizePlayer 7
-  addEffect Effect { from = Shield, ticksLeft = 6}
-
-poison = do
-  useMana 173
-  addEffect Effect { from = Poison, ticksLeft = 6}
-
-recharge = do
-  useMana 229
-  addEffect Effect { from = Recharge, ticksLeft = 5}
-
-useMana :: Int -> Move()
-useMana n = ensureMana n >> addMana (-n) >> registerMana n
-
-getStat :: (Game -> Character) -> (Stats -> Int) -> Move Int
+getStat :: (Game -> Character) -> (Stats -> a) -> Move a
 getStat c f = lift $ gets (f . baseStats . c)
 
-ensureMana :: Int -> Move()
-ensureMana n = do
-  playerMana <- getStat c1 mana
-  unless (playerMana >= n) loose
+appendPlayerStats :: Stats -> Move()
+appendPlayerStats s = lift $ modify (\g -> g { player = (player g) { baseStats = s `mappend` baseStats (player g) } })
 
-registerMana :: Int -> Move()
-registerMana n = lift $ modify (\g -> g { manaUse = manaUse g + n })
+appendBossStats :: Stats -> Move()
+appendBossStats s = lift $ modify (\g -> g { boss = (boss g) { baseStats = s `mappend` baseStats (boss g) } })
 
-modifyPlayerStats :: (Stats -> Stats) -> Move()
-modifyPlayerStats f = lift $ modify (\g -> g { c1 = (c1 g) { baseStats = f (baseStats $ c1 g) } })
-
-modifyBossStats :: (Stats -> Stats) -> Move()
-modifyBossStats f = lift $ modify (\g -> g { c2 = (c2 g) { baseStats = f (baseStats $ c2 g) } })
-
--- | Change mana of player
-addMana :: Int -> Move()
-addMana n = modifyPlayerStats (\s -> s { mana = mana s + n })
-
--- | change armor of player
-armorizePlayer :: Int -> Move()
-armorizePlayer n = modifyPlayerStats (\s -> s { armor = armor s + n })
-
--- | change hp of player
+-- | change hp of player, check for death
 damagePlayer :: Int -> Move()
 damagePlayer n = do
-  modifyPlayerStats (\s -> s { hp = hp s - n })
-  playerHp <- getStat c1 hp
+  appendPlayerStats $ mempty { hp = -n }
+  playerHp <- getStat player hp
   when (playerHp <= 0) loose
 
-loose :: Move()
-loose = lift $ lift []
-
--- | change hp of boss
+-- | change hp of boss, check for death
 damageBoss :: Int -> Move()
 damageBoss n = do
-  modifyBossStats (\s -> s { hp = hp s - n })
-  bossHp <- getStat c2 hp
+  appendBossStats $ mempty { hp = -n }
+  bossHp <- getStat boss hp
   when (bossHp <= 0) win
 
-win :: Move()
-win = fail "Le boss is dead!"
+addPlayerMana :: Int -> Move()
+addPlayerMana n = appendPlayerStats $ mempty { mana = n }
+
+armorizePlayer :: Int -> Move()
+armorizePlayer n = appendPlayerStats $ mempty { armor = n }
+
+spells :: Move()
+spells = join $ (lift.lift) [magicMissile , drain, shield, poison, recharge] where
+  magicMissile , drain, shield, poison, recharge :: Move()
+  magicMissile = useMana 53 >> damageBoss 4
+  drain = useMana 73 >> damagePlayer (-2) >> damageBoss 2
+  shield = useMana 113 >> armorizePlayer 7
+        >> addEffect Effect { from = Shield, ticksLeft = 6}
+  poison = useMana 173 >> addEffect Effect { from = Poison, ticksLeft = 6}
+  recharge = useMana 229 >> addEffect Effect { from = Recharge, ticksLeft = 5}
+
+  useMana :: Int -> Move()
+  useMana n = ensureMana n >> addPlayerMana (-n) >> registerMana n where
+    ensureMana n = do
+      playerMana <- getStat player mana
+      unless (playerMana >= n) loose
+    registerMana n = lift $ modify (\g -> g { manaUse = manaUse g + n })
+
+setEffects :: [Effect] -> Move()
+setEffects es = lift $ modify (\g -> g { effects = es })
 
 -- | check if effect is active, add effect to list
 addEffect :: Effect -> Move()
@@ -106,64 +88,54 @@ addEffect e = do
   es <- lift $ gets effects
   if from e `elem` map from es
     then loose
-    else lift $ modify (\g -> g { effects = e:es })
+    else setEffects $ e:es
 
--- | Play rounds untill game ends
+-- | decrease ticks of each effect and apply effect
+applyEffects :: Move()
+applyEffects = do
+  es <- lift $ gets effects
+  forM_ es $ applyEffect . from
+  setEffects $ map (\e -> e { ticksLeft = pred $ ticksLeft e }) es
+  where
+    applyEffect :: EffectType -> Move()
+    applyEffect Poison   = damageBoss 3
+    applyEffect Recharge = addPlayerMana 101
+    applyEffect _        = return ()
+
+-- | remove the effect from the list and handle wear off
+wearOffEffects :: Move()
+wearOffEffects = do
+  es <- lift $ gets effects
+  forM_ (filter (not . active) es) $ wearOffEffect . from
+  setEffects $ filter active es
+  where
+    active :: Effect -> Bool
+    active = (>0) . ticksLeft
+    wearOffEffect :: EffectType -> Move()
+    wearOffEffect Shield = armorizePlayer (-7)
+    wearOffEffect _      = return ()
+
+calcBossDamage :: Move Int
+calcBossDamage = fightDamage <$> getStat boss id <*> getStat player id where
+  fightDamage :: Stats -> Stats -> Int
+  fightDamage s1 s2 = max 1 $ damage s1 - armor s2
+
+-- | Play rounds until game ends
 rounds :: Bool -> Move()
 rounds hard = do
   when hard (damagePlayer 1)
   playerAction
   bossAction
   rounds hard
+  where
+    playerAction = handleEffects >> spells
+    bossAction = handleEffects >> bossAttack
+    bossAttack = calcBossDamage >>= damagePlayer
+    handleEffects = applyEffects >> wearOffEffects
 
-playerAction :: Move()
-playerAction = handleEffects >> spells
-
-bossAction :: Move()
-bossAction = handleEffects >> bossAttack
-
-bossAttack :: Move()
-bossAttack = calcBossDamage >>= damagePlayer
-
-calcBossDamage :: Move Int
-calcBossDamage = fightDamage <$> lift (gets (baseStats . c2)) <*> lift (gets (baseStats . c1))
-
-handleEffects :: Move()
-handleEffects = applyEffects >> wearOffEffects
-
--- | decrease ticks of each effect and call applyEffect
-applyEffects :: Move()
-applyEffects = do
-  es <- lift $ gets effects
-  forM_ es $ applyEffect . from
-  lift $ modify (\g -> g { effects = map (\e -> e { ticksLeft = pred $ ticksLeft e }) es })
-
--- | Effect moves executed for every round the effect is active
-applyEffect :: EffectType -> Move()
-applyEffect Poison   = damageBoss 3
-applyEffect Recharge = addMana 101
-applyEffect _        = return ()
-
--- | remove the effect from the list and call wearOffEffect
-wearOffEffects :: Move()
-wearOffEffects = do
-  es <- lift $ gets effects
-  forM_ (filter (not . active) es) $ wearOffEffect . from
-  lift $ modify (\g -> g { effects = filter active es })
-
-active :: Effect -> Bool
-active = (>0) . ticksLeft
-
--- | Effect moves executed when the effect wars off
-wearOffEffect :: EffectType -> Move()
-wearOffEffect Shield = armorizePlayer (-7)
-wearOffEffect _      = return ()
-
-fightDamage :: Stats -> Stats -> Int
-fightDamage s1 s2 = max 1 $ damage s1 - armor s2
-
-manaNeeded :: Bool -> Character -> Character -> Int
-manaNeeded hard pl bo = minimum $ map manaUse $ execStateT (runMaybeT (rounds hard)) Game { c1 = pl, c2 = bo, effects = [], manaUse = 0 }
+games :: Bool -> Character -> Character -> [Game]
+games hard pl bo = execStateT (runMaybeT (rounds hard)) start where
+  start = Game { player = pl, boss = bo, effects = [], manaUse = 0 }
 
 fromRight :: Show a => Either a b -> b
 fromRight = either (error . show) id
@@ -176,4 +148,4 @@ main = mainP2 where
     boss       <- fromRight <$> parseFromFile (parseInput "Boss") "input.txt"
     let player =  Character { nick = "Henry Case", baseStats = mempty { hp = 50, mana = 500 } }
 
-    print $ manaNeeded hard player boss
+    print $ minimum $ map manaUse $ games hard player boss
