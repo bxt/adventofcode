@@ -1,9 +1,9 @@
 import Data.List.Split (splitOn)
 import Data.Function (on)
 
-data Direction = N | E | S | W deriving (Show, Enum)
+data Direction = N | E | S | W deriving Enum
 
-data Turn = R | L deriving (Show, Read)
+data Turn = R | L deriving Read
 
 turn :: Turn -> Direction -> Direction
 turn R W = N
@@ -22,7 +22,7 @@ step E (x, y) = (succ x, y)
 step S (x, y) = (x, succ y)
 step W (x, y) = (pred x, y)
 
-data Instruction = Turn Turn | Step deriving Show
+data Instruction = Turn Turn | Step
 
 parseInstructions :: String -> [Instruction]
 parseInstructions = concatMap parseInstruction . splitOn ", " where
