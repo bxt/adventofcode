@@ -4,15 +4,13 @@ class TaxiCab
   DIRECTIONS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
   attr_reader :position
 
-  def initialize()
+  def initialize
     @position = [0, 0]
     @direction = 0
   end
 
-  def step()
-    x, y = @position
-    xOffset, yOffset = heading
-    @position = [xOffset + x, yOffset + y]
+  def step
+    @position = @position.zip(heading).map { |a| a.inject(:+) }
   end
 
   def turn(turn_direction)
