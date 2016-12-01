@@ -1,28 +1,27 @@
 file = File.read("input.txt")
 
-i = file.split(", ")
+instructions = file.split(", ").map do |instruction_string|
+  {
+    turn: instruction_string[0].downcase.to_sym,
+    distance: instruction_string[1..-1].to_i,
+  }
+end
 
-dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
-cdir = 0
+current_direction = 0
 
-da = {"R" => 1, "L" => -1}
-di = 0
+turn_direction_offset = {r: 1, l: -1}
 
-st = [0, 0]
+current_position = [0, 0]
 
-res = i.each do |p|
-  x, y = st
-  dp = da[p[0]]
-  puts "-#{p[0]}-"
-  if dp
-    di += dp
-    di = di % 4
-    xo, yo = dirs[di]
-    kk = p[1..-1].to_i
-    st = [xo*kk + x, yo*kk + y]
-  end
-end.to_a
+res = instructions.each do |instruction|
+  x, y = current_position
+  direction_offset = turn_direction_offset[instruction[:turn]]
+  current_direction = (current_direction + direction_offset) % directions.size
+  xOffset, yOffset = directions[current_direction]
+  distance = instruction[:distance]
+  current_position = [xOffset*distance + x, yOffset*distance + y]
+end
 
-puts st
-puts st.sum
+puts current_position.map(&:abs).inject(:+)
