@@ -13,7 +13,7 @@ added a short summary for each day. I marked the solutions which I consider
 especially valuable or pretty with a star (☆).
 
 Day | Ruby | Haskell | Description
-----|------|-----------------------------------------------------------
+----|------|---------|---------------------------------------------------------------
 01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)
 02  |      |         | [tba](http://adventofcode.com/2016/day/2)
 03  |      |         | [tba](http://adventofcode.com/2016/day/3)
