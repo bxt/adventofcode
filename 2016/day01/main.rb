@@ -1,3 +1,5 @@
+require 'set'
+
 class TaxiCab
   DIRECTIONS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
   attr_reader :position
@@ -46,9 +48,18 @@ peugeot406 = TaxiCab.new
 
 instructions = load_instruction_file("input.txt")
 
+visited_positions = Set.new
+part_two_answer = nil
+
 instructions.each do |instruction|
   peugeot406.turn(instruction[:turn])
-  instruction[:distance].times { peugeot406.step }
+  instruction[:distance].times do
+    peugeot406.step
+    unless visited_positions.add?(peugeot406.position)
+      part_two_answer ||= peugeot406.distance
+    end
+  end
 end
 
-puts peugeot406.distance
+puts "Part One: #{peugeot406.distance}"
+puts "Part Two: #{part_two_answer}"
