@@ -1,27 +1,54 @@
-file = File.read("input.txt")
+class TaxiCab
+  DIRECTIONS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+  attr_reader :position
 
-instructions = file.split(", ").map do |instruction_string|
-  {
-    turn: instruction_string[0].downcase.to_sym,
-    distance: instruction_string[1..-1].to_i,
-  }
+  def initialize()
+    @position = [0, 0]
+    @direction = 0
+  end
+
+  def step()
+    x, y = @position
+    xOffset, yOffset = heading
+    @position = [xOffset + x, yOffset + y]
+  end
+
+  def turn(turn_direction)
+    turn_by({r: 1, l: -1}[turn_direction])
+  end
+
+  def distance
+    @position.map(&:abs).inject(:+)
+  end
+
+  private
+
+  def turn_by(offset)
+    @direction = (@direction + offset) % DIRECTIONS.size
+  end
+
+  def heading
+    DIRECTIONS[@direction]
+  end
 end
 
-directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-
-current_direction = 0
-
-turn_direction_offset = {r: 1, l: -1}
-
-current_position = [0, 0]
-
-res = instructions.each do |instruction|
-  x, y = current_position
-  direction_offset = turn_direction_offset[instruction[:turn]]
-  current_direction = (current_direction + direction_offset) % directions.size
-  xOffset, yOffset = directions[current_direction]
-  distance = instruction[:distance]
-  current_position = [xOffset*distance + x, yOffset*distance + y]
+def load_instruction_file(file_name)
+  file_contents = File.read(file_name)
+  file_contents.split(", ").map do |instruction_string|
+    {
+      turn: instruction_string[0].downcase.to_sym,
+      distance: instruction_string[1..-1].to_i,
+    }
+  end
 end
 
-puts current_position.map(&:abs).inject(:+)
+peugeot406 = TaxiCab.new
+
+instructions = load_instruction_file("input.txt")
+
+instructions.each do |instruction|
+  peugeot406.turn(instruction[:turn])
+  instruction[:distance].times { peugeot406.step }
+end
+
+puts peugeot406.distance
