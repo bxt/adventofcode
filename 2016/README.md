@@ -15,7 +15,7 @@ especially valuable or pretty with a star (☆).
 Day | Ruby | Haskell | Description
 ----|------|---------|---------------------------------------------------------------
 01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)
-02  |      |         | [tba](http://adventofcode.com/2016/day/2)
+02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)
 03  |      |         | [tba](http://adventofcode.com/2016/day/3)
 04  |      |         | [tba](http://adventofcode.com/2016/day/4)
 05  |      |         | [tba](http://adventofcode.com/2016/day/5)
