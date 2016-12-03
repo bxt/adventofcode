@@ -16,7 +16,7 @@ Day | Ruby | Haskell | Description                                              
 ----|------|---------|-------------------------------------------------------------------|-----------------
 01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)    | AWK
 02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)   | Brainfuck
-03  |      |         | [tba](http://adventofcode.com/2016/day/3)                         | C
+03  |  x   |         | [tba](http://adventofcode.com/2016/day/3)                         | C
 04  |      |         | [tba](http://adventofcode.com/2016/day/4)                         | C++
 05  |      |         | [tba](http://adventofcode.com/2016/day/5)                         | CoffeeScript
 06  |      |         | [tba](http://adventofcode.com/2016/day/6)                         | D
