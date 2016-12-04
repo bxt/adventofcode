@@ -15,7 +15,7 @@ especially valuable or pretty with a star (☆).
 Day | Ruby | Haskell | Description                                                         | Letter Language*
 ----|------|---------|---------------------------------------------------------------------|-----------------
 01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)      | AWK
-02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)     | Brainfuck
+02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)     | [Brainfuck](day02/part1.bf)
 03  |  x   |         | [(Im)possible triangles](http://adventofcode.com/2016/day/3)        | C
 04  |  x   |         | [Room checksums and encryption](http://adventofcode.com/2016/day/4) | C++
 05  |      |         | [tba](http://adventofcode.com/2016/day/5)                           | CoffeeScript
@@ -39,4 +39,4 @@ Day | Ruby | Haskell | Description                                              
 23  |      |         | [tba](http://adventofcode.com/2016/day/23)                          | Visual Basic
 24  |      |         | [tba](http://adventofcode.com/2016/day/24)                          | Wolfram Language
 25  |      |         | [tba](http://adventofcode.com/2016/day/25)                          | Zsh
-Σ   |  1   |    1    |                                                                     | * coming soon
+Σ   |  4   |    1    |                                                                     | * coming soon
