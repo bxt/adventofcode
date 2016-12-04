@@ -22,7 +22,12 @@ U: DIDNT? >>[ DID- <<
 /U /DIDNT? >>]<<
 /NOT R [-]]
 R: DIDNT? >>[ DID- <<
-  increase x >>>+<<<
+  increase x if x != 2
+    move x to h1 and neg to h2 >>>[->>-<<<<+>>]<<<
+    restore x from h1 >[->>+<<]<
+    add 2 to h2 >>>>>++<<<<<
+    if h2 != 0 increase x >>>>>[<<+>>[-]]<<<<<
+  /increase
 /R /DIDNT? >>]<<
 /NOT L [-]]
 L: DIDNT? >>[ DID- <<
@@ -34,7 +39,12 @@ L: DIDNT? >>[ DID- <<
 /L /DIDNT? >>]<<
 /NOT D [-]]
 D: DIDNT? >>[ DID- <<
-  increase y >>>>+<<<<
+  increase y if y != 2
+    move y to h1 and neg to h2 >>>>[->-<<<<+>>>]<<<<
+    restore y from h1 >[->>>+<<<]<
+    add 2 to h2 >>>>>++<<<<<
+    if h2 != 0 increase y >>>>>[<+>[-]]<<<<<
+  /increase
 /D /DIDNT? >>]<<
 /NOT LF [-]]
 LF: DIDNT? >>[ DID- <<
@@ -42,6 +52,7 @@ LF: DIDNT? >>[ DID- <<
   restore x from h1 >[->>+<<]<
   move y to h1 and 3*y to h2 >>>>[->+++<<<<+>>>]<<<<
   restore y from h1 >[->>>+<<<]<
+  add 1 to h2 >>>>>+<<<<<
   dec2str h2 using h1 >++++++[->>>>++++++++<<<<]<
   print h2 >>>>>.[-]<<<<<
 /LF /DIDNT? >>]<<
