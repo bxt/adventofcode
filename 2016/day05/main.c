@@ -5,8 +5,9 @@
 
 #include <openssl/md5.h>
 
-const char PLACEHOLDER = '_';
+const char PLACEHOLDER = '*';
 const int SEARCH_MAX = 333333333;
+const int CODE_LENGTH = 8;
 
 void stringMd5Sum(unsigned char* md, char* into) {
   int i;
@@ -47,9 +48,17 @@ typedef bool (*updater)(char* code, char firstAfterZeros, char secondAfterZeros)
 
 struct codeEnv {
    bool done;
-   char code[9];
+   char code[CODE_LENGTH + 1];
    updater updater;
 };
+
+struct codeEnv makeCodeEnv(updater updater) {
+  struct codeEnv result = {false, {0}, updater};
+  for(int i = 0; i < CODE_LENGTH; i++) {
+    result.code[i] = PLACEHOLDER;
+  }
+  return result;
+}
 
 int main(int argc, char *argv[]) {
   //char key[23] = "abc";
@@ -57,10 +66,10 @@ int main(int argc, char *argv[]) {
   int keyLength = strlen(key);
 
   struct codeEnv codeEnvs[] = {
-    {false, "________", codeUpdateOne},
-    {false, "________", codeUpdateTwo}
+    makeCodeEnv(codeUpdateOne),
+    makeCodeEnv(codeUpdateTwo),
   };
-  int codeEnvLenght = 2;
+  int codeEnvLenght = sizeof(codeEnvs)/sizeof(struct codeEnv);
 
   printf("Starting Easter Bunny password search...\n");
 
