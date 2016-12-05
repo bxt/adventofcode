@@ -16,9 +16,9 @@ Day | Ruby | Haskell | Description                                              
 ----|------|---------|---------------------------------------------------------------------|-----------------
 01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)      | AWK
 02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)     | [Brainfuck](day02/part1.bf)
-03  |  x   |         | [(Im)possible triangles](http://adventofcode.com/2016/day/3)        | C
+03  |  x   |         | [(Im)possible triangles](http://adventofcode.com/2016/day/3)        | CoffeeScript
 04  |  x   |         | [Room checksums and encryption](http://adventofcode.com/2016/day/4) | C++
-05  |      |         | [tba](http://adventofcode.com/2016/day/5)                           | CoffeeScript
+05  |      |         | [MD5 door code search](http://adventofcode.com/2016/day/5)          | [C](day05/main.c)
 06  |      |         | [tba](http://adventofcode.com/2016/day/6)                           | D
 07  |      |         | [tba](http://adventofcode.com/2016/day/7)                           | Elixir
 08  |      |         | [tba](http://adventofcode.com/2016/day/8)                           | Erlang
