@@ -24,7 +24,7 @@ bool codeUpdateOne(char* code, char firstAfterZeros, char secondAfterZeros) {
   char* firstSpace = strchr(code, PLACEHOLDER);
   if (firstSpace) {
     *firstSpace = firstAfterZeros;
-    return firstSpace == code + strlen(code);
+    return firstSpace == code + strlen(code) - 1;
   }
   return true;
 }
