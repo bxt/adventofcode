@@ -5,6 +5,9 @@
 
 #include <openssl/md5.h>
 
+const char PLACEHOLDER = '_';
+const int SEARCH_MAX = 333333333;
+
 void stringMd5Sum(unsigned char* md, char* into) {
   int i;
   for(i = 0; i < MD5_DIGEST_LENGTH; i++) {
@@ -17,55 +20,76 @@ int startsWithFiveZeros(unsigned char* r) {
   return r[0] == 0 && r[1] == 0 && r[2] < 16;
 }
 
-const int SEARCH_MAX = 333333333;
+bool codeUpdateOne(char* code, char firstAfterZeros, char secondAfterZeros) {
+  char* firstSpace = strchr(code, PLACEHOLDER);
+  if (firstSpace) {
+    *firstSpace = firstAfterZeros;
+    return firstSpace == code + strlen(code);
+  }
+  return true;
+}
+
+bool codeUpdateTwo(char* code, char firstAfterZeros, char secondAfterZeros) {
+  int len = strlen(code);
+  int index = firstAfterZeros - '0';
+  if (index < len && code[index] == PLACEHOLDER) {
+    code[index] = secondAfterZeros;
+  }
+
+  bool done = true;
+  for (int i = 0; i < len; i++) {
+    done = done && code[i] != PLACEHOLDER;
+  }
+  return done;
+}
+
+typedef bool (*updater)(char* code, char firstAfterZeros, char secondAfterZeros);
+
+struct codeEnv {
+   bool done;
+   char code[9];
+   updater updater;
+};
 
 int main(int argc, char *argv[]) {
-
-  int (*condition)(unsigned char* r) = startsWithFiveZeros;
-
   //char key[23] = "abc";
   char key[23] = "ffykfhsq";
   int keyLength = strlen(key);
 
-  char codeOne[] = "        ";
-  int codeOneLen = strlen(codeOne);
-  char codeTwo[] = "        ";
-  int codeTwoLen = strlen(codeTwo);
+  struct codeEnv codeEnvs[] = {
+    {false, "________", codeUpdateOne},
+    {false, "________", codeUpdateTwo}
+  };
+  int codeEnvLenght = 2;
 
   printf("Starting Easter Bunny password search...\n");
 
-  int codeOneIndex = 0;
-  bool done = 0;
+  bool done = false;
   for (int resultNumber = 0; !done && resultNumber < SEARCH_MAX; resultNumber++) {
     unsigned char result[MD5_DIGEST_LENGTH];
-    char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
 
     sprintf(key + keyLength, "%d", resultNumber);
     MD5((unsigned char*) key, strlen(key), result);
 
-    if (condition(result))  {
+    if (startsWithFiveZeros(result))  {
+      char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
       stringMd5Sum(result, resultString);
       //printf("\nat: %d\nmd5: %s\n\n", resultNumber, resultString);
-
       char firstAfterZeros = resultString[5];
       char secondAfterZeros = resultString[6];
 
-      if (codeOneIndex < codeOneLen) {
-        codeOne[codeOneIndex++] = firstAfterZeros;
+      done = true;
+      for(int i = 0; i < codeEnvLenght; i++) {
+        struct codeEnv* codeEnv = codeEnvs + i;
+        if (!codeEnv->done) {
+          codeEnv->done = codeEnv->updater(codeEnv->code, firstAfterZeros, secondAfterZeros);
+        }
+        printf("(%s) ", codeEnv->code);
+        done = done && codeEnv->done;
       }
 
-      int codeTwoIndex = firstAfterZeros - '0';
-      if (codeTwoIndex < codeTwoLen && codeTwo[codeTwoIndex] == ' ') {
-        codeTwo[codeTwoIndex] = secondAfterZeros;
-      }
-
-      printf("(%s) (%s)\r", codeOne, codeTwo);
+      printf("@ %d\r", resultNumber);
       fflush(stdout);
-
-      done = codeOneIndex >= codeOneLen;
-      for (int i = 0; i < codeTwoLen; i++) {
-        done = done && codeTwo[i] != ' ';
-      }
     }
   }
 
