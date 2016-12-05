@@ -8,7 +8,7 @@ MEMORY LAYOUT: didnt CHAR h1 count
 |
 | [ not an open brace
 | | -[<-> not a close brace so did
-| | | >++++++++[<+++++>-]+ restore: add 41 using h1
+| | | >++++++++[<+++++>-]<+ restore: add 41 using h1
 | | | . print
 | | [-]]
 | | <[-> close brace: didnt? so did
