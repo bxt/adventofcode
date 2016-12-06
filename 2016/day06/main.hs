@@ -1,10 +1,17 @@
 import Data.List (group, sort, sortOn, transpose)
+import Control.Monad (forM_)
 
 columnValuesByFrequencyAscending :: (Ord a, Eq a) => [[a]] -> [[a]]
-columnValuesByFrequencyAscending = map (map head . sortOn length . group . sort) . transpose
+columnValuesByFrequencyAscending =
+  map ( map head
+      . sortOn length
+      . group
+      . sort
+      )
+  . transpose
 
 main :: IO()
 main = do
   result <- columnValuesByFrequencyAscending . lines <$> readFile "input.txt"
-  putStr "Part One: " >> putStrLn (map last result)
-  putStr "Part Two: " >> putStrLn (map head result)
+  forM_ [("One", last), ("Two", head)] $ \(part, aggregator) -> do
+    putStrLn $ "Part " ++ part ++ ": " ++ map aggregator result
