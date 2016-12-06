@@ -19,7 +19,7 @@ Day | Ruby | Haskell | Description                                              
 03  |  x   |         | [(Im)possible triangles](http://adventofcode.com/2016/day/3)        | CoffeeScript
 04  |  x   |         | [Room checksums and encryption](http://adventofcode.com/2016/day/4) | C++
 05  |      |         | [MD5 door code search](http://adventofcode.com/2016/day/5)          | [C](day05/main.c)
-06  |      |         | [tba](http://adventofcode.com/2016/day/6)                           | D
+06  |  x   |         | [Jammed Santa repetition code](http://adventofcode.com/2016/day/6)  | D
 07  |      |         | [tba](http://adventofcode.com/2016/day/7)                           | Elixir
 08  |      |         | [tba](http://adventofcode.com/2016/day/8)                           | Erlang
 09  |      |         | [tba](http://adventofcode.com/2016/day/9)                           | Flow.js
@@ -39,4 +39,4 @@ Day | Ruby | Haskell | Description                                              
 23  |      |         | [tba](http://adventofcode.com/2016/day/23)                          | Visual Basic
 24  |      |         | [tba](http://adventofcode.com/2016/day/24)                          | Wolfram Language
 25  |      |         | [tba](http://adventofcode.com/2016/day/25)                          | Zsh
-Σ   |  4   |    1    |                                                                     | * coming soon
+Σ   |  5   |    1    |                                                                     | * coming soon
