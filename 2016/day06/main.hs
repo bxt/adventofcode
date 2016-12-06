@@ -13,5 +13,5 @@ columnValuesByFrequencyAscending =
 main :: IO()
 main = do
   result <- columnValuesByFrequencyAscending . lines <$> readFile "input.txt"
-  forM_ [("One", last), ("Two", head)] $ \(part, aggregator) -> do
+  forM_ [("One", last), ("Two", head)] $ \(part, aggregator) ->
     putStrLn $ "Part " ++ part ++ ": " ++ map aggregator result
