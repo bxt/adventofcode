@@ -19,5 +19,5 @@ parts = {"One" => :last, "Two" => :first}
 
 parts.each do |part, aggregator|
   result = column_values_by_frequency_ascending.map(&aggregator)
-  puts "Part#{part}: #{result.join}"
+  puts "Part #{part}: #{result.join}"
 end
