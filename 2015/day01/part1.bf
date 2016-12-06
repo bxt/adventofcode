@@ -1,5 +1,5 @@
 PROGRAM: COUNT BRACES
-MEMORY LAYOUT: didnt CHAR h1 count
+MEMORY LAYOUT: didnt CHAR h1 count h2 h3 neg
 
 +> set/skip didnt
 
@@ -12,16 +12,38 @@ MEMORY LAYOUT: didnt CHAR h1 count
 | | | . print
 | | [-]]
 | | <[-> close brace: didnt? so did
-| | | >>-<< decrease count
+| | | >> scope count
+| | | | >+< set h2 to 1
+| | | | [>-]>[-> h2 = 0 and scope h3; if count = 0
+| | | | >+< set neg
+| | | | ] end if count = 0
+| | | | << end scope h3
+| | | | - decrease count
+| | | << end scope count
 | | <]>
 | ]
 | <[-> open brace: didnt? so did
-| | >>+<< increment count
+| | >> scope count
+| | | + increment count
+| | | >+< set h2 to 1
+| | | [>-]>[-> h2 = 0 and scope h3; if count = 0
+| | | >-< unset neg
+| | | ] end if count = 0
+| | | << end scope h3
+| | << end scope count
 | <]>
 | <+> didnt
 [-],]
 
 <-> did
+
+>>>>>[-<<< if neg scope count and neg=0
+| >>+++++++++[<+++++>-]<< put 45 into h2 using h3
+| >.< print a minus with ascii 45 in h2
+| >[-]< h2 = 0
+| [+>+<] h2 = minus count
+| >[-<+>]< and copy h2 to count
+>>>]<<<<< end if neg scope count
 
 >> go to count
 
