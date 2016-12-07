@@ -1,4 +1,36 @@
 
+class DelimitedChunks
+  attr_accessor :delimiters, :chunk_size
+
+  def initialize(delimiters, chunk_size)
+    @delimiters = delimiters
+    @chunk_size = chunk_size
+  end
+
+  def collect_inside_outside(array)
+    inside = []
+    outside = []
+    is_inside = false
+    array.each_cons(chunk_size) do |chunk|
+      case chunk.last
+      when delimiters[:open]
+        is_inside = true
+      when delimiters[:close]
+        is_inside = false
+      else
+        if (chunk & delimiters.values).empty?
+          if is_inside
+            inside.push(chunk)
+          else
+            outside.push(chunk)
+          end
+        end
+      end
+    end
+    [inside, outside]
+  end
+end
+
 class Ipv7Address
   attr_accessor :ip_string
 
@@ -7,19 +39,21 @@ class Ipv7Address
   end
 
   def supports_tls?
-    abbas_inside, abbas_outside = collect_inside_outside(4) do |w, x, y, z, in_brackets|
-      [w, x] == [z, y] && z != y
+    abbas_inside, abbas_outside = chunks(4).map do |chunk_list|
+      chunk_list.find_all do |w, x, y, z|
+        [w, x] == [z, y] && z != y
+      end
     end
     abbas_outside.any? && abbas_inside.none?
   end
 
   def supports_ssl?
-    abas_inside, abas_outside = collect_inside_outside(3) do |x, y, z, in_brackets|
-      if x == z && z != y
-        in_brackets ? [z,y] : [y,z]
+    abas_inside, abas_outside = chunks(3).map do |chunk_list|
+      chunk_list.find_all do |x, y, z|
+        x == z && z != y
       end
     end
-    abas_in_both = abas_inside & abas_outside
+    abas_in_both = abas_inside & abas_outside.map{ |x, y, z| [y, x, y] }
     abas_in_both.any?
   end
 
@@ -27,28 +61,8 @@ class Ipv7Address
 
   BRACKETS = {open: "[", close: "]"}
 
-  def collect_inside_outside(n)
-    inside = []
-    outside = []
-    in_brackets = false
-    ip_string.chars.each_cons(n) do |char_list|
-      case char_list.last
-      when BRACKETS[:open]
-        in_brackets = true
-      when BRACKETS[:close]
-        in_brackets = false
-      else
-        if (char_list & BRACKETS.values).empty?
-          result = yield *char_list, in_brackets
-          if in_brackets
-            inside.push(result)
-          else
-            outside.push(result)
-          end
-        end
-      end
-    end
-    [inside.compact, outside.compact]
+  def chunks(chunk_size, &block)
+    DelimitedChunks.new(BRACKETS, chunk_size).collect_inside_outside(ip_string.chars, &block)
   end
 end
 
@@ -69,6 +83,46 @@ if __FILE__ == $PROGRAM_NAME
 end
 
 if defined? RSpec
+  RSpec.describe DelimitedChunks do
+    context "with numbers" do
+      subject(:instance) { DelimitedChunks.new({open: -1, close: -2}, 2) }
+      describe :collect_inside_outside do
+        subject(:result) { instance.collect_inside_outside([1,2,-1,3,4,-2,5,6,-1,7,8,9,-2,10]) }
+
+        describe "first result (inside)" do
+          it "collects elements" do
+            expect(result[0]).to match_array([[3,4],[7,8],[8,9]])
+          end
+        end
+
+        describe "second result (outside)" do
+          it "collects elements" do
+            expect(result[1]).to match_array([[1,2],[5,6]])
+          end
+        end
+      end
+    end
+
+    context "with strings" do
+      subject(:instance) { DelimitedChunks.new({open: "(", close: ")"}, 3) }
+      describe :collect_inside_outside do
+        subject(:result) { instance.collect_inside_outside("abc(fed)ghi".chars) }
+
+        describe "first result (inside)" do
+          it "collects elements" do
+            expect(result[0]).to match_array(["fed".chars])
+          end
+        end
+
+        describe "second result (outside)" do
+          it "collects elements" do
+            expect(result[1]).to match_array(["abc".chars, "ghi".chars])
+          end
+        end
+      end
+    end
+  end
+
   RSpec.describe Ipv7Address do
     examples = {
       supports_tls?: {
