@@ -34,8 +34,8 @@ class Ipv7Address
         end
       end
     end
-    match = abas_inside & abas_outside
-    match.size > 0
+    abas_in_both = abas_inside & abas_outside
+    abas_in_both.any?
   end
 
   private
@@ -77,37 +77,24 @@ end
 
 if defined? RSpec
   RSpec.describe Ipv7Address do
-    describe :supports_tls? do
-      context "with supporting" do
-        ["abba[mnop]qrst", "ioxxoj[asdfgh]zxcvbn"].each do |ip|
-          it "reports true for #{ip}" do
-            expect(Ipv7Address.new(ip).supports_tls?).to be_truthy
-          end
-        end
-      end
-
-      context "with non-supporting" do
-        ["abcd[bddb]xyyx", "aaaa[qwer]tyui"].each do |ip|
-          it "reports false for #{ip}" do
-            expect(Ipv7Address.new(ip).supports_tls?).to be_falsey
-          end
-        end
-      end
-    end
-
-    describe :supports_ssl? do
-      context "with supporting" do
-        ["aba[bab]xyz", "aaa[kek]eke", "zazbz[bzb]cdb"].each do |ip|
-          it "reports true for #{ip}" do
-            expect(Ipv7Address.new(ip).supports_ssl?).to be_truthy
-          end
-        end
-      end
-
-      context "with non-supporting" do
-        ["xyx[xyx]xyx", "bwzsacxgqkbjycgfw[dbnligvrmqscasutn]rbgybqqsgjvlonkut"].each do |ip|
-          it "reports false for #{ip}" do
-            expect(Ipv7Address.new(ip).supports_ssl?).to be_falsey
+    examples = {
+      supports_tls?: {
+        be_truthy: ["abba[mnop]qrst", "ioxxoj[asdfgh]zxcvbn"],
+        be_falsey: ["abcd[bddb]xyyx", "aaaa[qwer]tyui"],
+      },
+      supports_ssl?: {
+        be_truthy: ["aba[bab]xyz", "aaa[kek]eke", "zazbz[bzb]cdb"],
+        be_falsey: ["xyx[xyx]xyx", "bwzsacxgqkbjycgfw[dbnligvrmqscasutn]rbgybqqsgjvlonkut"],
+      },
+    }
+    examples.each do |method, results|
+      describe method do
+        results.each do |result, inputs|
+          inputs.each do |input|
+            describe input do
+              subject { Ipv7Address.new(input).public_send(method) }
+              it { is_expected.to public_send(result) }
+            end
           end
         end
       end
@@ -115,18 +102,8 @@ if defined? RSpec
   end
 
   RSpec.describe :parts do
-    parts_result = parts
-
-    describe :one do
-      it "is 118" do
-        expect(parts_result[:one]).to eq(118)
-      end
-    end
-
-    describe :two do
-      it "is 260" do
-        expect(parts_result[:two]).to eq(260)
-      end
-    end
+    subject { parts }
+    it { is_expected.to include(one: 118) }
+    it { is_expected.to include(two: 260) }
   end
 end
