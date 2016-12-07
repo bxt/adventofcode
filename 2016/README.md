@@ -20,7 +20,7 @@ Day | Ruby | Haskell | Description                                              
 04  |  x   |         | [Room checksums and encryption](http://adventofcode.com/2016/day/4) | C++
 05  |      |         | [MD5 door code search](http://adventofcode.com/2016/day/5)          | [C](day05/main.c)
 06  |  x   |    x    | [Jammed Santa repetition code](http://adventofcode.com/2016/day/6)  | D
-07  |  x   |         | [tba](http://adventofcode.com/2016/day/7)                           | Elixir
+07  |  x   |         | [Swedish palindrome IPV7](http://adventofcode.com/2016/day/7)       | Elixir
 08  |      |         | [tba](http://adventofcode.com/2016/day/8)                           | Erlang
 09  |      |         | [tba](http://adventofcode.com/2016/day/9)                           | Flow.js
 10  |      |         | [tba](http://adventofcode.com/2016/day/10)                          | Go
