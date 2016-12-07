@@ -30,18 +30,6 @@ class Ipv7Address
   def collect_inside_outside(n)
     inside = []
     outside = []
-    each_cons_with_bracket_state(n) do |*params, in_brackets|
-      result = yield *params, in_brackets
-      if in_brackets
-        inside.push(result)
-      else
-        outside.push(result)
-      end
-    end
-    [inside.compact, outside.compact]
-  end
-
-  def each_cons_with_bracket_state(n)
     in_brackets = false
     ip_string.chars.each_cons(n) do |char_list|
       case char_list.last
@@ -51,10 +39,16 @@ class Ipv7Address
         in_brackets = false
       else
         if (char_list & BRACKETS.values).empty?
-          yield *char_list.push(in_brackets)
+          result = yield *char_list, in_brackets
+          if in_brackets
+            inside.push(result)
+          else
+            outside.push(result)
+          end
         end
       end
     end
+    [inside.compact, outside.compact]
   end
 end
 
