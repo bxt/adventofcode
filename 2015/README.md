@@ -72,3 +72,12 @@ Completion
 I finally completed all the puzzles:
 
 ![image](https://cloud.githubusercontent.com/assets/639509/12027377/c69893f8-adc5-11e5-9a52-608641c6b3ee.png)
+
+Other solutions
+---------------
+
+I enjoy looking at how other coder solved the riddles. This year I followed (A-Z):
+
+* [cschell](https://github.com/cschell/adventofcode/tree/master/2015) (Ruby)
+* [darinc](https://github.com/darinc/AdventOfCode) (many languages)
+* [glguy](https://github.com/glguy/advent2015) (Haskell)

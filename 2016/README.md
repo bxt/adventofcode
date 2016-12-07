@@ -40,3 +40,25 @@ Day | Ruby | Haskell | Description                                              
 24  |      |         | [tba](http://adventofcode.com/2016/day/24)                          | Wolfram Language
 25  |      |         | [tba](http://adventofcode.com/2016/day/25)                          | Zsh
 Σ   |  6   |    1    |                                                                     | * coming soon
+
+Takeaways
+---------
+
+In addition to having a lot of fun solving the puzzles, I also learned some interesting programming techniques:
+
+* [Writing programs in a language named Brainfuck](day02/part1.bf)
+* Creating a [debugger/IDE thingy using flow and React for Brainfuck](https://gitlab.com/bxt/brainfuck-debugger) with CI testing
+* Pointer and value semantics [in C structs](day05/main.c)
+* Making a [script runnable via `rspec` or `ruby`](day07/main.rb)
+* [Global methods in Ruby](https://gist.github.com/bxt/b4da635da9aee12d6e7236147513e40f)
+
+Other solutions
+---------------
+
+I enjoy looking at how other coder solved the riddles. This year I followed (A-Z):
+
+* [bildzeitung](https://github.com/bildzeitung/2016adventofcode) (Python)
+* [cschell](https://github.com/cschell/adventofcode/tree/master/2016) (Elixir)
+* [glguy](https://github.com/glguy/advent2016) (Haskell)
+* [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2016) (Haskell, Python)
+* [Pyrobolser](https://github.com/Pyrobolser/AdventOfCode2016/tree/master/AdventOfCode2016/Days) (C#)
