@@ -7,31 +7,16 @@ class Ipv7Address
   end
 
   def supports_tls?
-    has_abba_outside = false
-    no_abba_inside = true
-    each_cons_with_bracket_state(4) do |w, x, y, z, in_brackets|
-      if [w, x] == [z, y] && z != y
-        if in_brackets
-          no_abba_inside = false
-        else
-          has_abba_outside = true
-        end
-      end
-      #puts "state", w, x, y, z, in_brackets, has_abba_inside, no_abba_outside
+    abbas_inside, abbas_outside = collect_inside_outside(4) do |w, x, y, z, in_brackets|
+      [w, x] == [z, y] && z != y
     end
-    has_abba_outside && no_abba_inside
+    abbas_outside.any? && abbas_inside.none?
   end
 
   def supports_ssl?
-    abas_inside = []
-    abas_outside = []
-    each_cons_with_bracket_state(3) do |x, y, z, in_brackets|
+    abas_inside, abas_outside = collect_inside_outside(3) do |x, y, z, in_brackets|
       if x == z && z != y
-        if in_brackets
-          abas_inside.push [z,y]
-        else
-          abas_outside.push [y,z]
-        end
+        in_brackets ? [z,y] : [y,z]
       end
     end
     abas_in_both = abas_inside & abas_outside
@@ -41,6 +26,20 @@ class Ipv7Address
   private
 
   BRACKETS = {open: "[", close: "]"}
+
+  def collect_inside_outside(n)
+    inside = []
+    outside = []
+    each_cons_with_bracket_state(n) do |*params, in_brackets|
+      result = yield *params, in_brackets
+      if in_brackets
+        inside.push(result)
+      else
+        outside.push(result)
+      end
+    end
+    [inside.compact, outside.compact]
+  end
 
   def each_cons_with_bracket_state(n)
     in_brackets = false
