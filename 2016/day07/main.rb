@@ -61,8 +61,8 @@ class Ipv7Address
 
   BRACKETS = {open: "[", close: "]"}
 
-  def chunks(chunk_size, &block)
-    DelimitedChunks.new(BRACKETS, chunk_size).collect_inside_outside(ip_string.chars, &block)
+  def chunks(chunk_size)
+    DelimitedChunks.new(BRACKETS, chunk_size).collect_inside_outside(ip_string.chars)
   end
 end
 
