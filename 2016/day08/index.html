@@ -1,247 +1,259 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Advent Of Code Day 8</title>
 <h1>Advent Of Code Day 8</h1>
-<p><a href="https://github.com/bxt/adventofcode/blob/master/2016/day08/index.html">Code on GitHub<a/></p>
+
+<p>
+  <a href="https://github.com/bxt/adventofcode/blob/master/2016/day08/index.html">
+    Code on GitHub
+  </a>
+</p>
+
 <div id="inputForm">
-<p>Enter your input:</p>
-<textarea>
-  rect 1x1
-  rotate row y=0 by 2
-  rect 1x1
-  rotate row y=0 by 5
-  rect 1x1
-  rotate row y=0 by 3
-  rect 1x1
-  rotate row y=0 by 3
-  rect 2x1
-  rotate row y=0 by 5
-  rect 1x1
-  rotate row y=0 by 5
-  rect 4x1
-  rotate row y=0 by 2
-  rect 1x1
-  rotate row y=0 by 2
-  rect 1x1
-  rotate row y=0 by 5
-  rect 4x1
-  rotate row y=0 by 3
-  rect 2x1
-  rotate row y=0 by 5
-  rect 4x1
-  rotate row y=0 by 2
-  rect 1x2
-  rotate row y=1 by 6
-  rotate row y=0 by 2
-  rect 1x2
-  rotate column x=32 by 1
-  rotate column x=23 by 1
-  rotate column x=13 by 1
-  rotate row y=0 by 6
-  rotate column x=0 by 1
-  rect 5x1
-  rotate row y=0 by 2
-  rotate column x=30 by 1
-  rotate row y=1 by 20
-  rotate row y=0 by 18
-  rotate column x=13 by 1
-  rotate column x=10 by 1
-  rotate column x=7 by 1
-  rotate column x=2 by 1
-  rotate column x=0 by 1
-  rect 17x1
-  rotate column x=16 by 3
-  rotate row y=3 by 7
-  rotate row y=0 by 5
-  rotate column x=2 by 1
-  rotate column x=0 by 1
-  rect 4x1
-  rotate column x=28 by 1
-  rotate row y=1 by 24
-  rotate row y=0 by 21
-  rotate column x=19 by 1
-  rotate column x=17 by 1
-  rotate column x=16 by 1
-  rotate column x=14 by 1
-  rotate column x=12 by 2
-  rotate column x=11 by 1
-  rotate column x=9 by 1
-  rotate column x=8 by 1
-  rotate column x=7 by 1
-  rotate column x=6 by 1
-  rotate column x=4 by 1
-  rotate column x=2 by 1
-  rotate column x=0 by 1
-  rect 20x1
-  rotate column x=47 by 1
-  rotate column x=40 by 2
-  rotate column x=35 by 2
-  rotate column x=30 by 2
-  rotate column x=10 by 3
-  rotate column x=5 by 3
-  rotate row y=4 by 20
-  rotate row y=3 by 10
-  rotate row y=2 by 20
-  rotate row y=1 by 16
-  rotate row y=0 by 9
-  rotate column x=7 by 2
-  rotate column x=5 by 2
-  rotate column x=3 by 2
-  rotate column x=0 by 2
-  rect 9x2
-  rotate column x=22 by 2
-  rotate row y=3 by 40
-  rotate row y=1 by 20
-  rotate row y=0 by 20
-  rotate column x=18 by 1
-  rotate column x=17 by 2
-  rotate column x=16 by 1
-  rotate column x=15 by 2
-  rotate column x=13 by 1
-  rotate column x=12 by 1
-  rotate column x=11 by 1
-  rotate column x=10 by 1
-  rotate column x=8 by 3
-  rotate column x=7 by 1
-  rotate column x=6 by 1
-  rotate column x=5 by 1
-  rotate column x=3 by 1
-  rotate column x=2 by 1
-  rotate column x=1 by 1
-  rotate column x=0 by 1
-  rect 19x1
-  rotate column x=44 by 2
-  rotate column x=40 by 3
-  rotate column x=29 by 1
-  rotate column x=27 by 2
-  rotate column x=25 by 5
-  rotate column x=24 by 2
-  rotate column x=22 by 2
-  rotate column x=20 by 5
-  rotate column x=14 by 3
-  rotate column x=12 by 2
-  rotate column x=10 by 4
-  rotate column x=9 by 3
-  rotate column x=7 by 3
-  rotate column x=3 by 5
-  rotate column x=2 by 2
-  rotate row y=5 by 10
-  rotate row y=4 by 8
-  rotate row y=3 by 8
-  rotate row y=2 by 48
-  rotate row y=1 by 47
-  rotate row y=0 by 40
-  rotate column x=47 by 5
-  rotate column x=46 by 5
-  rotate column x=45 by 4
-  rotate column x=43 by 2
-  rotate column x=42 by 3
-  rotate column x=41 by 2
-  rotate column x=38 by 5
-  rotate column x=37 by 5
-  rotate column x=36 by 5
-  rotate column x=33 by 1
-  rotate column x=28 by 1
-  rotate column x=27 by 5
-  rotate column x=26 by 5
-  rotate column x=25 by 1
-  rotate column x=23 by 5
-  rotate column x=22 by 1
-  rotate column x=21 by 2
-  rotate column x=18 by 1
-  rotate column x=17 by 3
-  rotate column x=12 by 2
-  rotate column x=11 by 2
-  rotate column x=7 by 5
-  rotate column x=6 by 5
-  rotate column x=5 by 4
-  rotate column x=3 by 5
-  rotate column x=2 by 5
-  rotate column x=1 by 3
-  rotate column x=0 by 4
-</textarea>
-<p><button>Run</button></p>
+  <p>Enter your input:</p>
+  <textarea>
+    rect 1x1
+    rotate row y=0 by 2
+    rect 1x1
+    rotate row y=0 by 5
+    rect 1x1
+    rotate row y=0 by 3
+    rect 1x1
+    rotate row y=0 by 3
+    rect 2x1
+    rotate row y=0 by 5
+    rect 1x1
+    rotate row y=0 by 5
+    rect 4x1
+    rotate row y=0 by 2
+    rect 1x1
+    rotate row y=0 by 2
+    rect 1x1
+    rotate row y=0 by 5
+    rect 4x1
+    rotate row y=0 by 3
+    rect 2x1
+    rotate row y=0 by 5
+    rect 4x1
+    rotate row y=0 by 2
+    rect 1x2
+    rotate row y=1 by 6
+    rotate row y=0 by 2
+    rect 1x2
+    rotate column x=32 by 1
+    rotate column x=23 by 1
+    rotate column x=13 by 1
+    rotate row y=0 by 6
+    rotate column x=0 by 1
+    rect 5x1
+    rotate row y=0 by 2
+    rotate column x=30 by 1
+    rotate row y=1 by 20
+    rotate row y=0 by 18
+    rotate column x=13 by 1
+    rotate column x=10 by 1
+    rotate column x=7 by 1
+    rotate column x=2 by 1
+    rotate column x=0 by 1
+    rect 17x1
+    rotate column x=16 by 3
+    rotate row y=3 by 7
+    rotate row y=0 by 5
+    rotate column x=2 by 1
+    rotate column x=0 by 1
+    rect 4x1
+    rotate column x=28 by 1
+    rotate row y=1 by 24
+    rotate row y=0 by 21
+    rotate column x=19 by 1
+    rotate column x=17 by 1
+    rotate column x=16 by 1
+    rotate column x=14 by 1
+    rotate column x=12 by 2
+    rotate column x=11 by 1
+    rotate column x=9 by 1
+    rotate column x=8 by 1
+    rotate column x=7 by 1
+    rotate column x=6 by 1
+    rotate column x=4 by 1
+    rotate column x=2 by 1
+    rotate column x=0 by 1
+    rect 20x1
+    rotate column x=47 by 1
+    rotate column x=40 by 2
+    rotate column x=35 by 2
+    rotate column x=30 by 2
+    rotate column x=10 by 3
+    rotate column x=5 by 3
+    rotate row y=4 by 20
+    rotate row y=3 by 10
+    rotate row y=2 by 20
+    rotate row y=1 by 16
+    rotate row y=0 by 9
+    rotate column x=7 by 2
+    rotate column x=5 by 2
+    rotate column x=3 by 2
+    rotate column x=0 by 2
+    rect 9x2
+    rotate column x=22 by 2
+    rotate row y=3 by 40
+    rotate row y=1 by 20
+    rotate row y=0 by 20
+    rotate column x=18 by 1
+    rotate column x=17 by 2
+    rotate column x=16 by 1
+    rotate column x=15 by 2
+    rotate column x=13 by 1
+    rotate column x=12 by 1
+    rotate column x=11 by 1
+    rotate column x=10 by 1
+    rotate column x=8 by 3
+    rotate column x=7 by 1
+    rotate column x=6 by 1
+    rotate column x=5 by 1
+    rotate column x=3 by 1
+    rotate column x=2 by 1
+    rotate column x=1 by 1
+    rotate column x=0 by 1
+    rect 19x1
+    rotate column x=44 by 2
+    rotate column x=40 by 3
+    rotate column x=29 by 1
+    rotate column x=27 by 2
+    rotate column x=25 by 5
+    rotate column x=24 by 2
+    rotate column x=22 by 2
+    rotate column x=20 by 5
+    rotate column x=14 by 3
+    rotate column x=12 by 2
+    rotate column x=10 by 4
+    rotate column x=9 by 3
+    rotate column x=7 by 3
+    rotate column x=3 by 5
+    rotate column x=2 by 2
+    rotate row y=5 by 10
+    rotate row y=4 by 8
+    rotate row y=3 by 8
+    rotate row y=2 by 48
+    rotate row y=1 by 47
+    rotate row y=0 by 40
+    rotate column x=47 by 5
+    rotate column x=46 by 5
+    rotate column x=45 by 4
+    rotate column x=43 by 2
+    rotate column x=42 by 3
+    rotate column x=41 by 2
+    rotate column x=38 by 5
+    rotate column x=37 by 5
+    rotate column x=36 by 5
+    rotate column x=33 by 1
+    rotate column x=28 by 1
+    rotate column x=27 by 5
+    rotate column x=26 by 5
+    rotate column x=25 by 1
+    rotate column x=23 by 5
+    rotate column x=22 by 1
+    rotate column x=21 by 2
+    rotate column x=18 by 1
+    rotate column x=17 by 3
+    rotate column x=12 by 2
+    rotate column x=11 by 2
+    rotate column x=7 by 5
+    rotate column x=6 by 5
+    rotate column x=5 by 4
+    rotate column x=3 by 5
+    rotate column x=2 by 5
+    rotate column x=1 by 3
+    rotate column x=0 by 4
+  </textarea>
+  <p>
+    <button>Run</button>
+  </p>
 </div>
+
 <script>
-  var width = 50;
-  var height = 6;
 
-  function rotate(array, by) {
-    array.unshift.apply(array, array.splice(-by, array.length))
-  }
-
-  function getCellDomElement(x, y) {
-    return document.getElementsByTagName("td")[x + y*width];
-  }
-
-  function getCell(x, y) {
-    return getCellDomElement(x, y).classList.contains("active");
-  }
-
-  function setCell(x, y, value) {
-    console.log(x, y, value, getCellDomElement(x, y))
-    getCellDomElement(x, y).classList[value ? "add" : "remove"]("active");
-  }
-
-  function setRect(rectX, rectY, rectWidth, rectHeight, value) {
-    for (var y = rectY; y < rectHeight; y++) {
-      for (var x = rectX; x < rectWidth; x++) {
-        setCell(x, y, value);
-      }
+  function Grid(width, height) {
+    function rotate(array, by) {
+      array.unshift.apply(array, array.splice(-by, array.length))
     }
-  }
 
-  function getRow(y) {
-    var statusArray = [];
-    for (var x = 0; x < width; x++) {
-      statusArray.push(getCell(x, y));
+    function getCellDomElement(x, y) {
+      return document.getElementsByTagName("td")[x + y*width];
     }
-    return statusArray;
-  }
 
-  function getColumn(x) {
-    var statusArray = [];
-    for (var y = 0; y < height; y++) {
-      statusArray.push(getCell(x, y));
+    function getCell(x, y) {
+      return getCellDomElement(x, y).classList.contains("active");
     }
-    return statusArray;
-  }
 
-  function setRow(y, statusArray) {
-    for (var x = 0; x < width; x++) {
-      setCell(x, y, statusArray[x]);
+    function setCell(x, y, value) {
+      console.log(x, y, value, getCellDomElement(x, y))
+      getCellDomElement(x, y).classList[value ? "add" : "remove"]("active");
     }
-  }
 
-  function setColumn(x, statusArray) {
-    for (var y = 0; y < height; y++) {
-      setCell(x, y, statusArray[y]);
-    }
-  }
-
-  function rotateColumn(x, by) {
-    var statusArray = getColumn(x);
-    rotate(statusArray, by);
-    setColumn(x, statusArray);
-  }
-
-  function rotateRow(y, by) {
-    var statusArray = getRow(y);
-    rotate(statusArray, by);
-    setRow(y, statusArray);
-  }
-
-  function render(into) {
-      var table = document.createElement("table");
-      for (var y = 0; y < height; y++) {
-        var tr = document.createElement("tr");
-        for (var x = 0; x < width; x++) {
-          var td = document.createElement("td");
-          td.innerHTML = "&nbsp;";
-          tr.appendChild(td);
+    function setRect(rectX, rectY, rectWidth, rectHeight, value) {
+      for (var y = rectY; y < rectHeight; y++) {
+        for (var x = rectX; x < rectWidth; x++) {
+          setCell(x, y, value);
         }
-        table.appendChild(tr);
       }
-      into.appendChild(table);
-      table.style.height = table.offsetWidth/width*height;
+    }
+
+    function getRow(y) {
+      var statusArray = [];
+      for (var x = 0; x < width; x++) {
+        statusArray.push(getCell(x, y));
+      }
+      return statusArray;
+    }
+
+    function getColumn(x) {
+      var statusArray = [];
+      for (var y = 0; y < height; y++) {
+        statusArray.push(getCell(x, y));
+      }
+      return statusArray;
+    }
+
+    function setRow(y, statusArray) {
+      for (var x = 0; x < width; x++) {
+        setCell(x, y, statusArray[x]);
+      }
+    }
+
+    function setColumn(x, statusArray) {
+      for (var y = 0; y < height; y++) {
+        setCell(x, y, statusArray[y]);
+      }
+    }
+
+    function rotateColumn(x, by) {
+      var statusArray = getColumn(x);
+      rotate(statusArray, by);
+      setColumn(x, statusArray);
+    }
+
+    function rotateRow(y, by) {
+      var statusArray = getRow(y);
+      rotate(statusArray, by);
+      setRow(y, statusArray);
+    }
+
+    function render(into) {
+        var table = document.createElement("table");
+        for (var y = 0; y < height; y++) {
+          var tr = document.createElement("tr");
+          for (var x = 0; x < width; x++) {
+            var td = document.createElement("td");
+            td.innerHTML = "&nbsp;";
+            tr.appendChild(td);
+          }
+          table.appendChild(tr);
+        }
+        into.appendChild(table);
+        table.style.height = table.offsetWidth/width*height;
+    }
+
+    return { setRect: setRect, rotateRow: rotateRow, rotateColumn: rotateColumn, render: render };
   }
 
   function runWithInterval(every, tickFunction) {
@@ -259,7 +271,7 @@
     }, every);
   }
 
-  function runInstructions(instructions) {
+  function runInstructions(grid, instructions) {
     var instructionCounter = 0;
     runWithInterval(100, function(){
       var instruction = instructions[instructionCounter];
@@ -267,15 +279,15 @@
       if (matches = instruction.match(/rect (\d+)x(\d+)/)) {
         var rectWidth = matches[1]*1;
         var rectHeight = matches[2]*1;
-        setRect(0, 0, rectWidth, rectHeight, true);
+        grid.setRect(0, 0, rectWidth, rectHeight, true);
       } else if (matches = instruction.match(/rotate row y=(\d+) by (\d+)/)) {
         var y = matches[1]*1;
         var by = matches[2]*1;
-        rotateRow(y, by);
+        grid.rotateRow(y, by);
       } else if (matches = instruction.match(/rotate column x=(\d+) by (\d+)/)) {
         var x = matches[1]*1;
         var by = matches[2]*1;
-        rotateColumn(x, by);
+        grid.rotateColumn(x, by);
       }
       instructionCounter++;
       return instructionCounter < instructions.length;
@@ -283,12 +295,14 @@
   }
 
   document.getElementsByTagName("button")[0].addEventListener('click', function(){
+    var grid = Grid(50, 6);
     document.getElementById("inputForm").style.display = 'none';
-    render(document.body);
+    grid.render(document.body);
     var instructions = document.getElementsByTagName("textarea")[0].value.split(/\s*\n\s*/);
-    runInstructions(instructions);
+    runInstructions(grid, instructions);
   });
 </script>
+
 <style>
   body { color: #666; max-width: 80%; font-family: "Avenir Next", sans-serif; margin: 5% auto; text-align: center; }
   h1 { font-weight: 100; }
