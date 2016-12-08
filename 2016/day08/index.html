@@ -164,74 +164,129 @@
   var width = 50;
   var height = 6;
 
-  document.getElementsByTagName("button")[0].addEventListener('click', function(){
-    document.getElementById("inputForm").style.display = 'none';
-    var table = document.createElement("table");
-    for (var y = 0; y < height; y++) {
-      var tr = document.createElement("tr");
-      for (var x = 0; x < width; x++) {
-        var td = document.createElement("td");
-        td.innerHTML = "&nbsp;";
-        tr.appendChild(td);
-      }
-      table.appendChild(tr);
-    }
-    document.body.appendChild(table);
-    table.style.height = table.offsetWidth/width*height;
+  function rotate(array, by) {
+    array.unshift.apply(array, array.splice(-by, array.length))
+  }
 
-    var instructions = document.getElementsByTagName("textarea")[0].value.split(/\s*\n\s*/);
-    var instructionCounter = 0;
+  function getCellDomElement(x, y) {
+    return document.getElementsByTagName("td")[x + y*width];
+  }
+
+  function getCell(x, y) {
+    return getCellDomElement(x, y).classList.contains("active");
+  }
+
+  function setCell(x, y, value) {
+    console.log(x, y, value, getCellDomElement(x, y))
+    getCellDomElement(x, y).classList[value ? "add" : "remove"]("active");
+  }
+
+  function setRect(rectX, rectY, rectWidth, rectHeight, value) {
+    for (var y = rectY; y < rectHeight; y++) {
+      for (var x = rectX; x < rectWidth; x++) {
+        setCell(x, y, value);
+      }
+    }
+  }
+
+  function getRow(y) {
+    var statusArray = [];
+    for (var x = 0; x < width; x++) {
+      statusArray.push(getCell(x, y));
+    }
+    return statusArray;
+  }
+
+  function getColumn(x) {
+    var statusArray = [];
+    for (var y = 0; y < height; y++) {
+      statusArray.push(getCell(x, y));
+    }
+    return statusArray;
+  }
+
+  function setRow(y, statusArray) {
+    for (var x = 0; x < width; x++) {
+      setCell(x, y, statusArray[x]);
+    }
+  }
+
+  function setColumn(x, statusArray) {
+    for (var y = 0; y < height; y++) {
+      setCell(x, y, statusArray[y]);
+    }
+  }
+
+  function rotateColumn(x, by) {
+    var statusArray = getColumn(x);
+    rotate(statusArray, by);
+    setColumn(x, statusArray);
+  }
+
+  function rotateRow(y, by) {
+    var statusArray = getRow(y);
+    rotate(statusArray, by);
+    setRow(y, statusArray);
+  }
+
+  function render(into) {
+      var table = document.createElement("table");
+      for (var y = 0; y < height; y++) {
+        var tr = document.createElement("tr");
+        for (var x = 0; x < width; x++) {
+          var td = document.createElement("td");
+          td.innerHTML = "&nbsp;";
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      into.appendChild(table);
+      table.style.height = table.offsetWidth/width*height;
+  }
+
+  function runWithInterval(every, tickFunction) {
     var intervalID = window.setInterval(function(){
+      var keepRunning;
+      try {
+        keepRunning = tickFunction()
+      } catch(e) {
+        console.error(e.stack);
+        keepRunning = false;
+      }
+      if(!keepRunning) {
+        window.clearInterval(intervalID);
+      }
+    }, every);
+  }
+
+  function runInstructions(instructions) {
+    var instructionCounter = 0;
+    runWithInterval(100, function(){
       var instruction = instructions[instructionCounter];
-      console.log(instruction);
       var matches = false;
       if (matches = instruction.match(/rect (\d+)x(\d+)/)) {
         var rectWidth = matches[1]*1;
         var rectHeight = matches[2]*1;
-        for (var y = 0; y < rectHeight; y++) {
-          for (var x = 0; x < rectWidth; x++) {
-            var td = document.getElementsByTagName("td")[x + y*width];
-            td.classList.add("active")
-          }
-        }
+        setRect(0, 0, rectWidth, rectHeight, true);
       } else if (matches = instruction.match(/rotate row y=(\d+) by (\d+)/)) {
         var y = matches[1]*1;
         var by = matches[2]*1;
-        var oldStatuus = [];
-        for (var x = 0; x < width; x++) {
-          var td = document.getElementsByTagName("td")[x + y*width];
-          oldStatuus.push(td.classList.contains("active"));
-        }
-        var newStatuus = [];
-        for (var x = 0; x < width; x++) {
-          newStatuus[(x + by)%width] = oldStatuus[x];
-        }
-        for (var x = 0; x < width; x++) {
-          var td = document.getElementsByTagName("td")[x + y*width];
-          td.classList[newStatuus[x] ? "add" : "remove"]("active");
-        }
+        rotateRow(y, by);
       } else if (matches = instruction.match(/rotate column x=(\d+) by (\d+)/)) {
         var x = matches[1]*1;
         var by = matches[2]*1;
-        var oldStatuus = [];
-        for (var y = 0; y < height; y++) {
-          var td = document.getElementsByTagName("td")[x + y*width];
-          oldStatuus.push(td.classList.contains("active"));
-        }
-        var newStatuus = [];
-        for (var y = 0; y < height; y++) {
-          newStatuus[(y + by)%height] = oldStatuus[y];
-        }
-        for (var y = 0; y < height; y++) {
-          var td = document.getElementsByTagName("td")[x + y*width];
-          td.classList[newStatuus[y] ? "add" : "remove"]("active");
-        }
+        rotateColumn(x, by);
       }
       instructionCounter++;
-      if(instructionCounter >= instructions.length) {
-        window.clearInterval(intervalID);
-      }
-    }, 100);
+      return instructionCounter < instructions.length;
+    });
+  }
+
+  document.getElementsByTagName("button")[0].addEventListener('click', function(){
+    document.getElementById("inputForm").style.display = 'none';
+    render(document.body);
+    var instructions = document.getElementsByTagName("textarea")[0].value.split(/\s*\n\s*/);
+    runInstructions(instructions);
   });
 </script>
 <style>
