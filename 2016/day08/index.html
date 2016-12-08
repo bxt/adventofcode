@@ -179,13 +179,13 @@
     document.body.appendChild(table);
     table.style.height = table.offsetWidth/width*height;
 
-    var intstuctions = document.getElementsByTagName("textarea")[0].value.split(/\s*\n\s*/);
+    var instructions = document.getElementsByTagName("textarea")[0].value.split(/\s*\n\s*/);
     var instructionCounter = 0;
     var intervalID = window.setInterval(function(){
-      var intstuction = intstuctions[instructionCounter];
-      console.log(intstuction);
+      var instruction = instructions[instructionCounter];
+      console.log(instruction);
       var matches = false;
-      if (matches = intstuction.match(/rect (\d+)x(\d+)/)) {
+      if (matches = instruction.match(/rect (\d+)x(\d+)/)) {
         var rectWidth = matches[1]*1;
         var rectHeight = matches[2]*1;
         for (var y = 0; y < rectHeight; y++) {
@@ -194,7 +194,7 @@
             td.classList.add("active")
           }
         }
-      } else if (matches = intstuction.match(/rotate row y=(\d+) by (\d+)/)) {
+      } else if (matches = instruction.match(/rotate row y=(\d+) by (\d+)/)) {
         var y = matches[1]*1;
         var by = matches[2]*1;
         var oldStatuus = [];
@@ -210,7 +210,7 @@
           var td = document.getElementsByTagName("td")[x + y*width];
           td.classList[newStatuus[x] ? "add" : "remove"]("active");
         }
-      } else if (matches = intstuction.match(/rotate column x=(\d+) by (\d+)/)) {
+      } else if (matches = instruction.match(/rotate column x=(\d+) by (\d+)/)) {
         var x = matches[1]*1;
         var by = matches[2]*1;
         var oldStatuus = [];
@@ -228,7 +228,7 @@
         }
       }
       instructionCounter++;
-      if(instructionCounter >= intstuctions.length) {
+      if(instructionCounter >= instructions.length) {
         window.clearInterval(intervalID);
       }
     }, 100);
