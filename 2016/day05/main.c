@@ -60,10 +60,31 @@ struct codeEnv makeCodeEnv(updater updater) {
   return result;
 }
 
+size_t stringInt(int number, char* into) {
+  static char numberStr[128] = { 0 };
+
+  size_t i = 0;
+  while (number != 0) {
+      numberStr[i++] = (number % 10) + '0';
+      number /= 10;
+  }
+  size_t numberLen = i;
+
+  char* end = into + numberLen;
+  while (i > 0) {
+    i--;
+    end[-i-1] = numberStr[i];
+  }
+  end[0] = '\0';
+
+  return numberLen;
+}
+
 int main(int argc, char *argv[]) {
+
   //char key[23] = "abc";
   char key[23] = "ffykfhsq";
-  int keyLength = strlen(key);
+  size_t keyLength = strlen(key);
 
   struct codeEnv codeEnvs[] = {
     makeCodeEnv(codeUpdateOne),
@@ -74,11 +95,16 @@ int main(int argc, char *argv[]) {
   printf("Starting Easter Bunny password search...\n");
 
   bool done = false;
-  for (int resultNumber = 0; !done && resultNumber < SEARCH_MAX; resultNumber++) {
+  for (int resultNumber = 3; !done && resultNumber < SEARCH_MAX; resultNumber++) {
     unsigned char result[MD5_DIGEST_LENGTH];
 
-    sprintf(key + keyLength, "%d", resultNumber);
-    MD5((unsigned char*) key, strlen(key), result);
+    //printf("\nNS: %s, NL: %d\n", numberStr, numberLen);
+
+    //printf("\nkey: %s\n", key);
+
+    size_t numberLen = stringInt(resultNumber, key + keyLength);
+    //sprintf(key + keyLength, "%d", resultNumber);
+    MD5((unsigned char*) key, keyLength + numberLen, result);
 
     if (startsWithFiveZeros(result))  {
       char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
