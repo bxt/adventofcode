@@ -62,6 +62,9 @@ struct codeEnv makeCodeEnv(updater updater) {
 
 int main(int argc, char *argv[]) {
 
+  MD5_CTX context;
+  MD5_Init(&context);
+
   char key[23] = "ffykfhsq";
   char* keyEnd = key + strlen(key);
   char* end = keyEnd + 1;
@@ -84,7 +87,8 @@ int main(int argc, char *argv[]) {
     //printf("\nkey: %s\n", key);
 
     //sprintf(key + keyLength, "%d", resultNumber);
-    MD5((unsigned char*) key, end - key, result);
+    MD5_Update(&context, (unsigned char*) key, end - key);
+    MD5_Final(result, &context);
 
     if (startsWithFiveZeros(result))  {
       char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
