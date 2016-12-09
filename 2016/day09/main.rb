@@ -215,11 +215,11 @@ if defined? RSpec
 
   describe ExpanderV1 do
     describe :examples do
-      it {expect(ExpanderV1.new("ADVENT").size).to eq(6)}
-      it {expect(ExpanderV1.new("A(1x5)BC").size).to eq(7)}
-      it {expect(ExpanderV1.new("X(8x2)(3x3)ABCY").size).to eq(20)}
-      it {expect(ExpanderV1.new("(27x12)(20x12)(13x14)(7x10)(1x12)A").size).to eq(241920)}
-      it {expect(ExpanderV1.new("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN").size).to eq(445)}
+      it { expect(ExpanderV1.new("ADVENT").size).to eq(6) }
+      it { expect(ExpanderV1.new("A(1x5)BC").size).to eq(7) }
+      it { expect(ExpanderV1.new("X(8x2)(3x3)ABCY").size).to eq(20) }
+      it { expect(ExpanderV1.new("(27x12)(20x12)(13x14)(7x10)(1x12)A").size).to eq(241920) }
+      it { expect(ExpanderV1.new("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN").size).to eq(445) }
 
       it 'ignores whitespace' do
         expect(ExpanderV1.new("ADV\nENT").size).to eq(6)
