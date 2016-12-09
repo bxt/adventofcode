@@ -63,7 +63,7 @@ struct codeEnv makeCodeEnv(updater updater) {
 int main(int argc, char *argv[]) {
   //char key[23] = "abc";
   char key[23] = "ffykfhsq";
-  int keyLength = strlen(key);
+  size_t keyLength = strlen(key);
 
   struct codeEnv codeEnvs[] = {
     makeCodeEnv(codeUpdateOne),
@@ -77,8 +77,8 @@ int main(int argc, char *argv[]) {
   for (int resultNumber = 0; !done && resultNumber < SEARCH_MAX; resultNumber++) {
     unsigned char result[MD5_DIGEST_LENGTH];
 
-    sprintf(key + keyLength, "%d", resultNumber);
-    MD5((unsigned char*) key, strlen(key), result);
+    int resultLength = sprintf(key + keyLength, "%d", resultNumber);
+    MD5((unsigned char*) key, resultLength + keyLength, result);
 
     if (startsWithFiveZeros(result))  {
       char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
