@@ -18,7 +18,7 @@ void stringMd5Sum(unsigned char* md, char* into) {
 }
 
 int startsWithFiveZeros(unsigned char* r) {
-  return r[0] == 0 && r[1] == 0 && r[2] < 16;
+  return !(r[0] | r[1] | (r[2] & 0xf0));
 }
 
 bool codeUpdateOne(char* code, char firstAfterZeros, char secondAfterZeros) {
@@ -60,31 +60,12 @@ struct codeEnv makeCodeEnv(updater updater) {
   return result;
 }
 
-size_t stringInt(int number, char* into) {
-  static char numberStr[128] = { 0 };
-
-  size_t i = 0;
-  while (number != 0) {
-      numberStr[i++] = (number % 10) + '0';
-      number /= 10;
-  }
-  size_t numberLen = i;
-
-  char* end = into + numberLen;
-  while (i > 0) {
-    i--;
-    end[-i-1] = numberStr[i];
-  }
-  end[0] = '\0';
-
-  return numberLen;
-}
-
 int main(int argc, char *argv[]) {
 
-  //char key[23] = "abc";
   char key[23] = "ffykfhsq";
-  size_t keyLength = strlen(key);
+  char* keyEnd = key + strlen(key);
+  char* end = keyEnd + 1;
+  keyEnd[0] = '0';
 
   struct codeEnv codeEnvs[] = {
     makeCodeEnv(codeUpdateOne),
@@ -102,9 +83,8 @@ int main(int argc, char *argv[]) {
 
     //printf("\nkey: %s\n", key);
 
-    size_t numberLen = stringInt(resultNumber, key + keyLength);
     //sprintf(key + keyLength, "%d", resultNumber);
-    MD5((unsigned char*) key, keyLength + numberLen, result);
+    MD5((unsigned char*) key, end - key, result);
 
     if (startsWithFiveZeros(result))  {
       char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
@@ -125,6 +105,18 @@ int main(int argc, char *argv[]) {
 
       printf("@ %d\r", resultNumber);
       fflush(stdout);
+    }
+
+    for (char* p = end - 1; ; *p-- = '0') {
+      if (*p != '9') {
+        (*p)++;
+        break;
+      }
+      if (p == keyEnd) {
+        *p = '1';
+        *end++ = '0';
+        break;
+      }
     }
   }
 
