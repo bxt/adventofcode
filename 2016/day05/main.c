@@ -18,7 +18,7 @@ void stringMd5Sum(unsigned char* md, char* into) {
 }
 
 int startsWithFiveZeros(unsigned char* r) {
-  return !(r[0] | r[1] | (r[2] & 0xf0));
+  return r[0] == 0 && r[1] == 0 && r[2] < 16;
 }
 
 bool codeUpdateOne(char* code, char firstAfterZeros, char secondAfterZeros) {
@@ -61,14 +61,9 @@ struct codeEnv makeCodeEnv(updater updater) {
 }
 
 int main(int argc, char *argv[]) {
-
-  MD5_CTX context;
-  MD5_Init(&context);
-
+  //char key[23] = "abc";
   char key[23] = "ffykfhsq";
-  char* keyEnd = key + strlen(key);
-  char* end = keyEnd + 1;
-  keyEnd[0] = '0';
+  int keyLength = strlen(key);
 
   struct codeEnv codeEnvs[] = {
     makeCodeEnv(codeUpdateOne),
@@ -79,16 +74,11 @@ int main(int argc, char *argv[]) {
   printf("Starting Easter Bunny password search...\n");
 
   bool done = false;
-  for (int resultNumber = 3; !done && resultNumber < SEARCH_MAX; resultNumber++) {
+  for (int resultNumber = 0; !done && resultNumber < SEARCH_MAX; resultNumber++) {
     unsigned char result[MD5_DIGEST_LENGTH];
 
-    //printf("\nNS: %s, NL: %d\n", numberStr, numberLen);
-
-    //printf("\nkey: %s\n", key);
-
-    //sprintf(key + keyLength, "%d", resultNumber);
-    MD5_Update(&context, (unsigned char*) key, end - key);
-    MD5_Final(result, &context);
+    sprintf(key + keyLength, "%d", resultNumber);
+    MD5((unsigned char*) key, strlen(key), result);
 
     if (startsWithFiveZeros(result))  {
       char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
@@ -109,18 +99,6 @@ int main(int argc, char *argv[]) {
 
       printf("@ %d\r", resultNumber);
       fflush(stdout);
-    }
-
-    for (char* p = end - 1; ; *p-- = '0') {
-      if (*p != '9') {
-        (*p)++;
-        break;
-      }
-      if (p == keyEnd) {
-        *p = '1';
-        *end++ = '0';
-        break;
-      }
     }
   }
 
