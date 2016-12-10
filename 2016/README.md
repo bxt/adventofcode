@@ -23,7 +23,7 @@ Day | Ruby | Haskell | Description                                              
 07  |  x   |         | [Swedish palindrome IPV7](http://adventofcode.com/2016/day/7)       | Elixir
 08  |  x   |         | [2FA display commands](http://adventofcode.com/2016/day/8)          | Erlang
 09  |  x   |         | [Decompress by multiply](http://adventofcode.com/2016/day/9)        | Flow.js
-10  |      |         | [tba](http://adventofcode.com/2016/day/10)                          | Go
+10  |  x   |         | [Balance Bot Network](http://adventofcode.com/2016/day/10)          | Go
 11  |      |         | [tba](http://adventofcode.com/2016/day/11)                          | Hack
 12  |      |         | [tba](http://adventofcode.com/2016/day/12)                          | Java
 13  |      |         | [tba](http://adventofcode.com/2016/day/13)                          | Kotlin
@@ -39,7 +39,7 @@ Day | Ruby | Haskell | Description                                              
 23  |      |         | [tba](http://adventofcode.com/2016/day/23)                          | Visual Basic
 24  |      |         | [tba](http://adventofcode.com/2016/day/24)                          | Wolfram Language
 25  |      |         | [tba](http://adventofcode.com/2016/day/25)                          | Zsh
-Σ   |  8   |    1    |                                                                     | * coming soon
+Σ   |  9   |    1    |                                                                     | * coming soon
 
 Takeaways
 ---------
