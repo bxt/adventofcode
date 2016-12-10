@@ -1,6 +1,4 @@
 
-require 'set'
-
 class Node
   attr_reader :id, :values
 
