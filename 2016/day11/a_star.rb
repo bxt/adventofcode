@@ -6,10 +6,13 @@ class AStar
     @graph = graph
     @from = from
     @min_distance = min_distance
+
     @predecessors = {}
     @known_distances = {}
+
     @best_distances = Hash.new { Float::INFINITY }
     @best_distances[@from] = 0
+
     @queue = Heap.comparing_by { |x| @best_distances[x] + @min_distance.call(x) }
     @queue.push(@from)
   end
