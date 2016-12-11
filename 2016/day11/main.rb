@@ -1,4 +1,6 @@
 
+require "./a_star"
+
 FLOORS = {first: 0, second: 1, third: 2, fourth: 3}
 INPUT = [
   [[:generator, "polonium"], [:generator, "thulium"],[:microchip, "thulium"],[:generator, "promethium"],[:generator, "ruthenium"],[:microchip, "ruthenium"],[:generator, "cobalt"],[:microchip, "cobalt"]],
@@ -19,16 +21,14 @@ class State
   end
 
   def done?
-    @floors[0,3].all?(&:empty?)
+    @floors[0...-1].all?(&:empty?)
   end
 
   def floor_valid?(floor_index)
     microchips = floor(floor_index).select { |item| item.first == :microchip }.map(&:last)
     generators = floor(floor_index).select { |item| item.first == :generator }.map(&:last)
-    unshielded_generators = generators - microchips
     unshielded_microchips = microchips - generators
-    fried_microchips = unshielded_microchips & unshielded_generators
-    fried_microchips.empty?
+    unshielded_microchips.empty? || generators.empty?
   end
 
   def possible_moves
@@ -66,34 +66,11 @@ class State
       "F#{floor_index} #{floor_index == @floor ? "E" : "."} #{item_strings.join(" ")}"
     end.join("\n")
   end
+
+  def id
+    @floors
+  end
 end
 
 states = [State.new(INPUT, 0, 0)]
 puts states.first.to_s
-
-# One step
-# state.possible_moves.each do |new_state|
-#   puts "####"
-#   puts new_state.to_s
-# end
-
-# BFS
-# while !states.any?(&:done?)
-#   puts states.size
-#   states = states.map(&:possible_moves).flatten(1)
-# end
-
-# DFS
-# while !states.any?(&:done?)
-#   state = states.pop
-#   states = states.map(&:possible_moves).flatten(1) + states
-# end
-
-class Stategy
-  def finish(state)
-    state
-  end
-end
-
-start_state = State.new(INPUT, 0, 0)
-puts Stategy.new.finish(start_state).to_s
