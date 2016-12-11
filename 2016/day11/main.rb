@@ -60,10 +60,10 @@ class State
 
   def to_s
     @floors.each_with_index.map do |floor, floor_index|
-      contents = floor.map do |item|
+      item_strings = floor.map do |item|
         item.last[0,2].capitalize + item.first[0].capitalize
       end
-      "F#{floor_index} #{floor_index == @floor ? "E" : "."} #{contents.join(" ")}"
+      "F#{floor_index} #{floor_index == @floor ? "E" : "."} #{item_strings.join(" ")}"
     end.join("\n")
   end
 end
@@ -90,7 +90,10 @@ puts states.first.to_s
 # end
 
 class Stategy
-  def do
-
+  def finish(state)
+    state
   end
 end
+
+start_state = State.new(INPUT, 0, 0)
+puts Stategy.new.finish(start_state).to_s
