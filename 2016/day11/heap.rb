@@ -19,7 +19,7 @@ class Heap
   def push(element)
 		array.push(element)
     i = array.size - 1
-    increased(i)
+    decreased(i)
 	end
 
   def updates(element)
@@ -27,7 +27,7 @@ class Heap
     if index
       return_value = yield
       heapyfy(index)
-      increased(index)
+      decreased(index)
       return_value
     else
       raise IndexError
@@ -98,18 +98,18 @@ class Heap
   end
 
 	def heapyfy(i)
-    largest = [i, left_index(i), right_index(i)].select do |index|
+    smallest = [i, left_index(i), right_index(i)].select do |index|
       index < array.size
-    end.max(&method(:compare))
+    end.min(&method(:compare))
 
-		if largest != i
-			swap(i, largest)
-			heapyfy(largest)
+		if smallest != i
+			swap(i, smallest)
+			heapyfy(smallest)
 		end
 	end
 
-  def increased(i)
-    while i > 0 && compare(i, parent_index(i)) > 0
+  def decreased(i)
+    while i > 0 && compare(i, parent_index(i)) < 0
 			swap(i, parent_index(i))
 			i = parent_index(i)
 		end
@@ -118,7 +118,7 @@ class Heap
   def search_index(element, i = 0)
     return unless i < array.size
     return i if array[i] == element
-    return if @comparator.call(element, array[i]) > 1
+    return if @comparator.call(element, array[i]) < 0
     search_index(element, left_index(i)) || search_index(element, right_index(i))
   end
 end
@@ -177,8 +177,8 @@ if defined? RSpec
     	end
     end
 
-    example_values = [9,4,6,1].freeze
-    sorted_example_values = example_values.sort.reverse.freeze
+    example_values = [9,4,6,2].freeze
+    sorted_example_values = example_values.sort.freeze
 
     context "filled with values #{example_values.inspect}" do
 
@@ -199,9 +199,9 @@ if defined? RSpec
       end
 
       describe "#push(element)" do
-        it "may retrieve the passed element back with #pop if it is maximum" do
-          subject.push(11)
-          expect(subject.pop).to eq(11)
+        it "may retrieve the passed element back with #pop if it is minimum" do
+          subject.push(1)
+          expect(subject.pop).to eq(1)
     		end
 
         it "changes the size by 1" do
@@ -242,19 +242,19 @@ if defined? RSpec
 
     describe "#to_s" do
       it "returns a pyramid of values" do
-        subject = described_class.new([9, 4, 6, 1])
+        subject = described_class.new([9, 4, 6, 2])
         expect(subject.to_s).to eq([
-          "         9      ",
+          "         2      ",
           "     4       6  ",
-          "   1",
+          "   9",
         ].join("\n"))
       end
 
       it "works when the values fit exactly" do
         subject = described_class.new([9, 4, 6])
         expect(subject.to_s).to eq([
-          "     9  ",
-          "   4   6\n",
+          "     4  ",
+          "   9   6\n",
         ].join("\n"))
       end
     end
