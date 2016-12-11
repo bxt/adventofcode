@@ -12,34 +12,34 @@ The following table lists the available solutions by day and language. I also
 added a short summary for each day. I marked the solutions which I consider
 especially valuable or pretty with a star (☆).
 
-Day | Ruby | Haskell | Description                                                         | Letter Language*
-----|------|---------|---------------------------------------------------------------------|-----------------
-01  |  x   |    x    | [Manhattan turtle walking](http://adventofcode.com/2016/day/1)      | AWK
-02  |  x   |         | [Bathroom code pad walking](http://adventofcode.com/2016/day/2)     | [Brainfuck](day02/part1.bf)
-03  |  x   |         | [(Im)possible triangles](http://adventofcode.com/2016/day/3)        | CoffeeScript
-04  |  x   |         | [Room checksums and encryption](http://adventofcode.com/2016/day/4) | C++
-05  |      |         | [MD5 door code search](http://adventofcode.com/2016/day/5)          | [C](day05/main.c)
-06  |  x   |    x    | [Jammed Santa repetition code](http://adventofcode.com/2016/day/6)  | D
-07  |  x   |         | [Swedish palindrome IPV7](http://adventofcode.com/2016/day/7)       | Elixir
-08  |  x   |         | [2FA display commands](http://adventofcode.com/2016/day/8)          | Erlang
-09  |  x   |         | [Decompress by multiply](http://adventofcode.com/2016/day/9)        | Flow.js
-10  |  x   |         | [Balance Bot Network](http://adventofcode.com/2016/day/10)          | Go
-11  |      |         | [Radiation in elevators](http://adventofcode.com/2016/day/11)       | Hack
-12  |      |         | [tba](http://adventofcode.com/2016/day/12)                          | Java
-13  |      |         | [tba](http://adventofcode.com/2016/day/13)                          | Kotlin
-14  |      |         | [tba](http://adventofcode.com/2016/day/14)                          | Lisp
-15  |      |         | [tba](http://adventofcode.com/2016/day/15)                          | Matlab
-16  |      |         | [tba](http://adventofcode.com/2016/day/16)                          | Objective-C
-17  |      |         | [tba](http://adventofcode.com/2016/day/17)                          | PHP
-18  |      |         | [tba](http://adventofcode.com/2016/day/18)                          | Python
-19  |      |         | [tba](http://adventofcode.com/2016/day/19)                          | Processing
-20  |      |         | [tba](http://adventofcode.com/2016/day/20)                          | Rust
-21  |      |         | [tba](http://adventofcode.com/2016/day/21)                          | Swift
-22  |      |         | [tba](http://adventofcode.com/2016/day/22)                          | TypeScipt
-23  |      |         | [tba](http://adventofcode.com/2016/day/23)                          | Visual Basic
-24  |      |         | [tba](http://adventofcode.com/2016/day/24)                          | Wolfram Language
-25  |      |         | [tba](http://adventofcode.com/2016/day/25)                          | Zsh
-Σ   |  9   |    1    |                                                                     | * coming soon
+Day | Ruby      | Haskell   | Description                             | Letter Language*
+----|-----------|-----------|-----------------------------------------|-----------------
+01  | [x][rb01] | [x][hs01] | [Manhattan turtle walking][aoc01]       | AWK
+02  | [x][rb02] |           | [Bathroom code pad walking][aoc02]      | [Brainfuck](day02/part1.bf) and [Ook!](day02/part1.ook)
+03  | [x][rb03] |           | [(Im)possible triangles][aoc03]         | CoffeeScript
+04  | [x][rb04] |           | [Room checksums and encryption][aoc04]  | C++
+05  |           |           | [MD5 door code search][aoc05]           | [C](day05/main.c)
+06  | [x][rb06] | [x][hs06] | [Jammed Santa repetition code][aoc06]   | D
+07  | [x][rb07] |           | [Swedish palindrome IPV7][aoc07]        | Elixir
+08  | [x][rb08] |           | [2FA display commands][aoc08]           | Erlang
+09  | [x][rb09] |           | [Decompress by multiply][aoc09]         | Flow.js
+10  | [x][rb10] |           | [Balance Bot Network][aoc10]            | Go
+11  |           |           | [Radiation in elevators][aoc11]         | Hack
+12  |           |           | [tba][aoc12]                            | Java
+13  |           |           | [tba][aoc13]                            | Kotlin
+14  |           |           | [tba][aoc14]                            | Lisp
+15  |           |           | [tba][aoc15]                            | Matlab
+16  |           |           | [tba][aoc16]                            | Objective-C
+17  |           |           | [tba][aoc17]                            | PHP
+18  |           |           | [tba][aoc18]                            | Python
+19  |           |           | [tba][aoc19]                            | Processing
+20  |           |           | [tba][aoc20]                            | Rust
+21  |           |           | [tba][aoc21]                            | Swift
+22  |           |           | [tba][aoc22]                            | TypeScipt
+23  |           |           | [tba][aoc23]                            | Visual Basic
+24  |           |           | [tba][aoc24]                            | Wolfram Language
+25  |           |           | [tba][aoc25]                            | Zsh
+Σ   |         9 |         2 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -49,7 +49,7 @@ In addition to having a lot of fun solving the puzzles, I also learned some inte
 * [Writing programs in a language named Brainfuck](day02/part1.bf)
 * Creating a [debugger/IDE thingy using flow and React for Brainfuck](https://gitlab.com/bxt/brainfuck-debugger) with CI testing
 * Pointer and value semantics [in C structs](day05/main.c)
-* Making a [script runnable via `rspec` or `ruby`](day07/main.rb)
+* Making a [script runnable via `rspec` or `ruby`][rb07]
 * [Global methods in Ruby](https://gist.github.com/bxt/b4da635da9aee12d6e7236147513e40f)
 
 Other solutions
@@ -62,3 +62,41 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
 * [glguy](https://github.com/glguy/advent2016) (Haskell)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2016) (Haskell, Python)
 * [Pyrobolser](https://github.com/Pyrobolser/AdventOfCode2016/tree/master/AdventOfCode2016/Days) (C#)
+
+
+ [aoc01]: http://adventofcode.com/2016/day/1
+ [aoc02]: http://adventofcode.com/2016/day/2
+ [aoc03]: http://adventofcode.com/2016/day/3
+ [aoc04]: http://adventofcode.com/2016/day/4
+ [aoc05]: http://adventofcode.com/2016/day/5
+ [aoc06]: http://adventofcode.com/2016/day/6
+ [aoc07]: http://adventofcode.com/2016/day/7
+ [aoc08]: http://adventofcode.com/2016/day/8
+ [aoc09]: http://adventofcode.com/2016/day/9
+ [aoc10]: http://adventofcode.com/2016/day/10
+ [aoc11]: http://adventofcode.com/2016/day/11
+ [aoc12]: http://adventofcode.com/2016/day/12
+ [aoc13]: http://adventofcode.com/2016/day/13
+ [aoc14]: http://adventofcode.com/2016/day/14
+ [aoc15]: http://adventofcode.com/2016/day/15
+ [aoc16]: http://adventofcode.com/2016/day/16
+ [aoc17]: http://adventofcode.com/2016/day/17
+ [aoc18]: http://adventofcode.com/2016/day/18
+ [aoc19]: http://adventofcode.com/2016/day/19
+ [aoc20]: http://adventofcode.com/2016/day/20
+ [aoc21]: http://adventofcode.com/2016/day/21
+ [aoc22]: http://adventofcode.com/2016/day/22
+ [aoc23]: http://adventofcode.com/2016/day/23
+ [aoc24]: http://adventofcode.com/2016/day/24
+ [aoc25]: http://adventofcode.com/2016/day/25
+ [rb01]: day01/main.rb
+ [rb02]: day02/main.rb
+ [rb03]: day03/main.rb
+ [rb04]: day04/main.rb
+ [rb06]: day06/main.rb
+ [rb07]: day07/main.rb
+ [rb08]: day08/main.rb
+ [rb09]: day09/main.rb
+ [rb10]: day10/main.rb
+ [hs01]: day01/main.hs
+ [hs06]: day01/main.hs
