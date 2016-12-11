@@ -1,6 +1,16 @@
+require "forwardable"
 
 class Heap
   include Enumerable
+
+  extend Forwardable
+  def_delegators :@array, :count, :clear, :empty?, :size
+
+  alias_method :first, :min
+
+  def self.comparing_by(array = [], &block)
+    self.new(array) { |x, y| block.call(x) <=> block.call(y) }
+  end
 
   def initialize(array = [], &block)
     @comparator = block
@@ -24,18 +34,20 @@ class Heap
 
   def updates(element)
     index = search_index(element)
+    new_element = yield element
     if index
-      return_value = yield
+      if new_element
+        @array[index] = new_element
+      end
       heapyfy(index)
       decreased(index)
-      return_value
     else
-      raise IndexError
+      if new_element
+        push(new_element)
+      else
+        raise IndexError
+      end
     end
-  end
-
-  def size
-    array.size
   end
 
   def each(&block)
