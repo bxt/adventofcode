@@ -1,0 +1,19 @@
+# p1:
+# 3 + 2*5 + 2*(3*2+1) + 5*2 = 37 too low
+# 3 + 2*5 + 2*(3*2+1 + 5*2) = 47 bingo
+
+
+# p2:
+# 3 + 2*5 + 2*(5*2+1 + 7*2) = 63 too low
+# 3 + 2*7 + 2*(5*2+1 + 7*2) = 67 too low
+# 5 + 2*7 + 2*(5*2+1 + 7*2) = 69 too low
+
+# mkay step by step:
+
+# 7 all chips in 2
+# 2*7 all generators in 2
+# 2*(5*2+1 + 7*2) done
+
+# 7 + 2*7 + 2*(5*2+1 + 7*2) = 71 bingo
+
+# no code required, duh.

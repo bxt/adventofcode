@@ -24,7 +24,7 @@ Day | Ruby | Haskell | Description                                              
 08  |  x   |         | [2FA display commands](http://adventofcode.com/2016/day/8)          | Erlang
 09  |  x   |         | [Decompress by multiply](http://adventofcode.com/2016/day/9)        | Flow.js
 10  |  x   |         | [Balance Bot Network](http://adventofcode.com/2016/day/10)          | Go
-11  |      |         | [tba](http://adventofcode.com/2016/day/11)                          | Hack
+11  |      |         | [Radiation in elevators](http://adventofcode.com/2016/day/11)       | Hack
 12  |      |         | [tba](http://adventofcode.com/2016/day/12)                          | Java
 13  |      |         | [tba](http://adventofcode.com/2016/day/13)                          | Kotlin
 14  |      |         | [tba](http://adventofcode.com/2016/day/14)                          | Lisp
