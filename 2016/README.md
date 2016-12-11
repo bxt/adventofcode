@@ -99,4 +99,4 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb09]: day09/main.rb
  [rb10]: day10/main.rb
  [hs01]: day01/main.hs
- [hs06]: day01/main.hs
+ [hs06]: day06/main.hs
