@@ -9,66 +9,56 @@ INPUT = [
   [],
 ]
 
+class StateGraph
+  def neighbours_with_distance(node)
+  end
+end
+
 class State
-  def initialize(floors, floor, movements)
+  def initialize(floors, elevator)
     @floors = floors
-    @floor = floor
-    @movements = movements
+    @elevator = elevator
   end
 
-  def valid?
-    @floors.all?(&method(:floor_valid?))
+  def valid?(floor_index, floors)
+    floors.all?(&method(:floor_valid?))
   end
 
-  def done?
-    @floors[0...-1].all?(&:empty?)
+  def done?(floors)
+    floors[0...-1].all?(&:empty?)
   end
 
-  def floor_valid?(floor_index)
+  def floor_valid?(floor_index, floors)
     microchips = floor(floor_index).select { |item| item.first == :microchip }.map(&:last)
     generators = floor(floor_index).select { |item| item.first == :generator }.map(&:last)
     unshielded_microchips = microchips - generators
     unshielded_microchips.empty? || generators.empty?
   end
 
-  def possible_moves
-    new_movements = @movements + 1
+  def possible_moves(elevator, floors)
     [1, -1].map do |floor_diff|
-      new_floor_index = @floor + floor_diff
-      if new_floor_index > 0 && new_floor_index < 4
-        takes = [1,2].map { |n| current_floor.combination(n).to_a }.flatten(1)
-        takes.map do |taken|
-          new_floors = @floors.dup
-          new_floors[@floor] = current_floor - taken
-          new_floors[new_floor_index] = floor(new_floor_index) + taken
-          new_state = State.new(new_floors, new_floor_index, new_movements)
-          if new_state.floor_valid?(@floor) && new_state.floor_valid?(new_floor_index)
-            new_state
-          end
-        end
+      elevator + floor_diff
+    end.filter do |floor_index|
+      floor_index >= 0 && new_floor_index < floors.size
+    end.map |next_index|
+      takes = [1,2].map { |n| floors[elevator].combination(n).to_a }.flatten(1)
+      takes.map do |taken|
+        next_floors = floors.dup
+        next_floors[elevator] -= taken
+        next_floors[next_index] += taken
+        next unless floor_valid?(elevator, next_floors) && floor_valid?(next_index, next_floors)
+        [next_index, next_floors]
       end
-    end.flatten(1).compact
+    end.flatten(1)
   end
 
-  def current_floor
-    @floors[@floor]
-  end
-
-  def floor(floor_index)
-    @floors[floor_index]
-  end
-
-  def to_s
-    @floors.each_with_index.map do |floor, floor_index|
+  def floors_to_s(elevator, floors)
+    floors.each_with_index.map do |floor, floor_index|
       item_strings = floor.map do |item|
         item.last[0,2].capitalize + item.first[0].capitalize
       end
-      "F#{floor_index} #{floor_index == @floor ? "E" : "."} #{item_strings.join(" ")}"
+      "F#{floor_index} #{floor_index == elevator ? "E" : "."} #{item_strings.join(" ")}"
     end.join("\n")
-  end
-
-  def id
-    @floors
   end
 end
 
