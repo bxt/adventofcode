@@ -25,7 +25,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 09  | [x][rb09] |           | [Decompress by multiply][aoc09]         | Flow.js
 10  | [x][rb10] |           | [Balance Bot Network][aoc10]            | Go
 11  |           |           | [Radiation in elevators][aoc11]         | Hack
-12  | [x][rb12] | [x][hs12] | [tba][aoc12]                            | Java
+12  | [x][rb12] | [x][hs12] | [tba][Leonardo's Monorail machine]      | [Java](day12/Main.java)
 13  |           |           | [tba][aoc13]                            | Kotlin
 14  |           |           | [tba][aoc14]                            | Lisp
 15  |           |           | [tba][aoc15]                            | Matlab
