@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -156,12 +157,12 @@ public class Main {
 	}
 
 	private static class DefaultMachine extends AbstractMachine<DefaultMachine.Register, Integer> {
-		public enum Register { A,B,C,D }
+		public static enum Register { A,B,C,D }
 
-		private static Register INPUT_REGISTER = Register.C;
-		private static Register RESULT_REGISTER = Register.A;
+		private static final Register INPUT_REGISTER = Register.C;
+		private static final Register RESULT_REGISTER = Register.A;
 
-		private Map<Register, Integer> registers = new EnumMap<>(Register.class);
+		private final Map<Register, Integer> registers = new EnumMap<>(Register.class);
 		{
 			for (Register r : Register.values()) {
 				registers.put(r, 0);
@@ -192,12 +193,14 @@ public class Main {
 	}
 
 	private static class DefaultInstructionSet {
+		private static final Pattern REGISTER_PATTERN = Pattern.compile("[abcd]");
+
 		public List<Instruction<DefaultMachine.Register, Integer>> parseFile(File file) throws FileNotFoundException {
 			try(Scanner scanner = new Scanner(file)) {
-				List<Instruction<DefaultMachine.Register, Integer>> instructions = new ArrayList<>();
+				final List<Instruction<DefaultMachine.Register, Integer>> instructions = new ArrayList<>();
 
 				while(scanner.hasNext()) {
-					String opCode = scanner.next();
+					final String opCode = scanner.next();
 					switch (opCode) {
 					case "cpy": instructions.add(parseCopy(scanner)); break;
 					case "inc": instructions.add(parseAdd(scanner, 1)); break;
@@ -270,7 +273,7 @@ public class Main {
 		}
 
 		Optional<DefaultMachine.Register> parseRegister(Scanner scanner) {
-			if (scanner.hasNext("[abcd]")) {
+			if (scanner.hasNext(REGISTER_PATTERN)) {
 				return Optional.of(DefaultMachine.Register.values()[scanner.next().charAt(0) - 'a']);
 			} else {
 				return Optional.empty();
@@ -297,14 +300,15 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
-		List<Instruction<DefaultMachine.Register, Integer>> instructions = new DefaultInstructionSet().parseFile(new File("input.txt"));
+		final List<Instruction<DefaultMachine.Register, Integer>> instructions
+			= new DefaultInstructionSet().parseFile(new File("input.txt"));
 		{
-			Machine<DefaultMachine.Register, Integer> m = new DefaultMachine(instructions);
+			final Machine<DefaultMachine.Register, Integer> m = new DefaultMachine(instructions);
 			m.run();
 			System.out.println(m.getResult());
 		}
 		{
-			Machine<DefaultMachine.Register, Integer> m = new DefaultMachine(instructions, 1);
+			final Machine<DefaultMachine.Register, Integer> m = new DefaultMachine(instructions, 1);
 			m.run();
 			System.out.println(m.getResult());
 		}
