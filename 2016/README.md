@@ -25,7 +25,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 09  | [x][rb09] |           | [Decompress by multiply][aoc09]         | Flow.js
 10  | [x][rb10] |           | [Balance Bot Network][aoc10]            | Go
 11  |           |           | [Radiation in elevators][aoc11]         | Hack
-12  |           |           | [tba][aoc12]                            | Java
+12  | [x][rb12] |           | [tba][aoc12]                            | Java
 13  |           |           | [tba][aoc13]                            | Kotlin
 14  |           |           | [tba][aoc14]                            | Lisp
 15  |           |           | [tba][aoc15]                            | Matlab
@@ -39,7 +39,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 23  |           |           | [tba][aoc23]                            | Visual Basic
 24  |           |           | [tba][aoc24]                            | Wolfram Language
 25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |         9 |         2 |                                         | * coming soon
+Σ   |        10 |         2 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -98,5 +98,6 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb08]: day08/main.rb
  [rb09]: day09/main.rb
  [rb10]: day10/main.rb
+ [rb12]: day12/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
