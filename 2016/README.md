@@ -14,7 +14,7 @@ especially valuable or pretty with a star (☆).
 
 Day | Ruby      | Haskell   | Description                             | Letter Language*
 ----|-----------|-----------|-----------------------------------------|-----------------
-01  | [x][rb01] | [x][hs01] | [Manhattan turtle walking][aoc01]       | AWK
+01  | [x][rb01] | [x][hs01] | [Manhattan turtle walking][aoc01]       | [AWK](day01/main.awk)
 02  | [x][rb02] |           | [Bathroom code pad walking][aoc02]      | [Brainfuck](day02/part1.bf) and [Ook!](day02/part1.ook)
 03  | [x][rb03] |           | [(Im)possible triangles][aoc03]         | CoffeeScript
 04  | [x][rb04] |           | [Room checksums and encryption][aoc04]  | C++
@@ -39,7 +39,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 23  |           |           | [tba][aoc23]                            | Visual Basic
 24  |           |           | [tba][aoc24]                            | Wolfram Language
 25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |        10 |         2 |                                         | * coming soon
+Σ   |        10 |         3 |                                         | * coming soon
 
 Takeaways
 ---------
