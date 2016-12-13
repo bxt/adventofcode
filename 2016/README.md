@@ -25,8 +25,8 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 09  | [x][rb09] |           | [Decompress by multiply][aoc09]         | Flow.js
 10  | [x][rb10] |           | [Balance Bot Network][aoc10]            | Go
 11  |           |           | [Radiation in elevators][aoc11]         | Hack
-12  | [x][rb12] | [x][hs12] | [Leonardo's Monorail machine][aoc13]    | [Java](day12/Main.java)
-13  |           |           | [tba][aoc13]                            | Kotlin
+12  | [x][rb12] | [x][hs12] | [Leonardo's Monorail machine][aoc12]    | [Java](day12/Main.java)
+13  | [x][rb13] |           | [Cubicles Maze Shortest Path][aoc13]    | Kotlin
 14  |           |           | [tba][aoc14]                            | Lisp
 15  |           |           | [tba][aoc15]                            | Matlab
 16  |           |           | [tba][aoc16]                            | Objective-C
@@ -99,6 +99,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb09]: day09/main.rb
  [rb10]: day10/main.rb
  [rb12]: day12/main.rb
+ [rb13]: day13/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
