@@ -1,4 +1,4 @@
-require_relative '../day11/a_star'
+require_relative "../day11/a_star"
 
 class Field
   include FieldSupport

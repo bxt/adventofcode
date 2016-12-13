@@ -1,5 +1,5 @@
 
-require "./a_star"
+require_relative "a_star"
 
 FLOORS = {first: 0, second: 1, third: 2, fourth: 3}
 INPUT = [
