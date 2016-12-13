@@ -1,10 +1,11 @@
-
-require "./heap"
+require_relative "heap"
+require_relative "field_support"
 
 class AStar
-  def initialize(graph, from, &min_distance)
+  def initialize(graph, from, max_distance = nil, &min_distance)
     @graph = graph
     @from = from
+    @max_distance = max_distance
     @min_distance = min_distance
 
     @predecessors = {}
@@ -17,26 +18,39 @@ class AStar
     @queue.push(@from)
   end
 
+  def reachable
+    calculate_distances
+    @known_distances.keys
+  end
+
   def distance(to)
-    while @queue.any?
-      current = @queue.pop
-      @known_distances[current] = @best_distances[current]
-      if current == to
-        return @known_distances[to]
-      else
-        handle_children(current)
+    @known_distances[to] || calculate_distances do |node, distance|
+      if node == to
+        @queue.push(node)
+        return distance
       end
     end
   end
 
-  def path(to)
-    distance(to)
-    path = []
-    while to
-      path.unshift(to)
-      to = @predecessors[to]
+  def calculate_distances
+    while @queue.any?
+      current = @queue.pop
+      current_distance = @best_distances[current]
+      @known_distances[current] = current_distance
+      yield current, current_distance if block_given?
+      handle_children(current)
     end
-    path
+  end
+
+  def path(to)
+    if distance(to)
+      path = []
+      while to
+        path.unshift(to)
+        to = @predecessors[to]
+      end
+      path
+    end
   end
 
   private
@@ -46,7 +60,7 @@ class AStar
       unless @known_distances.key?(neighbour)
         possible_distance = @known_distances[current] + distance
         best_distance = @best_distances[neighbour]
-        if possible_distance < best_distance
+        if possible_distance < best_distance && (@max_distance.nil? || possible_distance <= @max_distance)
           @predecessors[neighbour] = current
           @queue.updates(neighbour) do
             @best_distances[neighbour] = possible_distance
@@ -60,7 +74,9 @@ end
 
 if defined? RSpec
   describe AStar do
+
     class Field
+      include FieldSupport
       attr_reader :field
 
       def initialize(field)
@@ -76,25 +92,12 @@ if defined? RSpec
       end
 
       def distance(from, to)
-        x1, y1 = from
-        x2, y2 = to
-        Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        euclidian_distance(from, to)
       end
 
       def neighbours(of)
-        x, y = of
-        [1,-1,0].repeated_permutation(2).find_all do |x|
-          x != [0,0]
-        end.map do |xDiff, yDiff|
-          [x + xDiff, y + yDiff]
-        end.find_all do |x, y|
+        eight_neighbours(of).find_all do |x, y|
           y >= 0 && y < height && x >= 0 && x < width && field[y][x] != "x"
-        end
-      end
-
-      def neighbours_with_distance(of)
-        neighbours(of).map do |node|
-          [distance(of, node), node]
         end
       end
 
@@ -105,7 +108,7 @@ if defined? RSpec
 
         a_star = AStar.new(field, from) { |x| use_heuristics ? field.distance(x, to) : 0 }
 
-        [a_star.distance(to), a_star.path(to)]
+        [a_star.distance(to), a_star.path(to), a_star.reachable]
       end
     end
 
@@ -118,7 +121,7 @@ if defined? RSpec
       ] }
 
       it 'works without heurisitcs' do
-        distance, path = Field.run_a_star(false, field_array)
+        distance, path, reachable = Field.run_a_star(false, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 0],
@@ -130,10 +133,11 @@ if defined? RSpec
           [5, 3],
         ])
         expect(distance).to be_within(0.000001).of(4 + 3 * Math.sqrt(2))
+        expect(reachable.size).to eq(6 * 4 - 7)
       end
 
       it 'works with heurisitcs' do
-        distance, path = Field.run_a_star(true, field_array)
+        distance, path, reachable = Field.run_a_star(true, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 0],
@@ -145,6 +149,7 @@ if defined? RSpec
           [5, 3],
         ])
         expect(distance).to be_within(0.000001).of(4 + 3 * Math.sqrt(2))
+        expect(reachable.size).to eq(6 * 4 - 7)
       end
     end
 
@@ -157,7 +162,7 @@ if defined? RSpec
       ] }
 
       it 'works without heurisitcs' do
-        distance, path = Field.run_a_star(false, field_array)
+        distance, path, reachable = Field.run_a_star(false, field_array)
         expect(path).to eq([
           [0, 0],
           [0, 1],
@@ -168,10 +173,11 @@ if defined? RSpec
           [5, 3],
         ])
         expect(distance).to be_within(0.000001).of(4 + 2 * Math.sqrt(2))
+        expect(reachable.size).to eq(6 * 4 - 4)
       end
 
       it 'works with heurisitcs' do
-        distance, path = Field.run_a_star(true, field_array)
+        distance, path, reachable = Field.run_a_star(true, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 1],
@@ -182,6 +188,23 @@ if defined? RSpec
           [5, 3],
         ])
         expect(distance).to be_within(0.000001).of(4 + 2 * Math.sqrt(2))
+        expect(reachable.size).to eq(6 * 4 - 4)
+      end
+    end
+
+    context "for a walled example" do
+      let(:field_array) { [
+        "    x ".chars,
+        " x  x ".chars,
+        " x  x ".chars,
+        "    x ".chars,
+      ] }
+
+      it 'reports no path' do
+        distance, path, reachable = Field.run_a_star(true, field_array)
+        expect(distance).to be_nil
+        expect(path).to be_nil
+        expect(reachable.size).to eq(4 * 4 - 2)
       end
     end
   end
