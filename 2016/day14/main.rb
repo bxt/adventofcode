@@ -48,15 +48,27 @@ class KeyFinder
   end
 end
 
-class StretchedMD5KeyStream
-  CHUNK_COUNT = 3
-  CHUNK_SIZE = 8000
+class BasicKeyStream
+  def initialize(salt, &block)
+    @salt = salt
+    @store = Hash.new { |h, i| h[i] = @hash_function.call(@salt, i) if i >= 0 }
+    @hash_function = block
+  end
+
+  def [](index)
+    @store[index]
+  end
+end
+
+class ParallelKeyStream
+  CHUNK_COUNT = 20
+  CHUNK_SIZE = 100
 
   def initialize(salt, &block)
     @salt = salt
     @precalculated_until = 0
     @store = {}
-    @filter = block
+    @hash_function = block
   end
 
   def [](index)
@@ -70,12 +82,11 @@ class StretchedMD5KeyStream
       fork do
         parent_read.close
         from = @precalculated_until + i*CHUNK_SIZE
-        puts "> #{from}"
+        # puts "> #{from}"
         result = {}
         CHUNK_SIZE.times do |k|
           index = from + k
-          hash = stretched_md5(@salt, index)
-          result[index] = hash if @filter.call(hash)
+          result[index] = @hash_function.call(@salt, index)
         end
         Marshal.dump(result, child_write)
         exit!(0)
@@ -100,22 +111,34 @@ salt = "abc" # -> 22728 / 22551
 salt = "yjdafjpo" # -> 25427 / 22045
 
 key_streams = {
-  "One" => Hash.new { |h, i| h[i] = salted_md5(salt, i) if i >= 0 },
-  "Two" => StretchedMD5KeyStream.new(salt) { |hash| find_repeated_char(3, hash) },
+  "One" => BasicKeyStream,
+  "Two" => BasicKeyStream,
+}
+
+hash_functions = {
+  "One" => method(:salted_md5),
+  "Two" => method(:stretched_md5),
 }
 
 OptionParser.new do |opts|
   opts.banner = "Usage: main.rb [options]"
-  opts.on('-c', '--use-native-extension', 'Enable to use native C extension') do |v|
+
+  opts.on('-c', '--use-native-extension', 'Enable to use native C extension for part two') do |v|
     require_relative './stretched_md5/stretched_md5'
 
-    key_streams["Two"] = Hash.new do |h, i|
-      h[i] = StretchedMd5.get("#{salt}#{i}") if i >= 0
+    hash_functions["Two"] = Proc.new do |salt, i|
+      StretchedMd5.get("#{salt}#{i}") if i >= 0
     end
+  end
+
+  opts.on('-f', '--use-fork-parallelism', 'Use a Fork/Join method to run parallel computations for part two') do |v|
+    key_streams["Two"] = ParallelKeyStream
   end
 end.parse!
 
-key_streams.each do |label, key_stream|
+key_streams.each do |label, key_stream_class|
   puts "Part #{label}:"
+  hash_function = hash_functions[label]
+  key_stream = key_stream_class.new(salt, &hash_function)
   KeyFinder.new(key_stream).print_key_at(63)
 end
