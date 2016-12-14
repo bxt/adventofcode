@@ -27,7 +27,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 11  |           |           | [Radiation in elevators][aoc11]         | Hack
 12  | [x][rb12] | [x][hs12] | [Leonardo's Monorail machine][aoc12]    | [Java](day12/Main.java)
 13  | [x][rb13] |           | [Cubicles Maze Shortest Path][aoc13]    | Kotlin
-14  |           |           | [tba][aoc14]                            | Lisp
+14  | [x][rb14] |           | [MD5 Key search][aoc14]                 | Lisp
 15  |           |           | [tba][aoc15]                            | Matlab
 16  |           |           | [tba][aoc16]                            | Objective-C
 17  |           |           | [tba][aoc17]                            | PHP
@@ -39,7 +39,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 23  |           |           | [tba][aoc23]                            | Visual Basic
 24  |           |           | [tba][aoc24]                            | Wolfram Language
 25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |        10 |         3 |                                         | * coming soon
+Σ   |        12 |         3 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -100,6 +100,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb10]: day10/main.rb
  [rb12]: day12/main.rb
  [rb13]: day13/main.rb
+ [rb14]: day14/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
