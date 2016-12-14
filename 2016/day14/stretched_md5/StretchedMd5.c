@@ -23,8 +23,8 @@ void stringMd5Sum(unsigned char* md, char* into) {
   for(i = 0; i < MD5_DIGEST_LENGTH; i++) {
     unsigned char digit0 = md[i] >> 4;
     unsigned char digit1 = md[i] & 0x0f;
-    into[i*2+0] = digit0 < 10 ? digit0 + '0' : digit0 - 10 + 'a';
-    into[i*2+1] = digit1 < 10 ? digit1 + '0' : digit1 - 10 + 'a';
+    into[i*2+0] = digit0 + '0' + (digit0 >= 10) * ('a' - '0' - 10);
+    into[i*2+1] = digit1 + '0' + (digit1 >= 10) * ('a' - '0' - 10);
   }
 }
 
