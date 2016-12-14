@@ -1,4 +1,5 @@
 require 'digest/md5'
+require 'optparse'
 
 def find_repeated_char(times, string)
   return unless string
@@ -102,6 +103,17 @@ key_streams = {
   "One" => Hash.new { |h, i| h[i] = salted_md5(salt, i) if i >= 0 },
   "Two" => StretchedMD5KeyStream.new(salt) { |hash| find_repeated_char(3, hash) },
 }
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: main.rb [options]"
+  opts.on('-c', '--use-native-extension', 'Enable to use native C extension') do |v|
+    require_relative './stretched_md5/stretched_md5'
+
+    key_streams["Two"] = Hash.new do |h, i|
+      h[i] = StretchedMd5.get("#{salt}#{i}") if i >= 0
+    end
+  end
+end.parse!
 
 key_streams.each do |label, key_stream|
   puts "Part #{label}:"
