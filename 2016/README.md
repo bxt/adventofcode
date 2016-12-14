@@ -51,6 +51,8 @@ In addition to having a lot of fun solving the puzzles, I also learned some inte
 * Pointer and value semantics [in C structs](day05/main.c)
 * Making a [script runnable via `rspec` or `ruby`][rb07]
 * [Global methods in Ruby](https://gist.github.com/bxt/b4da635da9aee12d6e7236147513e40f)
+* Maintainability and speed: [Day 12](day12/) has slow Haskell solution (350s), a long and fast (<1s) Java solution and a Ruby solution in between (15s). However, [building a C program with AWK](https://www.reddit.com/r/adventofcode/comments/5hus40/2016_day_12_solutions/db36od6/) and compiling builds the solution instantly.
+* Optimizing a Ruby script: [MD5ing in day 14][rb14] runs 80s, with fork parallelism 40s, with critical paths in C 13s, with both 5s.
 
 Other solutions
 ---------------
