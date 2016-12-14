@@ -43,9 +43,56 @@ def salted_md5(salt, input)
   Digest::MD5.hexdigest("#{salt}#{input}")
 end
 
-def stretched_md5(salt, input)
-  2017.times.reduce("#{salt}#{input}") do |prev, _|
-    Digest::MD5.hexdigest(prev)
+class StretchedMD5KeyStream
+  CHUNK_COUNT = 3
+  CHUNK_SIZE = 1000
+
+  def initialize(salt)
+    @salt = salt
+    @precalculated_until = 0
+    @store = Hash.new { |h, i| raise 'not found :/' if i >= 0 }
+  end
+
+  def [](index)
+    calculate_chunks if index >= @precalculated_until
+    @store[index]
+  end
+
+  def calculate_chunks
+    read_pipes = CHUNK_COUNT.times.map do |i|
+      parent_read, child_write = IO.pipe
+      fork do
+        parent_read.close
+        from = @precalculated_until + i*CHUNK_SIZE
+        result = {}
+        CHUNK_SIZE.times do |k|
+          index = from + k
+          result[index] = stretched_md5(@salt, index)
+        end
+        Marshal.dump(result, child_write)
+        exit!(0)
+      end
+      child_write.close
+      parent_read
+    end
+
+    Process.waitall
+
+    read_pipes.each do |read_pipe|
+      result = read_pipe.read
+      result_hash = Marshal.load(result)
+      @store.merge!(result_hash)
+    end
+
+    @precalculated_until += CHUNK_COUNT*CHUNK_SIZE
+  end
+
+  private
+
+  def stretched_md5(salt, input)
+    2017.times.reduce("#{salt}#{input}") do |prev, _|
+      Digest::MD5.hexdigest(prev)
+    end
   end
 end
 
@@ -54,7 +101,7 @@ salt = "yjdafjpo" # -> 25427 / 22045
 
 key_streams = {
   "One" => Hash.new { |h, i| h[i] = salted_md5(salt, i) if i >= 0 },
-  "Two" => Hash.new { |h, i| h[i] = stretched_md5(salt, i) if i >= 0 },
+  "Two" => StretchedMD5KeyStream.new(salt),
 }
 
 key_streams.each do |label, key_stream|
