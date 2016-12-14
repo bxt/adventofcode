@@ -1,33 +1,63 @@
 require 'digest/md5'
 
-# key = "abc" # -> 22728
-key = "yjdafjpo"
-
-last1k = []
-found = []
-lastIndex = 333333333
-
-i = 0
-while i < lastIndex
-  candidate = Digest::MD5.hexdigest("#{key}#{i}")
-  if m = candidate.match(/(.)\1\1\1\1/)
-    repeaded_letter = m.captures[0]
-    key_indices = last1k.each_with_index.find_all do |hash, key_index|
-      hash.match(/#{repeaded_letter}#{repeaded_letter}#{repeaded_letter}/)
-    end.each do |hash, key_index|
-      found.push(i - key_index - 1)
-      puts i, key_index, i - key_index - 1, candidate, hash, repeaded_letter, '####'
-      if found.size == 64
-        lastIndex = i# + 10000
-      end
-    end
+class KeyFinder
+  def initialize(key_stream)
+    @key_stream = key_stream
   end
-  last1k.unshift(candidate)
-  last1k.pop while last1k.size > 1000
-  i += 1
+
+  def print_key_at(index, &keygen)
+    max_index_diff = 999
+    max_stream_index = 333333333
+    found = []
+
+    i = 0
+    while i < max_stream_index
+      candidate = @key_stream[i]
+      if repeaded_char = find_repeated_char(5, candidate)
+        (i - 1).downto(0).first(max_index_diff).each do |k|
+          if find_repeated_char(3, @key_stream[k]) == repeaded_char
+            found.push(k)
+            print k
+            print "\r"
+            max_stream_index = i + max_index_diff + 1 if found.size == 64
+          end
+        end
+      end
+      i += 1
+    end
+
+    puts found.sort[index]
+  end
+
+  private
+
+  def find_repeated_char(times, string)
+    return unless string
+    matches = string.match(/(.)\1{#{times - 1}}/)
+    return unless matches
+    matches.captures[0]
+  end
 end
 
-puts found.size
-puts found.sort[63]
-puts found.sort.inspect
-puts found.sort.last
+def salted_md5(salt, input)
+  Digest::MD5.hexdigest("#{salt}#{input}")
+end
+
+def stretched_md5(salt, input)
+  2017.times.reduce("#{salt}#{input}") do |prev, _|
+    Digest::MD5.hexdigest(prev)
+  end
+end
+
+salt = "abc" # -> 22728 / 22551
+salt = "yjdafjpo" # -> 25427 / 22045
+
+key_streams = {
+  "One" => Hash.new { |h, i| h[i] = salted_md5(salt, i) if i >= 0 },
+  "Two" => Hash.new { |h, i| h[i] = stretched_md5(salt, i) if i >= 0 },
+}
+
+key_streams.each do |label, key_stream|
+  puts "Part #{label}:"
+  KeyFinder.new(key_stream).print_key_at(63)
+end
