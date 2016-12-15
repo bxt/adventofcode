@@ -28,7 +28,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 12  | [x][rb12] | [x][hs12] | [Leonardo's Monorail machine][aoc12]    | [Java](day12/Main.java)
 13  | [x][rb13] |           | [Cubicles Maze Shortest Path][aoc13]    | Kotlin
 14  | [x][rb14] |           | [MD5 Key search][aoc14]                 | Lisp
-15  |           |           | [tba][aoc15]                            | Matlab
+15  | [x][rb15] |           | [Kinetic disc modulus sculpture][aoc15] | Matlab
 16  |           |           | [tba][aoc16]                            | Objective-C
 17  |           |           | [tba][aoc17]                            | PHP
 18  |           |           | [tba][aoc18]                            | Python
@@ -103,6 +103,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb12]: day12/main.rb
  [rb13]: day13/main.rb
  [rb14]: day14/main.rb
+ [rb15]: day15/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
