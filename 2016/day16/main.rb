@@ -1,27 +1,30 @@
 
-input = "10001110011110000"
-#len = 272
-len = 35651584
-
-#input = "10000"
-#len = 20
-
 def expand(string)
   string + "0" + string.reverse.tr('01','10')
 end
 
-while input.size < len
-  input = expand(input)
-  #puts "expanded to: #{input}"
-end
-
-input = input[0, len]
-
-while input.size.even?
-  input.gsub!(/../) do |cs|
-    cs[0] == cs[1] ? '1' : '0'
+def generate(string, length)
+  while string.size < length
+    string = expand(string)
   end
-  #puts "smalled to: #{input}"
+  string[0, length]
 end
 
-puts input
+def shrink(string)
+  string.gsub(/../) do |pair|
+    pair[0] == pair[1] ? '1' : '0'
+  end
+end
+
+def checksum(string)
+  while string.size.even?
+    string = shrink(string)
+  end
+  string
+end
+
+input = "10001110011110000"
+
+puts "Example: #{checksum(generate("10000", 20))}"
+puts "Part One: #{checksum(generate(input, 272))}"
+puts "Part One: #{checksum(generate(input, 35651584))}"
