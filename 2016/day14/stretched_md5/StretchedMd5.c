@@ -46,27 +46,3 @@ VALUE method_get(VALUE self, VALUE arg1) {
 
 	return resultRuby;
 }
-
-// int main(int argc, char *argv[]) {
-//   //char key[23] = "abc";
-//   char key[23] = "yjdafjpo";
-//   size_t keyLength = strlen(key);
-//
-//   bool done = false;
-//   for (int resultNumber = 0; !done && resultNumber < SEARCH_MAX; resultNumber++) {
-//     unsigned char result[MD5_DIGEST_LENGTH];
-//
-//     int resultLength = sprintf(key + keyLength, "%d", resultNumber);
-//     MD5((unsigned char*) key, resultLength + keyLength, result);
-//
-//     char resultString[MD5_DIGEST_LENGTH*2 + 1] = {0};
-//     stringMd5Sum(result, resultString);
-//     //printf("\nat: %d\nmd5: %s\n\n", resultNumber, resultString);
-//     char firstAfterZeros = resultString[5];
-//     char secondAfterZeros = resultString[6];
-//
-//     printf("%s %d\n", resultNumber, resultString);
-//   }
-//
-//   return 0;
-// }
