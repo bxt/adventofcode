@@ -29,7 +29,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 13  | [x][rb13] |           | [Cubicles Maze Shortest Path][aoc13]    | Kotlin
 14  | [x][rb14] |           | [MD5 Key search][aoc14]                 | Lisp
 15  | [x][rb15] |           | [Kinetic disc modulus sculpture][aoc15] | [Matlab](day15/main.m)
-16  |           |           | [tba][aoc16]                            | Objective-C
+16  | [x][rb16] | [x][hs16] | [Generate Binary disk checksum][aoc16]  | Objective-C
 17  |           |           | [tba][aoc17]                            | PHP
 18  |           |           | [tba][aoc18]                            | Python
 19  |           |           | [tba][aoc19]                            | Processing
@@ -104,6 +104,8 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb13]: day13/main.rb
  [rb14]: day14/main.rb
  [rb15]: day15/main.rb
+ [rb16]: day16/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
+ [hs16]: day16/main.hs
