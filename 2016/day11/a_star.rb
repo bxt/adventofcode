@@ -75,7 +75,7 @@ end
 if defined? RSpec
   describe AStar do
 
-    class Field
+    field_class = Class.new do
       include FieldSupport
       attr_reader :field
 
@@ -95,14 +95,17 @@ if defined? RSpec
         euclidian_distance(from, to)
       end
 
+      def is_wall?(coords)
+        x, y = coords
+        field[y][x] == "x"
+      end
+
       def neighbours(of)
-        eight_neighbours(of).find_all do |x, y|
-          y >= 0 && y < height && x >= 0 && x < width && field[y][x] != "x"
-        end
+        eight_neighbours(of).find_all(&method(:in_bounds?)).reject(&method(:is_wall?))
       end
 
       def self.run_a_star(use_heuristics, field_array)
-        field = Field.new(field_array)
+        field = new(field_array)
         to = [field.width - 1, field.height - 1]
         from = [0, 0]
 
@@ -121,7 +124,7 @@ if defined? RSpec
       ] }
 
       it 'works without heurisitcs' do
-        distance, path, reachable = Field.run_a_star(false, field_array)
+        distance, path, reachable = field_class.run_a_star(false, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 0],
@@ -137,7 +140,7 @@ if defined? RSpec
       end
 
       it 'works with heurisitcs' do
-        distance, path, reachable = Field.run_a_star(true, field_array)
+        distance, path, reachable = field_class.run_a_star(true, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 0],
@@ -162,7 +165,7 @@ if defined? RSpec
       ] }
 
       it 'works without heurisitcs' do
-        distance, path, reachable = Field.run_a_star(false, field_array)
+        distance, path, reachable = field_class.run_a_star(false, field_array)
         expect(path).to eq([
           [0, 0],
           [0, 1],
@@ -177,7 +180,7 @@ if defined? RSpec
       end
 
       it 'works with heurisitcs' do
-        distance, path, reachable = Field.run_a_star(true, field_array)
+        distance, path, reachable = field_class.run_a_star(true, field_array)
         expect(path).to eq([
           [0, 0],
           [1, 1],
@@ -201,7 +204,7 @@ if defined? RSpec
       ] }
 
       it 'reports no path' do
-        distance, path, reachable = Field.run_a_star(true, field_array)
+        distance, path, reachable = field_class.run_a_star(true, field_array)
         expect(distance).to be_nil
         expect(path).to be_nil
         expect(reachable.size).to eq(4 * 4 - 2)

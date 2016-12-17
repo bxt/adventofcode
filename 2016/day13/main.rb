@@ -89,10 +89,10 @@ range = 50
 # input = 10
 
 field_one = FieldPartOne.new(from, input, target)
-puts "Part One: #{field_one.distance_to_target}"
+puts "Part One: #{field_one.distance_to_target}" # 90
 # puts field_one.to_s
 
 
 field_two = FieldPartTwo.new(from, input, range)
-puts "Part Two: #{field_two.reachable.size}"
+puts "Part Two: #{field_two.reachable.size}" # 135
 # puts field_two.to_s
