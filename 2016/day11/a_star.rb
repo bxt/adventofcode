@@ -23,13 +23,18 @@ class AStar
     @known_distances.keys
   end
 
-  def distance(to)
-    @known_distances[to] || calculate_distances do |node, distance|
-      if node == to
+  def find_closest
+    calculate_distances do |node|
+      if yield node
         @queue.push(node)
-        return distance
+        return node
       end
     end
+  end
+
+  def distance(to)
+    find_closest(&to.method(:==)) unless @known_distances[to]
+    @known_distances[to]
   end
 
   def calculate_distances
