@@ -74,10 +74,12 @@ class Field
   end
 end
 
-input = "mmsxrhfx"
+if __FILE__ == $PROGRAM_NAME
+  input = "mmsxrhfx"
 
-field = Field.new(4, 4, input)
+  field = Field.new(4, 4, input)
 
-puts "Part One: #{field.shortest_path_to_target}" # RLDUDRDDRR
-# runs for ~35s
-puts "Part Two: #{field.longest_path_to_target.length}" # 590
+  puts "Part One: #{field.shortest_path_to_target}" # RLDUDRDDRR
+  # runs for ~35s
+  puts "Part Two: #{field.longest_path_to_target.length}" # 590
+end
