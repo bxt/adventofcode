@@ -31,7 +31,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 15  | [x][rb15] |           | [Kinetic disc modulus sculpture][aoc15] | [Matlab](day15/main.m)
 16  | [x][rb16] | [x][hs16] | [Generate Binary disk checksum][aoc16]  | Objective-C
 17  | [x][rb17] |           | [MD5 doors in 4x4 rooms vault][aoc17]   | PHP
-18  |           |           | [tba][aoc18]                            | Python
+18  | [x][rb18] |           | [Cellular tiled floor][aoc18]           | Python
 19  |           |           | [tba][aoc19]                            | Processing
 20  |           |           | [tba][aoc20]                            | Rust
 21  |           |           | [tba][aoc21]                            | Swift
@@ -39,7 +39,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 23  |           |           | [tba][aoc23]                            | Visual Basic
 24  |           |           | [tba][aoc24]                            | Wolfram Language
 25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |        15 |         4 |                                         | * coming soon
+Σ   |        16 |         4 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -106,6 +106,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb15]: day15/main.rb
  [rb16]: day16/main.rb
  [rb17]: day17/main.rb
+ [rb18]: day18/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
