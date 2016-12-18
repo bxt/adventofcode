@@ -46,6 +46,14 @@ class TiledFloor
   end
 end
 
+def sierpinski(n)
+  tiled_floor = TiledFloor.parse("^" + "." * (2**n - 2))
+  tiled_floor.calculate_rows(2**n - 1)
+  tiled_floor.to_s.lines.last(2**(n - 1)).join
+end
+
+# puts sierpinski(7)
+
 input = IO.read("input.txt").strip
 # input = ".^^.^.^^^^"
 
