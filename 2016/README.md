@@ -30,9 +30,9 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 14  | [x][rb14] |           | [MD5 Key search][aoc14]                 | Lisp
 15  | [x][rb15] |           | [Kinetic disc modulus sculpture][aoc15] | [Matlab](day15/main.m)
 16  | [x][rb16] | [x][hs16] | [Generate Binary disk checksum][aoc16]  | Objective-C
-17  | [x][rb17] |           | [MD5 doors in 4x4 rooms vault][aoc17]   | PHP
-18  | [x][rb18] |           | [Cellular tiled floor][aoc18]           | Python
-19  |           |           | [tba][aoc19]                            | Processing
+17  | [x][rb17] |           | [MD5 doors in 4x4 rooms vault][aoc17]   | Python
+18  | [x][rb18] |           | [Cellular tiled floor][aoc18]           | Processing
+19  |           |           | [Elves stealing White Elephants][aoc19] | PHP
 20  |           |           | [tba][aoc20]                            | Rust
 21  |           |           | [tba][aoc21]                            | Swift
 22  |           |           | [tba][aoc22]                            | TypeScipt
