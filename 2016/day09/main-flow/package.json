@@ -1,0 +1,12 @@
+{
+  "name": "AoC-2016-19-flowjs",
+  "scripts": {
+    "start": "babel-node index.js",
+    "flow": "flow; test $? -eq 0 -o $? -eq 2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-plugin-transform-flow-strip-types": "^6.21.0",
+    "flow-bin": "^0.37.1"
+  }
+}
