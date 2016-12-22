@@ -34,12 +34,12 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 18  | [x][rb18] |           | [Cellular tiled floor][aoc18]           | Processing
 19  | [x][rb19] |           | [Elves stealing White Elephants][aoc19] | PHP
 20  | [x][rb20] |           | [IP range block list][aoc20]            | Rust
-21  |           |           | [tba][aoc21]                            | Swift
+21  | [x][rb21] |           | [Password scrambling][aoc21]            | Swift
 22  |           |           | [tba][aoc22]                            | TypeScipt
 23  |           |           | [tba][aoc23]                            | Visual Basic
 24  |           |           | [tba][aoc24]                            | Wolfram Language
 25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |        18 |         4 |                                         | * coming soon
+Σ   |        19 |         4 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -109,6 +109,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb18]: day18/main.rb
  [rb19]: day19/main.rb
  [rb20]: day20/main.rb
+ [rb21]: day21/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
