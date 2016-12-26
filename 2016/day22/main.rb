@@ -1,10 +1,9 @@
 require_relative "../day11/a_star"
+require_relative "./field"
 
 CLEAR_SCEEEN = "\e[H\e[2J"
 
-class Grid
-  include FieldSupport
-
+class Grid < Field
   attr_reader :move_count
   attr_reader :goal_at
 
@@ -28,8 +27,8 @@ class Grid
   end
 
   def initialize(array)
+    super(array)
     @move_count = 0
-    @array = array
     @goal_at = [width - 1, 0]
   end
 
@@ -64,29 +63,6 @@ class Grid
     @move_count += 1
   end
 
-  def get(coords)
-    x, y = coords
-    @array[y][x]
-  end
-
-  def width
-    @array.first.size
-  end
-
-  def height
-    @array.size
-  end
-
-  def each_node
-    return enum_for(:each_node) unless block_given?
-
-    @array.each_with_index.map do |row, y|
-      row.each_with_index.map do |node, x|
-        yield node, [x, y]
-      end
-    end
-  end
-
   def count_viable_pairs
     each_node.map do |a, a_coords|
       each_node.count do |b, b_coords|
@@ -102,7 +78,7 @@ class Grid
   end
 
   def to_s
-    @array.each_with_index.map do |row, y|
+    array.each_with_index.map do |row, y|
       row.each_with_index.map do |node, x|
         if x == 0 && y == 0
           "o"
