@@ -4,11 +4,11 @@ module FieldSupport
   end
 
   def squared_euclidian_distance(from, to)
-    add_coordinates(from, to.map(&:-@)).map { |x| x ** 2 }.inject(:+)
+    add_coordinates(from, to.map(&:-@)).map { |x| x ** 2 }.sum
   end
 
   def manhattan_distance(from, to)
-    add_coordinates(from, to.map(&:-@)).map(&:abs).inject(:+)
+    add_coordinates(from, to.map(&:-@)).map(&:abs).sum
   end
 
   def eight_neighbours(of)
@@ -26,7 +26,7 @@ module FieldSupport
   end
 
   def add_coordinates(a, *b)
-    a.zip(*b).map { |x| x.inject(:+) }
+    a.zip(*b).map { |x| x.sum }
   end
 
   def in_bounds?(coords)

@@ -10,7 +10,7 @@ class TaxiCab
   end
 
   def step
-    @position = @position.zip(heading).map { |a| a.inject(:+) }
+    @position = @position.zip(heading).map { |a| a.sum }
   end
 
   def turn(turn_direction)
@@ -18,7 +18,7 @@ class TaxiCab
   end
 
   def distance
-    @position.map(&:abs).inject(:+)
+    @position.map(&:abs).sum
   end
 
   private

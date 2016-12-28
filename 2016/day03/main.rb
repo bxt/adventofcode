@@ -1,7 +1,7 @@
 
 def valid_triangle?(sides)
   *catheti, hypotenuse = sides.sort
-  catheti.inject(:+) > hypotenuse
+  catheti.sum > hypotenuse
 end
 
 def parse_line(line)
@@ -15,7 +15,7 @@ end
 def part_two_answer
   IO.readlines("input.txt").each_slice(3).map do |lines|
     lines.map(&method(:parse_line)).transpose.count(&method(:valid_triangle?))
-  end.inject(:+)
+  end.sum
 end
 
 puts "Part One: #{part_one_answer}"

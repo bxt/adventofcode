@@ -27,7 +27,7 @@ class Screen
   end
 
   def count(status)
-    field.map { |col| col.count {|c| c == CHARS[status]} }.inject(:+)
+    field.map { |col| col.count {|c| c == CHARS[status]} }.sum
   end
 
   def to_s

@@ -40,7 +40,7 @@ def range_size(range)
 end
 
 def range_list_size(range_list)
-  range_list.map(&method(:range_size)).inject(:+)
+  range_list.map(&method(:range_size)).sum
 end
 
 ip_ranges = IO.readlines("input.txt").map do |line|

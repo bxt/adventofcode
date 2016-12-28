@@ -54,7 +54,7 @@ end
 rooms = IO.readlines("input.txt").map(&Room.method(:parse))
 valid_rooms = rooms.find_all(&:valid?)
 
-valid_checksum_sum = valid_rooms.map(&:sector_id).reduce(:+)
+valid_checksum_sum = valid_rooms.map(&:sector_id).sum
 
 north_pole_room = valid_rooms.find do |room|
   room.decrypted_name == "northpole object storage"
