@@ -53,6 +53,7 @@ In addition to having a lot of fun solving the puzzles, I also learned some inte
 * [Global methods in Ruby](https://gist.github.com/bxt/b4da635da9aee12d6e7236147513e40f)
 * Speed and languages: [Day 12](day12/) has fast (3s) Haskell solution, which is slow through `runhaskell` (350s), a long and fast (<1s) Java solution and a Ruby solution in between (15s). However, [building a C program with AWK](https://www.reddit.com/r/adventofcode/comments/5hus40/2016_day_12_solutions/db36od6/) and compiling builds the solution instantly.
 * Optimizing a Ruby script: [MD5ing in day 14][rb14] runs 80s, with fork parallelism 40s, with critical paths in C 13s, with both 5s.
+* Ruby 2.4.0 was released at the end of AoC: The new hash improvements were not noticable in Day 14's script. But the new `Array#sum` method (see 0424ecbb2d37b68f007bb1e44005de79ed7c9ef3) and the new `Regex#match?` were already useful.
 
 Other solutions
 ---------------
