@@ -1,10 +1,9 @@
 
-ALPHABET = ("a".."z").to_a
+ALPHABET = ("a".."z").to_a.join
 
 def rot(string, n)
-  string.chars.map do |letter|
-    ALPHABET[(ALPHABET.index(letter) + n) % ALPHABET.size]
-  end.join
+  n %= ALPHABET.size
+  string.tr(ALPHABET, ALPHABET[n..-1] + ALPHABET[0...n])
 end
 
 class Room < Struct.new(:sector_id, :given_checksum, :name_parts)
