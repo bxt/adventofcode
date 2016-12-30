@@ -32,7 +32,7 @@ class Room < Struct.new(:sector_id, :given_checksum, :name_parts)
   private
 
   def actual_checksum
-    all_letters = name_parts.reduce(:+).chars
+    all_letters = name_parts.join.chars
 
     letters_by_frequency = frequencies(all_letters).sort_by do |letter, count|
       [-count, letter]

@@ -23,7 +23,7 @@ class TiledFloor
   def count_safe_tiles
     tiles.map do |row|
       row.count(&:itself)
-    end.inject(&:+)
+    end.sum
   end
 
   def to_s

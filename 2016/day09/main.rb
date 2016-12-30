@@ -159,7 +159,7 @@ class ExpanderV1 < ExpanderBase
   end
 
   def size
-    run.inject(&:+)
+    run.sum
   end
 end
 
