@@ -9,7 +9,7 @@ module OpCodes
     position = @ic + eval_operand(offset)
     if position >= 0 && position < code.size
       opcode, operands = code[position]
-      puts "toggl: ic+#{eval_operand(offset)}=#{position} (#{code[position]})"
+      puts "toggle: ic+#{eval_operand(offset)}=#{position} (#{code[position]})"
       code[position] = case operands.size
       when 1
         if opcode == "inc"
