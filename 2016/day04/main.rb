@@ -1,3 +1,4 @@
+require_relative "frequencies"
 
 ALPHABET = ("a".."z").to_a.join
 
@@ -34,10 +35,7 @@ class Room < Struct.new(:sector_id, :given_checksum, :name_parts)
   def actual_checksum
     all_letters = name_parts.reduce(:+).chars
 
-    letter_counts = all_letters.each_with_object(Hash.new(0)) do |letter,counts|
-      counts[letter] += 1
-    end
-    letters_by_frequency = letter_counts.sort_by do |letter, count|
+    letters_by_frequency = frequencies(all_letters).sort_by do |letter, count|
       [-count, letter]
     end
     most_frequent_letters = letters_by_frequency.take(5).map(&:first)

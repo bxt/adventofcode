@@ -1,9 +1,4 @@
-
-def frequencies(array)
-  array.each_with_object(Hash.new(0)) do |value, counts|
-    counts[value] += 1
-  end
-end
+require_relative "../day04/frequencies"
 
 signals = IO.readlines("input.txt").map do |line|
   line.strip.chars
