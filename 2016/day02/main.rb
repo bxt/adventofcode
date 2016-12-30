@@ -20,7 +20,7 @@ class Keypad
   end
 
   def move(offset)
-    new_position = @position.zip(offset).map { |a| a.sum }
+    new_position = @position.zip(offset).map(&:sum)
     if key_at(new_position)
       @position = new_position
     end

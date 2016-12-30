@@ -10,7 +10,7 @@ class TaxiCab
   end
 
   def step
-    @position = @position.zip(heading).map { |a| a.sum }
+    @position = @position.zip(heading).map(&:sum)
   end
 
   def turn(turn_direction)

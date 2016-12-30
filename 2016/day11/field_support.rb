@@ -26,7 +26,7 @@ module FieldSupport
   end
 
   def add_coordinates(a, *b)
-    a.zip(*b).map { |x| x.sum }
+    a.zip(*b).map(&:sum)
   end
 
   def in_bounds?(coords)
