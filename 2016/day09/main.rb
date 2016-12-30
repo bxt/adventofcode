@@ -117,7 +117,6 @@ class ExpanderV2 < ExpanderBase
     if @length > 0
       @length -= 1
       @repeated_sequence.push(char)
-      stay
     end
     if @length <= 0
       emit(@repeated_sequence * @factor)
