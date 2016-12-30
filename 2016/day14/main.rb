@@ -37,7 +37,7 @@ class KeyFinder
             found.push(k)
             print k
             print "\r"
-            max_stream_index = i + max_index_diff + 1 if found.size == 64
+            max_stream_index = i + max_index_diff + 1 if found.size == index + 1
           end
         end
       end
