@@ -3,11 +3,7 @@ require_relative "../day22/field"
 
 class Grid < Field
   def self.parse(input)
-    array = input.lines.map do |line|
-      line.strip.chars
-    end
-
-    new(array)
+    new(input.lines.map(&:strip).map(&:chars))
   end
 
   def initialize(array)
