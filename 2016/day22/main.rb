@@ -10,16 +10,15 @@ class Grid < Field
   def self.parse(input)
     node_data = input.lines.map do |line|
       if m = line.match(/^\/dev\/grid\/node-x(?<x>\d+)-y(?<y>\d+) +(?<size>\d+)T +(?<used>\d+)T +(?<available>\d+)T +\d+%$/)
-        m.named_captures
+        m.named_captures.transform_values(&:to_i)
       end
     end.compact
 
     array = node_data.each_with_object([]) do |node_datum, grid|
-      x = node_datum["x"].to_i
-      y = node_datum["y"].to_i
+      x, y = node_datum.values_at("x", "y")
       grid[y] ||= []
       grid[y][x] = [:size, :used, :available].each_with_object({}) do |sym, hash|
-        hash[sym] = node_datum[sym.to_s].to_i
+        hash[sym] = node_datum[sym.to_s]
       end
     end
 
