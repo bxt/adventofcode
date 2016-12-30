@@ -3,8 +3,7 @@ require_relative "frequencies"
 ALPHABET = ("a".."z").to_a.join
 
 def rot(string, n)
-  n %= ALPHABET.size
-  string.tr(ALPHABET, ALPHABET[n..-1] + ALPHABET[0...n])
+  string.tr(ALPHABET, ALPHABET.chars.rotate(n).join)
 end
 
 class Room < Struct.new(:sector_id, :given_checksum, :name_parts)

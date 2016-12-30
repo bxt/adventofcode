@@ -45,8 +45,7 @@ class PasswordScrambler
   end
 
   def rotate_by(steps)
-    steps = steps % password.length
-    @password = password[steps..-1] + password[0...steps]
+    @password = password.chars.rotate(steps).join
   end
 
   def rotate(direction, steps_s)
