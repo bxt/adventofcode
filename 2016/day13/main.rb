@@ -75,7 +75,7 @@ class FieldPartTwo < Field
   end
 
   def a_star
-    @a_star ||= AStar.new(self, @from, @range) { |x| 0 }
+    @a_star ||= AStar.new(self, @from, @range) { 0 }
   end
 end
 
