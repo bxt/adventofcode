@@ -6,10 +6,10 @@ module OpCodes
   end
   def tgl(operands)
     offset, = operands
-    position = @ic + eval_operand(offset)
+    position = @instruction_pointer + eval_operand(offset)
     if position >= 0 && position < code.size
       opcode, operands = code[position]
-      puts "toggle: ic+#{eval_operand(offset)}=#{position} (#{code[position]})"
+      puts "toggle: instruction_pointer+#{eval_operand(offset)}=#{position} (#{code[position]})"
       code[position] = case operands.size
       when 1
         if opcode == "inc"
@@ -25,7 +25,7 @@ module OpCodes
         end
       end
     end
-    inc_ic
+    inc_instruction_pointer
   end
 end
 

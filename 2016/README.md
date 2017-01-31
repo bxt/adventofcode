@@ -38,8 +38,8 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 22  | [x][rb22] |           | [15-puzzle grid computing moves][aoc22] | TypeScipt
 23  | [x][rb23] |           | [Safe cracking machine][aoc23]          | Visual Basic
 24  | [x][rb24] |           | [Duct round trips][aoc24]               | Wolfram Language
-25  |           |           | [tba][aoc25]                            | Zsh
-Σ   |        22 |         4 |                                         | * coming soon
+25  | [x][rb25] |           | [tba][aoc25]                            | Zsh
+Σ   |        23 |         4 |                                         | * coming soon
 
 Takeaways
 ---------
@@ -114,6 +114,7 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
  [rb22]: day22/main.rb
  [rb23]: day23/main.rb
  [rb24]: day24/main.rb
+ [rb25]: day25/main.rb
  [hs01]: day01/main.hs
  [hs06]: day06/main.hs
  [hs12]: day12/main.hs
