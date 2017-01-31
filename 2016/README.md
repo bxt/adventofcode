@@ -38,7 +38,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 22  | [x][rb22] |           | [15-puzzle grid computing moves][aoc22] | TypeScipt
 23  | [x][rb23] |           | [Safe cracking machine][aoc23]          | Visual Basic
 24  | [x][rb24] |           | [Duct round trips][aoc24]               | Wolfram Language
-25  | [x][rb25] |           | [tba][aoc25]                            | Zsh
+25  | [x][rb25] |           | [Clock signal in assembunny][aoc25]     | Zsh
 Σ   |        23 |         4 |                                         | * coming soon
 
 Takeaways
