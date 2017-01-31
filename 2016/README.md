@@ -55,6 +55,11 @@ In addition to having a lot of fun solving the puzzles, I also learned some inte
 * Optimizing a Ruby script: [MD5ing in day 14][rb14] runs 80s, with fork parallelism 40s, with critical paths in C 13s, with both 5s.
 * Ruby 2.4.0 was released at the end of AoC: The new hash improvements were not noticable in Day 14's script. But the new `Array#sum` method (see 0424ecbb2d37b68f007bb1e44005de79ed7c9ef3) and the new `Regex#match?` were already useful.
 
+Leaderboard
+-----------
+
+This year I sometimes tried to get on the daily leaderboard. And indeed I managed to get there on 4 days 1, 6, 8 and 11 scoring a total of 184 points. If the overall leaderboard was longer I'd have position 272 of about 1300 people who completed the puzzle or 13k who started it.
+
 Other solutions
 ---------------
 
