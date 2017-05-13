@@ -1,7 +1,7 @@
 # For Crystal 0.22.0 (2017-04-20) LLVM 4.0.0
 # Run this: crystal build main.cr --release && /usr/bin/time ./main && rm main
 
-require "digest/md5"
+require "openssl"
 require "json"
 
 def find_repeated_char(times, string)
@@ -13,12 +13,17 @@ end
 
 def stretched_md5(salt : String, input : Int32) : String
   2017.times.reduce("#{salt}#{input}") do |prev, _|
-    Digest::MD5.hexdigest(prev)
+    buffer = uninitialized UInt8[16]
+    LibCrypto.md5(prev.to_unsafe, prev.bytesize, buffer)
+    buffer.to_slice.hexstring
   end
 end
 
 def salted_md5(salt : String, input : Int32) : String
-  Digest::MD5.hexdigest("#{salt}#{input}")
+  string = "#{salt}#{input}"
+  buffer = uninitialized UInt8[16]
+  LibCrypto.md5(string.to_unsafe, string.bytesize, buffer)
+  buffer.to_slice.hexstring
 end
 
 class KeyFinder
