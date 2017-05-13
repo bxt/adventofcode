@@ -11,12 +11,31 @@ def find_repeated_char(times, string)
   matches[1]
 end
 
-def stretched_md5(salt : String, input : Int32) : String
-  2017.times.reduce("#{salt}#{input}") do |prev, _|
-    buffer = uninitialized UInt8[16]
-    LibCrypto.md5(prev.to_unsafe, prev.bytesize, buffer)
-    buffer.to_slice.hexstring
+ASCIINULL = '0'.bytes[0]
+ASCIIAAAA = 'a'.bytes[0]
+
+def string_md5(md : UInt8*, into : UInt8*)
+  16.times do |i|
+    digit0 : UInt8 = md[i] >> 4;
+    digit1 : UInt8 = md[i] & 0x0f;
+    into[i*2+0] = digit0 + ASCIINULL + ((digit0 >= 10) ? (ASCIIAAAA - ASCIINULL - 10) : 0);
+    into[i*2+1] = digit1 + ASCIINULL + ((digit1 >= 10) ? (ASCIIAAAA - ASCIINULL - 10) : 0);
   end
+end
+
+def stretched_md5(salt : String, input : Int32) : String
+  start = "#{salt}#{input}"
+  prevu = uninitialized UInt8[32]
+  bufferu = uninitialized UInt8[16]
+  prev = prevu.to_unsafe
+  buffer = bufferu.to_unsafe
+  LibCrypto.md5(start.to_unsafe, start.bytesize, buffer)
+  string_md5(buffer, prev)
+  2016.times do
+    LibCrypto.md5(prev, 32, buffer)
+     string_md5(buffer, prev)
+  end
+  String.new(prev, 32)
 end
 
 def salted_md5(salt : String, input : Int32) : String
