@@ -2,14 +2,11 @@ require "set"
 
 class TaxiCab
   DIRECTIONS = [{1, 0}, {0, 1}, {-1, 0}, {0, -1}]
+  getter position
 
   def initialize
     @position = {0, 0}
     @direction = 0
-  end
-
-  def position
-    @position
   end
 
   def step
