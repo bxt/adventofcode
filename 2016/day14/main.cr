@@ -1,5 +1,6 @@
 # For Crystal 0.22.0 (2017-04-20) LLVM 4.0.0
 # Run this: crystal build main.cr --release && /usr/bin/time ./main && rm main
+# See this gits for the basic fork code: https://gist.github.com/bxt/d2504617c6dfc8dd201b11b9d9b58886
 
 require "openssl"
 require "json"
@@ -11,38 +12,20 @@ def find_repeated_char(times, string)
   matches[1]
 end
 
-ASCIINULL = '0'.bytes[0]
-ASCIIAAAA = 'a'.bytes[0]
-
-def string_md5(md : UInt8*, into : UInt8*)
-  16.times do |i|
-    digit0 : UInt8 = md[i] >> 4;
-    digit1 : UInt8 = md[i] & 0x0f;
-    into[i*2+0] = digit0 + ASCIINULL + ((digit0 >= 10) ? (ASCIIAAAA - ASCIINULL - 10) : 0);
-    into[i*2+1] = digit1 + ASCIINULL + ((digit1 >= 10) ? (ASCIIAAAA - ASCIINULL - 10) : 0);
-  end
+def md5(input : String) : String
+  buffer = uninitialized UInt8[16]
+  LibCrypto.md5(input.to_unsafe, input.bytesize, buffer)
+  buffer.to_slice.hexstring
 end
 
 def stretched_md5(salt : String, input : Int32) : String
-  start = "#{salt}#{input}"
-  prevu = uninitialized UInt8[32]
-  bufferu = uninitialized UInt8[16]
-  prev = prevu.to_unsafe
-  buffer = bufferu.to_unsafe
-  LibCrypto.md5(start.to_unsafe, start.bytesize, buffer)
-  string_md5(buffer, prev)
-  2016.times do
-    LibCrypto.md5(prev, 32, buffer)
-     string_md5(buffer, prev)
+  2017.times.reduce("#{salt}#{input}") do |prev, _|
+    md5(prev)
   end
-  String.new(prev, 32)
 end
 
 def salted_md5(salt : String, input : Int32) : String
-  string = "#{salt}#{input}"
-  buffer = uninitialized UInt8[16]
-  LibCrypto.md5(string.to_unsafe, string.bytesize, buffer)
-  buffer.to_slice.hexstring
+  md5("#{salt}#{input}")
 end
 
 class KeyFinder
@@ -51,7 +34,6 @@ class KeyFinder
 
   def print_key_at(index)
     max_index_diff = 999
-    # max_stream_index = 27427
     max_stream_index = 333333333
     found = [] of Int32
 
@@ -123,13 +105,12 @@ class ParallelKeyStream < KeyStream
         JSON.build(child_write) do |json|
           result.to_json(json)
         end
-        exit(0)
       end
       child_write.close
-      {process, parent_read, "a#{i}"}
-    end
+      {process, parent_read}
+    end.to_a
 
-    chunks.each do |(chunk, read_pipe, string)|
+    chunks.each do |(chunk, read_pipe)|
       chunk.wait unless chunk.terminated?
       JSON.parse(read_pipe).each do |k, v|
         @store[k.as_s.to_i32] = v.as_s
@@ -145,8 +126,8 @@ salt = "yjdafjpo" # -> 25427 / 22045
 
 parts = {
   "One" => BasicKeyStream.new(salt, ->salted_md5(String, Int32)),
-  #"Two" => ParallelKeyStream.new(salt, ->stretched_md5(String, Int32)),
-  "Two" => BasicKeyStream.new(salt, ->stretched_md5(String, Int32)),
+  "Two" => ParallelKeyStream.new(salt, ->stretched_md5(String, Int32)),
+  #"Two" => BasicKeyStream.new(salt, ->stretched_md5(String, Int32)),
 }
 
 parts.each do |label, key_stream|
