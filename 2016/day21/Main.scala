@@ -14,21 +14,15 @@ object Main {
   }
 
   def scramble(input: String): String = {
-    var s = input
-
-    Source.fromResource("input.txt").getLines().foreach(line => {
-      s = line match {
-        case swapPosition(from, to) => swap_letter(s, s(from.toInt), s(to.toInt))
-        case swapLetter(letter1, letter2) => swap_letter(s, letter1.head, letter2.head)
-        case rotateLeft(steps) => rotate(s, steps.toInt)
-        case rotateRight(steps) => rotate(s, s.length() - steps.toInt)
-        case specialRotate(letter) => specialRotated(s, letter)
-        case reverse(from, to) => reversed(s, from.toInt, to.toInt)
-        case move(from, to) => moved(s, from.toInt, to.toInt)
-      }
-    });
-
-    s
+    Function.chain(Source.fromResource("input.txt").getLines().map[String => String](_ match {
+      case swapPosition(from, to) => (s => Main.swap_letter(s, s(from.toInt), s(to.toInt)))
+      case swapLetter(letter1, letter2) => Main.swap_letter(_, letter1.head, letter2.head)
+      case rotateLeft(steps) => Main.rotate(_, steps.toInt)
+      case rotateRight(steps) => (s => Main.rotate(s, s.length() - steps.toInt))
+      case specialRotate(letter) => Main.specialRotated(_, letter)
+      case reverse(from, to) => Main.reversed(_, from.toInt, to.toInt)
+      case move(from, to) => Main.moved(_, from.toInt, to.toInt)
+    }).toSeq)(input)
   }
 
   def swap_letter(input: String, letter1: Char, letter2: Char): String = {
@@ -56,7 +50,8 @@ object Main {
   }
 
   def specialRotated(input: String, letter: String): String = {
-    val steps = input.indexOf(letter)
-    rotate(input, input.length() - (steps + 1 + (if (steps >= 4) 1 else 0)) % input.length())
+    val index = input.indexOf(letter)
+    val steps = index + 1 + (if (index >= 4) 1 else 0)
+    rotate(input, input.length() - steps % input.length())
   }
 }
