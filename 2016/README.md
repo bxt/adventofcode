@@ -34,7 +34,7 @@ Day | Ruby      | Haskell   | Description                             | Letter L
 18  | [x][rb18] |           | [Cellular tiled floor][aoc18]           | Processing
 19  | [x][rb19] |           | [Elves stealing White Elephants][aoc19] | PHP
 20  | [x][rb20] |           | [IP range block list][aoc20]            | Rust
-21  | [x][rb21] |           | [Password scrambling][aoc21]            | Swift
+21  | [x][rb21] |           | [Password scrambling][aoc21]            | [Scala](day21/Main.scala)
 22  | [x][rb22] |           | [15-puzzle grid computing moves][aoc22] | TypeScipt
 23  | [x][rb23] |           | [Safe cracking machine][aoc23]          | Visual Basic
 24  | [x][rb24] |           | [Duct round trips][aoc24]               | Wolfram Language
