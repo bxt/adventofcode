@@ -10,19 +10,42 @@ object Main {
   val move = "move position (\\d+) to position (\\d+)".r
 
   def main(args: Array[String]): Unit = {
-    println(scramble("abcdefgh"))
+    println(scramble("abcdefgh")) // -> gfdhebac
+    println(unscramble("fbgdceah")) // -> dhaegfbc
+  }
+  
+  def instructions() = {
+    Source.fromResource("input.txt").getLines()
   }
 
   def scramble(input: String): String = {
-    Function.chain(Source.fromResource("input.txt").getLines().map[String => String](_ match {
-      case swapPosition(from, to) => (s => Main.swap_letter(s, s(from.toInt), s(to.toInt)))
-      case swapLetter(letter1, letter2) => Main.swap_letter(_, letter1.head, letter2.head)
-      case rotateLeft(steps) => Main.rotate(_, steps.toInt)
-      case rotateRight(steps) => (s => Main.rotate(s, s.length() - steps.toInt))
-      case specialRotate(letter) => Main.specialRotated(_, letter)
-      case reverse(from, to) => Main.reversed(_, from.toInt, to.toInt)
-      case move(from, to) => Main.moved(_, from.toInt, to.toInt)
-    }).toSeq)(input)
+    Function.chain(instructions().map(scrambleStep).toSeq)(input)
+  }
+
+  def unscramble(input: String): String = {
+    Function.chain(instructions().map(unscrambleStep).toSeq.reverse)(input)
+  }
+  
+  def unscrambleStep(line: String): String => String = {
+    line match {
+      case rotateLeft(steps) => rotate(_, -steps.toInt)
+      case rotateRight(steps) => rotate(_, steps.toInt)
+      case specialRotate(letter) => unSpecialRotated(_, letter)
+      case move(from, to) => moved(_, to.toInt, from.toInt)
+      case other => scrambleStep(other)
+    }
+  }
+
+  def scrambleStep(line: String): String => String = {
+    line match {
+      case swapPosition(from, to) => (s => swap_letter(s, s(from.toInt), s(to.toInt)))
+      case swapLetter(letter1, letter2) => swap_letter(_, letter1.head, letter2.head)
+      case rotateLeft(steps) => rotate(_, steps.toInt)
+      case rotateRight(steps) => rotate(_, -steps.toInt)
+      case specialRotate(letter) => specialRotated(_, letter)
+      case reverse(from, to) => reversed(_, from.toInt, to.toInt)
+      case move(from, to) => moved(_, from.toInt, to.toInt)
+    }
   }
 
   def swap_letter(input: String, letter1: Char, letter2: Char): String = {
@@ -36,7 +59,8 @@ object Main {
   }
 
   def rotate(input: String, steps: Int): String = {
-    input.drop(steps) ++ input.take(steps)
+    val normalizedSteps = ((steps % input.length()) + input.length()) % input.length()
+    input.drop(normalizedSteps) ++ input.take(normalizedSteps)
   }
 
   def reversed(input: String, from: Int, to: Int): String = {
@@ -51,7 +75,19 @@ object Main {
 
   def specialRotated(input: String, letter: String): String = {
     val index = input.indexOf(letter)
-    val steps = index + 1 + (if (index >= 4) 1 else 0)
-    rotate(input, input.length() - steps % input.length())
+    val steps = specialRotateSteps(index)
+    rotate(input, -steps)
+  }
+  
+  def unSpecialRotated(input: String, letter: String): String = {
+    val index = input.indexOf(letter)
+    val steps = (0 to input.length()-1).filter(indexBefore => {
+      (indexBefore + specialRotateSteps(indexBefore)) % input.length() == index
+    }).head
+    rotate(input, index - steps)
+  }
+  
+  def specialRotateSteps(index: Int): Int = {
+    index + 1 + (if (index >= 4) 1 else 0)
   }
 }
