@@ -17,9 +17,13 @@ object Day14 {
   }
   
   def generateKeys(hasher: Int => String): Iterator[(String, Int)] = {
-    val hashes: Stream[String] = Stream.from(0).map(hasher)
+    val batch_size = 22100
+    val hashes: Iterator[String] = Iterator.from(0).map(hasher)
+    val parallelHashes = hashes.grouped(batch_size).flatMap(_.par.filter {
+      _ => true
+    })
     
-    hashes.zipWithIndex.sliding(1001).filter(group => {
+    parallelHashes.zipWithIndex.sliding(1001).filter(group => {
       val (hash, index) +: next1k = group
       
       findRepeatedChar(3)(hash).flatMap(repeatedChar => {
