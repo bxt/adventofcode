@@ -1,9 +1,11 @@
+import javax.xml.bind.DatatypeConverter.printHexBinary
+import java.security.MessageDigest
+
 object Day14 {
   val salt = "yjdafjpo"
   //val salt = "abc"
   
   def main(args: Array[String]): Unit = {
-    // println(getMd5("iwrupvqb346386"))
     time {
       println(findNthKeyIndex(63, index => getMd5(salt + index))) // -> 25427
       println(findNthKeyIndex(63, getStretchedMd5)) // -> 22045
@@ -11,7 +13,7 @@ object Day14 {
   }
   
   def findNthKeyIndex(n: Int, hasher: Int => String) = {
-    generateKeys(hasher).drop(n).next()._2
+    generateKeys(hasher).drop(n).next._2
   }
   
   def generateKeys(hasher: Int => String): Iterator[(String, Int)] = {
@@ -23,10 +25,7 @@ object Day14 {
       findRepeatedChar(3)(hash).flatMap(repeatedChar => {
         //println(index + ": " + hash)
         next1k.find({case (hash, index) =>
-          findRepeatedChar(5)(hash).filter(_ == repeatedChar).map(foo => {
-            println(index, hash)
-            foo
-          }).isDefined
+          findRepeatedChar(5)(hash).filter(_ == repeatedChar).isDefined
         })
       }).isDefined
     }).map(_.head)
@@ -37,14 +36,11 @@ object Day14 {
   }
   
   def getMd5(input: String): String = {
-    val md = java.security.MessageDigest.getInstance("MD5")
-    val digest = md.digest(input.getBytes())
-    //digest.map("%02x".format(_)).mkString
-    new java.math.BigInteger(1, digest).toString(16).reverse.padTo(32, "0").reverse.mkString
+    printHexBinary(MessageDigest.getInstance("MD5").digest(input.getBytes)).toLowerCase
   }
   
   def getStretchedMd5(index: Int): String = {
-    (1 to 2017).foldLeft(salt + index)((prev, _) => getMd5(prev) )
+    Iterator.iterate(salt + index)(getMd5).drop(2017).next
   }
   
   def time[R](block: => R): R = {  

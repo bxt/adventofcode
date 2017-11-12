@@ -54,6 +54,7 @@ In addition to having a lot of fun solving the puzzles, I also learned some inte
 * Speed and languages: [Day 12](day12/) has fast (3s) Haskell solution, which is slow through `runhaskell` (350s), a long and fast (<1s) Java solution and a Ruby solution in between (15s). However, [building a C program with AWK](https://www.reddit.com/r/adventofcode/comments/5hus40/2016_day_12_solutions/db36od6/) and compiling builds the solution instantly.
 * Optimizing a Ruby script: [MD5ing in day 14][rb14] runs 80s, with fork parallelism 40s, with critical paths in C 13s, with both 5s.
 * Optimizing a Crystal program: [MD5ing in day 14](day14/main.cr) runs 40s, with OpenSSL's md5 20s (using ugly Pointers does not help), with fork parallelism 8s, but compiling takes an additional 11s.
+* Optimizing a Scala program: [MD5ing in day 14](day14/Main.scala) ran 740s with a md5 found on StackOverflow, with a better formatter 166s and 46s with a specialized formatter.
 * Ruby 2.4.0 was released at the end of AoC: The new hash improvements were not noticable in Day 14's script. But the new `Array#sum` method (see 0424ecbb2d37b68f007bb1e44005de79ed7c9ef3) and the new `Regex#match?` were already useful.
 
 Leaderboard
