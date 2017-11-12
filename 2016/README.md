@@ -69,10 +69,10 @@ I enjoy looking at how other coder solved the riddles. This year I followed (A-Z
 
 * [bildzeitung](https://github.com/bildzeitung/2016adventofcode) (Python)
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2016) (Elixir)
+* [fdlk](https://github.com/fdlk/advent-2016/tree/master/src) (Scala)
 * [glguy](https://github.com/glguy/advent2016) (Haskell)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2016) (Haskell, Python)
 * [Pyrobolser](https://github.com/Pyrobolser/AdventOfCode2016/tree/master/AdventOfCode2016/Days) (C#)
-* [fdlk](https://github.com/fdlk/advent-2016/tree/master/src) (Scala)
 
  [aoc01]: http://adventofcode.com/2016/day/1
  [aoc02]: http://adventofcode.com/2016/day/2
