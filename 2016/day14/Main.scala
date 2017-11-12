@@ -7,8 +7,8 @@ object Day14 {
   
   def main(args: Array[String]): Unit = {
     time {
-      println(findNthKeyIndex(63, index => getMd5(salt + index))) // -> 25427
-      println(findNthKeyIndex(63, getStretchedMd5)) // -> 22045
+      println(findNthKeyIndex(63, index => md5(salt + index))) // -> 25427
+      println(findNthKeyIndex(63, stretchedMd5)) // -> 22045
     }
   }
   
@@ -35,12 +35,12 @@ object Day14 {
     f"(.)\\1{${times - 1}%d}".r.findFirstIn(input).map(_.charAt(0))
   }
   
-  def getMd5(input: String): String = {
+  def md5(input: String): String = {
     printHexBinary(MessageDigest.getInstance("MD5").digest(input.getBytes)).toLowerCase
   }
   
-  def getStretchedMd5(index: Int): String = {
-    Iterator.iterate(salt + index)(getMd5).drop(2017).next
+  def stretchedMd5(index: Int): String = {
+    Iterator.iterate(salt + index)(md5).drop(2017).next
   }
   
   def time[R](block: => R): R = {  
