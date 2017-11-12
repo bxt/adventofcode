@@ -9,17 +9,15 @@ object Main {
   val reverse = "reverse positions (\\d+) through (\\d+)".r
   val move = "move position (\\d+) to position (\\d+)".r
 
+  val instructions = Source.fromResource("input.txt").getLines().toList
+
   def main(args: Array[String]): Unit = {
     println(scramble("abcdefgh")) // -> gfdhebac
     println(unscramble("fbgdceah")) // -> dhaegfbc
   }
-  
-  def instructions() = {
-    Source.fromResource("input.txt").getLines()
-  }
 
   def scramble(input: String): String = {
-    Function.chain(instructions().map(scrambleStep).toSeq)(input)
+    Function.chain(instructions.map(scrambleStep))(input)
   }
 
   def scrambleStep(line: String): String => String = {
@@ -35,7 +33,7 @@ object Main {
   }
 
   def unscramble(input: String): String = {
-    Function.chain(instructions().map(unscrambleStep).toSeq.reverse)(input)
+    Function.chain(instructions.map(unscrambleStep).toSeq.reverse)(input)
   }
   
   def unscrambleStep(line: String): String => String = {
