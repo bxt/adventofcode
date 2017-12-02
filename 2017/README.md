@@ -14,8 +14,9 @@ especially valuable or pretty with a star (☆).
 
 Day | Scala     | Rust      | Description                             
 ----|-----------|-----------|-----------------------------------------
-01  | [x][sc01] |           | [Sum equal digits][aoc01]       
-Σ   |         1 |         0 |                                         
+01  | [x][sc01] |           | [Sum equal digits][aoc01]
+02  | [x][sc02] |           | [Sum spreadsheet min/max][aoc02]
+Σ   |         2 |         0 |
 
 Takeaways
 ---------
@@ -35,4 +36,6 @@ I enjoy looking at how other coder solved the riddles. Last year I followed (A-Z
 * [Pyrobolser](https://github.com/Pyrobolser/AdventOfCode2016/tree/master/AdventOfCode2016/Days) (C#)
 
  [aoc01]: http://adventofcode.com/2017/day/1
+ [aoc02]: http://adventofcode.com/2017/day/2
  [sc01]: day01/Day01.scala
+ [sc02]: day02/Day02.scala
