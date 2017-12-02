@@ -1,5 +1,4 @@
 import scala.io.Source
-import scala.util.Try
 
 // 12539 too high
 
