@@ -3,7 +3,7 @@ Advent of Code 2015
 
 **Spoiler Warning:** If you want to solve the challenges by yourself, don't read the code.
 
-This directory contains the code I used to solve the challenges from [Advent of Code 2015](http://adventofcode.com/2015)
+This directory contains the code I used to solve the challenges from [Advent of Code 2015](http://adventofcode.com/2015).
 
 I used Haskell for most of the riddles. Sometimes I conceived a Ruby solution,
 if there was a neat application for regexes or OOP. For algorithms which profit

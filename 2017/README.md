@@ -3,7 +3,7 @@ Advent of Code 2017
 
 **Spoiler Warning:** If you want to solve the challenges by yourself, don't read the code.
 
-This directory contains the code I used to solve the challenges from [Advent of Code 2017](http://adventofcode.com/2017)
+This directory contains the code I used to solve the challenges from [Advent of Code 2017](http://adventofcode.com/2017).
 
 Contents
 --------
@@ -23,17 +23,24 @@ Takeaways
 
 None yet.
 
+https://github.com/glguy/advent2017
+
+
 Other solutions
 ---------------
 
-I enjoy looking at how other coder solved the riddles. Last year I followed (A-Z):
+I enjoy looking at how other coders solved the riddles to learn even more. This
+year I follow (A-Z):
 
-* [bildzeitung](https://github.com/bildzeitung/2016adventofcode) (Python)
-* [cschell](https://github.com/cschell/adventofcode/tree/master/2016) (Elixir)
-* [fdlk](https://github.com/fdlk/advent-2016/tree/master/src) (Scala)
-* [glguy](https://github.com/glguy/advent2016) (Haskell)
-* [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2016) (Haskell, Python)
-* [Pyrobolser](https://github.com/Pyrobolser/AdventOfCode2016/tree/master/AdventOfCode2016/Days) (C#)
+* [glguy](https://github.com/glguy/advent2017) (Haskell)
+* [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2017) (Haskell, Python)
+
+These coders form last year didn't yet push anything this year, but I'll keep an eye open (A-Z):
+
+* [bildzeitung](https://github.com/bildzeitung/) (Python?)
+* [cschell](https://github.com/cschell/adventofcode/) (Elixir? Rust?)
+* [fdlk](https://github.com/fdlk/) (Scala?)
+* [Pyrobolser](https://github.com/Pyrobolser/) (C#)
 
  [aoc01]: http://adventofcode.com/2017/day/1
  [aoc02]: http://adventofcode.com/2017/day/2
