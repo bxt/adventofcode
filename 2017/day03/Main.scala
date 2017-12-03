@@ -48,7 +48,7 @@ object Main {
 
   def ulamFibonaccis(): Stream[Int] = {
     val values = scala.collection.mutable.Map(Point.zero -> 1).withDefaultValue(0)
-    1 #:: Stream.from(0).map(gridCoords).map(point => {
+    1 #:: Stream.from(2).map(gridCoords).map(point => {
       val sum = point.mooreNeighborhood().map(values).sum
       values(point) = sum
       sum
