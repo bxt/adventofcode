@@ -16,7 +16,8 @@ Day | Scala     | Rust      | Description
 ----|-----------|-----------|-----------------------------------------
 01  | [x][sc01] |           | [Sum equal digits][aoc01]
 02  | [x][sc02] |           | [Sum spreadsheet min/max][aoc02]
-Σ   |         2 |         0 |
+03  | [x][sc03] |           | [Ulam spiral fibonacci mashup][aoc03]
+Σ   |         3 |         0 |
 
 Takeaways
 ---------
@@ -45,5 +46,7 @@ These coders form last year didn't yet push anything this year, but I'll keep an
 
  [aoc01]: http://adventofcode.com/2017/day/1
  [aoc02]: http://adventofcode.com/2017/day/2
+ [aoc03]: http://adventofcode.com/2017/day/3
  [sc01]: day01/Day01.scala
  [sc02]: day02/Day02.scala
+ [sc03]: day03/Day03.scala
