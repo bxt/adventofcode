@@ -34,6 +34,7 @@ year I follow (A-Z):
 
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2017) (Python, Ruby, Rust)
 * [glguy](https://github.com/glguy/advent2017) (Haskell)
+* [/u/Isvara](https://www.reddit.com/user/Isvara) (Scala)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2017) (Haskell, Python)
 
 These coders form last year didn't yet push anything this year, but I'll keep an eye open (A-Z):

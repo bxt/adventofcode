@@ -45,9 +45,9 @@ object Main {
   }
 
   def ulamFibonaccis(): Stream[Int] = {
-    val values = scala.collection.mutable.Map(Point.zero -> 1)
+    val values = scala.collection.mutable.Map(Point.zero -> 1).withDefaultValue(0)
     Stream(1) #::: Stream.from(0).map(gridCoords).map(point => {
-      val sum = point.mooreNeighborhood().map(n => values.getOrElse(n, 0)).sum
+      val sum = point.mooreNeighborhood().map(values).sum
       values(point) = sum
       sum
     })
@@ -60,21 +60,13 @@ object Main {
     val resid = input - ring*ring
 
     if (isEven(ring)) {
-      if (resid == 0) {
-        Point(-halfRing + 1, -halfRing)
-      } else if(resid <= ring) {
-        Point(-halfRing, resid - halfRing - 1)
-      } else {
-        Point(-halfRing + resid - ring - 1, halfRing)
-      }
+      if (resid == 0)         Point(-halfRing + 1,                -halfRing)
+      else if (resid <= ring) Point(-halfRing,                    resid - halfRing - 1)
+      else                    Point(-halfRing + resid - ring - 1, halfRing)
     } else {
-      if (resid == 0) {
-        Point(halfRing, halfRing)
-      } else if (resid <= ring) {
-        Point(halfRing + 1, halfRing + 1 - resid)
-      } else {
-        Point(halfRing - resid + ring + 2, -halfRing - 1)
-      }
+      if (resid == 0)         Point(halfRing,                     halfRing)
+      else if (resid <= ring) Point(halfRing + 1,                 halfRing + 1 - resid)
+      else                    Point(halfRing - resid + ring + 2,  -halfRing - 1)
     }
   }
 
