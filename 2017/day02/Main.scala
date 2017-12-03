@@ -13,9 +13,10 @@ object Main {
     println(parsedInput.map(xs => xs.max - xs.min).sum) // 50376
 
     println(parsedInput.map(xs => {
-      val pairs = xs.combinations(2) ++ xs.reverse.combinations(2)
-      val Array(x, y) = pairs.find({case Array(x, y) => x % y == 0}).get
-      x / y
+      xs.combinations(2)
+        .find(pair => pair.max % pair.min == 0)
+        .map(pair => pair.max / pair.min)
+        .get
     }).sum) // 267
   }
 }
