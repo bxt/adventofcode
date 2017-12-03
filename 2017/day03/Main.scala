@@ -8,13 +8,13 @@ object Main {
   case class Point(x: Int, y: Int) {
     def +(that: Point) = that match {case Point(x2, y2) => Point(x + x2, y + y2)}
     def manhattanNorm(): Int = x.abs + y.abs
-    def mooreNeighborhood(): List[Point] = Point.eightNeighboursOfZero.map(_ + this)
+    def mooreNeighborhood(): Iterable[Point] = Point.mooreNeighborhooOfZero.map(_ + this)
   }
 
   // Extends is workaround for this bug: https://issues.scala-lang.org/browse/SI-3664
   object Point extends ((Int, Int) => Point) {
     val zero = Point(0, 0)
-    val eightNeighboursOfZero = List((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)).map(Point.tupled)
+    val mooreNeighborhooOfZero = (for (x <- -1 to 1; y <- -1 to 1) yield Point(x, y)).filterNot(_ == zero)
   }
 
   def main(args: Array[String]): Unit = {
@@ -58,15 +58,16 @@ object Main {
     val ring = math.floor(sqrt).toInt
     val halfRing = ring/2
     val resid = input - ring*ring
+    val coord = resid - halfRing - 1
 
     if (isEven(ring)) {
-      if (resid == 0)         Point(-halfRing + 1,                -halfRing)
-      else if (resid <= ring) Point(-halfRing,                    resid - halfRing - 1)
-      else                    Point(-halfRing + resid - ring - 1, halfRing)
+      if (resid == 0)         Point(-halfRing + 1, -halfRing)
+      else if (resid <= ring) Point(-halfRing,     coord)
+      else                    Point(coord - ring,  halfRing)
     } else {
-      if (resid == 0)         Point(halfRing,                     halfRing)
-      else if (resid <= ring) Point(halfRing + 1,                 halfRing + 1 - resid)
-      else                    Point(halfRing - resid + ring + 2,  -halfRing - 1)
+      if (resid == 0)         Point(halfRing,         halfRing)
+      else if (resid <= ring) Point(halfRing + 1,     -coord)
+      else                    Point(-coord + ring + 1, -halfRing - 1)
     }
   }
 
