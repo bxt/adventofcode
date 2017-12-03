@@ -10,7 +10,7 @@ object Main {
     def unary_- = Point(-x, -y)
     def -(that: Point) = this + -that
     def manhattanNorm(): Int = x.abs + y.abs
-    def mooreNeighborhood(): Iterable[Point] = Point.mooreNeighborhooOfZero.map(_ + this)
+    def mooreNeighborhood(): Seq[Point] = Point.mooreNeighborhooOfZero.map(_ + this)
   }
 
   // Extends is workaround for this bug: https://issues.scala-lang.org/browse/SI-3664
@@ -48,7 +48,7 @@ object Main {
 
   def ulamFibonaccis(): Stream[Int] = {
     val values = scala.collection.mutable.Map(Point.zero -> 1).withDefaultValue(0)
-    Stream(1) #::: Stream.from(0).map(gridCoords).map(point => {
+    1 #:: Stream.from(0).map(gridCoords).map(point => {
       val sum = point.mooreNeighborhood().map(values).sum
       values(point) = sum
       sum
