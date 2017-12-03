@@ -7,6 +7,8 @@ import scala.io.Source
 object Main {
   case class Point(x: Int, y: Int) {
     def +(that: Point) = that match {case Point(x2, y2) => Point(x + x2, y + y2)}
+    def unary_- = Point(-x, -y)
+    def -(that: Point) = this + -that
     def manhattanNorm(): Int = x.abs + y.abs
     def mooreNeighborhood(): Iterable[Point] = Point.mooreNeighborhooOfZero.map(_ + this)
   }
@@ -54,21 +56,19 @@ object Main {
   }
 
   def gridCoords(input: Int): Point = {
-    val sqrt = math.sqrt(input)
-    val ring = math.floor(sqrt).toInt
+    val ring = math.floor(math.sqrt(input)).toInt
     val halfRing = ring/2
     val resid = input - ring*ring
     val coord = resid - halfRing - 1
+    val oddOffset = if (isEven(ring)) 0 else 1
 
-    if (isEven(ring)) {
+    val point = {
       if (resid == 0)         Point(-halfRing + 1, -halfRing)
       else if (resid <= ring) Point(-halfRing,     coord)
-      else                    Point(coord - ring,  halfRing)
-    } else {
-      if (resid == 0)         Point(halfRing,         halfRing)
-      else if (resid <= ring) Point(halfRing + 1,     -coord)
-      else                    Point(-coord + ring + 1, -halfRing - 1)
+      else                    Point(coord - ring,  halfRing + oddOffset)
     }
+
+    if (isEven(ring)) point else Point(1, 0) - point
   }
 
   def isEven(number: Int) = number % 2 == 0
