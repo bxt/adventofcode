@@ -53,5 +53,6 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc05]: http://adventofcode.com/2017/day/5
  [sc01]: day01/Day01.scala
  [sc02]: day02/Day02.scala
+ [sc03]: day02/Day03.scala
  [sc04]: day04/Day04.scala
  [sc05]: day04/Day05.scala
