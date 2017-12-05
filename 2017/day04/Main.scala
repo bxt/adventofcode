@@ -6,9 +6,7 @@ object Main {
    def main(args: Array[String]): Unit = {
     val input = Source.fromResource("day04/input.txt").getLines()
 
-    val parsedInput = input.map(line => {
-      line.split("\\s+")
-    }).toList
+    val parsedInput = input.map(_.split("\\s+")).toList
 
     println(parsedInput.filter(words => {
       words.length == words.toSet.size
