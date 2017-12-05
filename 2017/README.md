@@ -24,10 +24,10 @@ Day | Scala     | Rust      | Description
 Takeaways
 ---------
 
-None yet.
-
-https://github.com/glguy/advent2017
-
+* Scala generally feels like a more sane version of Java, especially if you do
+  functional things.
+* Scala has really confusing syntax, e.g. `.filter(_.length == 1)` works, but
+  `.filter(_.length == _.toSet.size)` doesn't (the underscore can be many things)
 
 Other solutions
 ---------------
