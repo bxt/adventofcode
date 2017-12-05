@@ -36,6 +36,7 @@ I enjoy looking at how other coders solved the riddles to learn even more. This
 year I follow (A-Z):
 
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2017) (Python, Ruby, Rust)
+* [fdlk](https://github.com/fdlk/advent-2017/tree/master/src) (Scala)
 * [glguy](https://github.com/glguy/advent2017) (Haskell)
 * [/u/Isvara](https://www.reddit.com/user/Isvara) (Scala)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2017) (Haskell, Python)
@@ -43,7 +44,6 @@ year I follow (A-Z):
 These coders form last year didn't yet push anything this year, but I'll keep an eye open (A-Z):
 
 * [bildzeitung](https://github.com/bildzeitung/) (Python?)
-* [fdlk](https://github.com/fdlk/) (Scala?)
 * [Pyrobolser](https://github.com/Pyrobolser/) (C#)
 
  [aoc01]: http://adventofcode.com/2017/day/1
