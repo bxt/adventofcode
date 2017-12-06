@@ -24,7 +24,7 @@ object Main {
     while (jumpArray.isDefinedAt(index)) {
       val jump = jumpArray(index)
       val change = decreaseAfter.flatMap{n => if (jump >= n) Some(-1) else None}.getOrElse(1)
-      jumpArray.update(index, jump + change)
+      jumpArray(index) = jump + change
       index += jump
       steps += 1
     }
