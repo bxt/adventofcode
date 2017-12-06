@@ -28,7 +28,10 @@ Takeaways
 * Scala generally feels like a more sane version of Java, especially if you do
   functional things.
 * Scala has really confusing syntax, e.g. `.filter(_.length == 1)` works, but
-  `.filter(_.length == _.toSet.size)` doesn't (the underscore can be many things)
+  `.filter(foo(_).length == 1)` doesn't (the underscore can be many things)
+* Scala generally feels like a more ugly version of Haskell, especially if you do
+  functional things.
+* For example `Some(3).getOrElse(recursion(...))` will not work, because it ain't lazy
 
 Other solutions
 ---------------
