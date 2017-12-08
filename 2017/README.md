@@ -20,7 +20,9 @@ Day | Scala     | Rust      | Description
 04  | [x][sc04] |           | [Anagram passphrases][aoc04]
 05  | [x][sc05] |           | [Weird jump instructions][aoc05]
 06  | [x][sc06] |           | [Memory loop debugger][aoc06]
-Σ   |         6 |         0 |
+07  | [x][sc07] |           | [Programs disc balance tree][aoc07]
+08  |           |           | [I Heard You Like Registers ][aoc08]
+Σ   |         7 |         0 |
 
 Takeaways
 ---------
@@ -56,9 +58,12 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc04]: http://adventofcode.com/2017/day/4
  [aoc05]: http://adventofcode.com/2017/day/5
  [aoc06]: http://adventofcode.com/2017/day/6
+ [aoc07]: http://adventofcode.com/2017/day/7
+ [aoc08]: http://adventofcode.com/2017/day/8
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
  [sc04]: day04/Main.scala
  [sc05]: day05/Main.scala
  [sc06]: day06/Main.scala
+ [sc07]: day07/Main.scala
