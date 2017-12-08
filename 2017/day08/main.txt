@@ -1,0 +1,26 @@
+So I solved it by doing some regex replaces and transfroming to a JavaScript program:
+
+P: ([a-z]+) (inc|dec) (-?\d+) if ([a-z]+) ([!<>=]+) (-?\d+)
+-> 1:r1 2:op 3:diff 4:checkreg 5:checop 6:check
+
+replace P with "$1, $4"
+replace "\n" with ", "
+obtain list of vars L
+
+Save console.log([L].max) as last part
+
+Relpace "," with " = 0," to obtain V, use var V; as first part
+
+replace P with "if($4 $5 $6) { $1 $2 $3 }"
+replace "inc" with "+="
+replace "dec" with "-="
+
+use as middle part
+
+run as javascript :) // 5752
+
+add "var ___ = [];" on top
+
+replace P with "if($4 $5 $6) { $1 $2 $3 }; ___.push($1)"
+
+run again and then run "console.log(___.reduce((a, b) => Math.max(a, b)))" // 6366
