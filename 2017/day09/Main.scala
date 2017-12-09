@@ -3,21 +3,22 @@ package day09
 import scala.io.Source
 
 abstract class StreamItem
-case class Group(score: Int, children: List[StreamItem]) extends StreamItem
+case class Group(children: List[StreamItem]) extends StreamItem
 case class Garbage(content: String) extends StreamItem
 
 
 object Main {
   def main(args: Array[String]): Unit = {
     assert(new StreamParser("<lo!l!><o>").parseStreamItem() == Garbage("lo<o"))
-    assert(score(parse("{}")) == 1)
-    assert(score(parse("{{},{}}")) == 5)
-    assert(score(parse("{{{}}}")) == 6)
+    assert(score()(parse("{}")) == 1)
+    assert(score()(parse("{{}}")) == 3)
+    assert(score()(parse("{{},{}}")) == 5)
+    assert(score()(parse("{{{}}}")) == 6)
     assert(garbage(parse("{{{}}}")) == 0)
     assert(garbage(parse("{{{}}}")) == 0)
 
     val input = parse(Source.fromResource("day09/input.txt").mkString)
-    println(score(input)) // 13154
+    println(score()(input)) // 13154
     println(garbage(input)) // 6369
   }
 
@@ -25,28 +26,24 @@ object Main {
     new StreamParser(input).parse()
   }
 
-  def score(streamItem: StreamItem): Int = streamItem match {
-    case Group(s, children) => s + children.map(score _).sum
+  def score(depth: Int = 0)(streamItem: StreamItem): Int = streamItem match {
+    case Group(children) => 1 + depth + children.map(score(depth + 1)).sum
     case Garbage(_) => 0
   }
 
   def garbage(streamItem: StreamItem): Int = streamItem match {
-    case Group(_, children) => children.map(garbage _).sum
+    case Group(children) => children.map(garbage _).sum
     case Garbage(content) => content.length
   }
 
   class StreamParser(input: String) extends Parser(input) {
-    var depth = 0
-
     def parse = parseGroup _
 
     def parseGroup(): Group = {
       eat('{')
-      depth += 1
       val children = parseChildren
-      depth -= 1
       eat('}')
-      Group(depth + 1, children)
+      Group(children)
     }
 
     def parseChildren(): List[StreamItem] = {
