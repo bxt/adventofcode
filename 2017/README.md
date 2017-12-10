@@ -13,7 +13,7 @@ added a short summary for each day. I marked the solutions which I consider
 especially valuable or pretty with a star (☆).
 
 Day | Scala     | Rust      | Description                             
-----|-----------|-----------|-----------------------------------------
+----|-----------|-----------|--------------------------------------------
 01  | [x][sc01] |           | [Sum equal digits][aoc01]
 02  | [x][sc02] |           | [Sum spreadsheet min/max][aoc02]
 03  | [x][sc03] |           | [Ulam spiral fibonacci mashup][aoc03]
@@ -22,7 +22,9 @@ Day | Scala     | Rust      | Description
 06  | [x][sc06] |           | [Memory loop debugger][aoc06]
 07  | [x][sc07] |           | [Programs disc balance tree][aoc07]
 08  |           |           | [I Heard You Like Registers ][aoc08]
-Σ   |         7 |         0 |
+09  | [x][sc09] |           | [Garbage and groups stream counting][aoc09]
+10  | [x][sc10] |           | [Knot hash][aoc10]
+Σ   |         9 |         0 |
 
 Takeaways
 ---------
@@ -60,6 +62,8 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc06]: http://adventofcode.com/2017/day/6
  [aoc07]: http://adventofcode.com/2017/day/7
  [aoc08]: http://adventofcode.com/2017/day/8
+ [aoc09]: http://adventofcode.com/2017/day/9
+ [aoc10]: http://adventofcode.com/2017/day/10
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
@@ -67,3 +71,5 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [sc05]: day05/Main.scala
  [sc06]: day06/Main.scala
  [sc07]: day07/Main.scala
+ [sc09]: day09/Main.scala
+ [sc10]: day10/Main.scala
