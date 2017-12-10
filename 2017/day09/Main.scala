@@ -6,7 +6,6 @@ abstract class StreamItem
 case class Group(children: List[StreamItem]) extends StreamItem
 case class Garbage(content: String) extends StreamItem
 
-
 object Main {
   def main(args: Array[String]): Unit = {
     assert(new StreamParser("<lo!l!><o>").parseStreamItem() == Garbage("lo<o"))
@@ -28,11 +27,11 @@ object Main {
 
   def score(depth: Int = 0)(streamItem: StreamItem): Int = streamItem match {
     case Group(children) => 1 + depth + children.map(score(depth + 1)).sum
-    case Garbage(_) => 0
+    case Garbage(_)      => 0
   }
 
   def garbage(streamItem: StreamItem): Int = streamItem match {
-    case Group(children) => children.map(garbage _).sum
+    case Group(children)  => children.map(garbage _).sum
     case Garbage(content) => content.length
   }
 
@@ -50,7 +49,7 @@ object Main {
       look match {
         case '}' => List()
         case other => parseStreamItem() +: (look match {
-          case ',' => { eat(','); parseChildren() }
+          case ','   => { eat(','); parseChildren() }
           case other => List()
         })
       }
@@ -58,8 +57,8 @@ object Main {
 
     def parseStreamItem(): StreamItem = {
       look match {
-        case '{' => parseGroup
-        case '<' => parseGarbage
+        case '{'   => parseGroup
+        case '<'   => parseGarbage
         case other => raise(other + " not a start of StreamItem")
       }
     }
@@ -73,9 +72,9 @@ object Main {
 
     def parseGarbageContent(): String = {
       val sb = new StringBuilder
-      while(look != '>') {
+      while (look != '>') {
         look() match {
-          case '!' => { eat('!'); eat() }
+          case '!'   => { eat('!'); eat() }
           case other => sb.append(eat())
         }
       }
@@ -83,7 +82,7 @@ object Main {
     }
   }
 
- class Parser(input: String) {
+  class Parser(input: String) {
     var position = 0
 
     def eat(expected: Char): Unit = {
