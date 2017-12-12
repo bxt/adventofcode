@@ -20,9 +20,7 @@ object Main {
     val input = Source.fromResource("day11/input.txt").getLines().next.split(',').toList
 
     val positions = input.scanLeft((0, 0, 0))((pos, dir) => {
-      val (x, y, z) = pos
-      val (x1, y1, z1) = dirVector(dir)
-      normalize(x + x1, y + y1, z + z1)
+      normalize(add(pos, dirVector(dir)))
     })
 
     val distances = positions.map(distance)
@@ -38,6 +36,12 @@ object Main {
     case "s"  => ( 0, -1,  0)
     case "sw" => ( 0,  0, -1)
     case "se" => (-1,  0,  0)
+  }
+
+  def add(pos1: Pos, pos2: Pos): Pos = {
+      val (x1, y1, z1) = pos1
+      val (x2, y2, z2) = pos2
+      (x1 + x2, y1 + y2, z1 + z2)
   }
 
   def normalize(pos: Pos): Pos = {
