@@ -42,11 +42,9 @@ object Main {
   }
 
   def parse(input: Seq[String]): Seq[Scanner] = {
-    input.map(_ match {
-      case lineRegex(fromStr, toStr) => {
-        Scanner(fromStr.toInt, toStr.toInt)
-      }
-    })
+    input.map({ case lineRegex(fromStr, toStr) => {
+      Scanner(fromStr.toInt, toStr.toInt)
+    }})
   }
 }
 

@@ -19,11 +19,9 @@ object Main {
   }
 
   def parse(input: Seq[String]): Set[(Int, Int)] = {
-    val links = input.flatMap(_ match {
-      case lineRegex(fromStr, toStrs) => {
+    val links = input.flatMap({ case lineRegex(fromStr, toStrs) => {
         toStrs.split(",\\s*").map(_.toInt).map(x => (fromStr.toInt, x))
-      }
-    })
+    }})
 
     val symmetric = links.flatMap(_ match { case (x, y) => List((x, y), (y, x)) })
 
