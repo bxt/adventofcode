@@ -28,19 +28,19 @@ object Main {
     symmetric.toSet
   }
 
-  def connectedComponents(links: Set[(Int, Int)]): Set[Set[Int]] = {
-    links.map(_._1).toList.foldLeft((Set[Int](), Set[Set[Int]]()))((t, x) => {
+  def connectedComponents[A](links: Set[(A, A)]): Set[Set[A]] = {
+    links.map(_._1).toList.foldLeft((Set[A](), Set[Set[A]]()))((t, x) => {
       val (seen, ccs) = t
       if (seen.contains(x)) t
       else {
-        val newCc = connectedComponent(links, List(x))
+        val newCc = connectedComponent[A](links, List(x))
         (seen | newCc, ccs + newCc)
       }
     })._2
   }
 
   @tailrec
-  def connectedComponent(links: Set[(Int, Int)], queue: Seq[Int], seen: Set[Int] = Set()): Set[Int] = queue match {
+  def connectedComponent[A](links: Set[(A, A)], queue: Seq[A], seen: Set[A] = Set[A]()): Set[A] = queue match {
     case List() => seen
     case x +: xs => {
       val additional = links.filter(_._1 == x).map(_._2).toSet &~ seen
