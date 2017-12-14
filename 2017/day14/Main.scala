@@ -36,12 +36,11 @@ object Main {
 
       pointsAndValues.map(
         _.map({
-            case (p, value) => if (value) {
-              val ccNum: BigInt = ccSeq.indexWhere(_(p))
-              ccNum.toString(36).padTo(3, ' ')
-            } else " . "
-          }).mkString
-      ).mkString("\n")
+          case (p, value) => if (value) {
+            val ccNum: BigInt = ccSeq.indexWhere(_(p))
+            ccNum.toString(36).padTo(3, ' ')
+          } else " . "
+        }).mkString).mkString("\n")
     }
   }
 
