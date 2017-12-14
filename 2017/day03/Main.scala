@@ -1,6 +1,7 @@
 package day03
 
 import scala.io.Source
+import day03.Main.Point.Moore
 
 // BTW: http://bernhardhaeussner.de/blog/26_Aufgewickelter_Zahlenstrahl
 
@@ -10,13 +11,22 @@ object Main {
     def unary_- = Point(-x, -y)
     def -(that: Point) = this + -that
     def manhattanNorm(): Int = x.abs + y.abs
-    def mooreNeighborhood(): Seq[Point] = Point.mooreNeighborhooOfZero.map(_ + this)
+    def neighborhood(n: Point.Neighborhood): Seq[Point] = n.ofZero.map(_ + this)
   }
 
   // Extends is workaround for this bug: https://issues.scala-lang.org/browse/SI-3664
   object Point extends ((Int, Int) => Point) {
     val zero = Point(0, 0)
-    val mooreNeighborhooOfZero = (for (x <- -1 to 1; y <- -1 to 1) yield Point(x, y)).filterNot(_ == zero)
+
+    trait Neighborhood {
+      def ofZero: Seq[Point]
+    }
+    object Moore extends Neighborhood {
+      def ofZero = (for (x <- -1 to 1; y <- -1 to 1) yield Point(x, y)).filterNot(_ == zero)
+    }
+    object VonNeumann extends Neighborhood {
+      def ofZero = List(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1))
+    }
   }
 
   def main(args: Array[String]): Unit = {
@@ -49,7 +59,7 @@ object Main {
   def ulamFibonaccis(): Stream[Int] = {
     val values = scala.collection.mutable.Map(Point.zero -> 1).withDefaultValue(0)
     1 #:: Stream.from(2).map(gridCoords).map(point => {
-      val sum = point.mooreNeighborhood().map(values).sum
+      val sum = point.neighborhood(Moore).map(values).sum
       values(point) = sum
       sum
     })
