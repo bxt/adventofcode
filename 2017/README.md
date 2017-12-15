@@ -13,7 +13,7 @@ added a short summary for each day. I marked the solutions which I consider
 especially valuable or pretty with a star (☆).
 
 Day | Scala     | Rust      | Description                             
-----|-----------|-----------|--------------------------------------------
+----|-----------|-----------|----------------------------------------------------
 01  | [x][sc01] |           | [Sum equal digits][aoc01]
 02  | [x][sc02] |           | [Sum spreadsheet min/max][aoc02]
 03  | [x][sc03] |           | [Ulam spiral fibonacci mashup][aoc03]
@@ -26,8 +26,10 @@ Day | Scala     | Rust      | Description
 10  | [x][sc10] |           | [Knot hash][aoc10]
 11  | [x][sc11] |           | [Hex grid distances][aoc11]
 12  | [x][sc12] |           | [Connected components][aoc12]
-13  | [x][sc13] |           | [Connected components][aoc13]
-Σ   |        12 |         0 |
+13  | [x][sc13] |           | [Modulus stuff like disks last year][aoc13]
+13  | [x][sc14] |           | [Grid of knot hash and connected components][aoc14]
+13  | [x][sc15] |           | [Generating number list with bitmasks][aoc15]
+Σ   |        14 |         0 |
 
 Takeaways
 ---------
@@ -49,7 +51,6 @@ year I follow (A-Z):
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2017) (Python, Ruby, Rust)
 * [fdlk](https://github.com/fdlk/advent-2017/tree/master/src) (Scala)
 * [glguy](https://github.com/glguy/advent2017) (Haskell)
-* [/u/Isvara](https://www.reddit.com/user/Isvara) (Scala)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2017) (Haskell, Python)
 
 These coders form last year didn't yet push anything this year, but I'll keep an eye open (A-Z):
@@ -70,6 +71,8 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc11]: http://adventofcode.com/2017/day/11
  [aoc12]: http://adventofcode.com/2017/day/12
  [aoc13]: http://adventofcode.com/2017/day/13
+ [aoc14]: http://adventofcode.com/2017/day/14
+ [aoc15]: http://adventofcode.com/2017/day/15
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
@@ -82,3 +85,5 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [sc11]: day11/Main.scala
  [sc12]: day12/Main.scala
  [sc13]: day13/Main.scala
+ [sc14]: day14/Main.scala
+ [sc15]: day15/Main.scala
