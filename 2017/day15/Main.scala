@@ -1,7 +1,5 @@
 package day15
 
-import scala.annotation.tailrec
-
 object Main {
   type Gen = Iterator[Long]
 
