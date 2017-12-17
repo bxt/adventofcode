@@ -27,9 +27,11 @@ Day | Scala     | Rust      | Description
 11  | [x][sc11] |           | [Hex grid distances][aoc11]
 12  | [x][sc12] |           | [Connected components][aoc12]
 13  | [x][sc13] |           | [Modulus stuff like disks last year][aoc13]
-13  | [x][sc14] |           | [Grid of knot hash and connected components][aoc14]
-13  | [x][sc15] |           | [Generating number list with bitmasks][aoc15]
-Σ   |        14 |         0 |
+14  | [x][sc14] |           | [Grid of knot hash and connected components][aoc14]
+15  | [x][sc15] |           | [Generating number list with bitmasks][aoc15]
+16  | [x][sc16] |           | [Letter permutation program dance][aoc16]
+17  | [x][sc17] |           | [Cyclic list intertion tracking][aoc17]
+Σ   |        16 |         0 |
 
 Takeaways
 ---------
@@ -73,6 +75,8 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc13]: http://adventofcode.com/2017/day/13
  [aoc14]: http://adventofcode.com/2017/day/14
  [aoc15]: http://adventofcode.com/2017/day/15
+ [aoc16]: http://adventofcode.com/2017/day/16
+ [aoc17]: http://adventofcode.com/2017/day/17
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
@@ -87,3 +91,5 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [sc13]: day13/Main.scala
  [sc14]: day14/Main.scala
  [sc15]: day15/Main.scala
+ [sc16]: day16/Main.scala
+ [sc17]: day17/Main.scala
