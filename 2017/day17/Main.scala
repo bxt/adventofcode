@@ -25,5 +25,9 @@ object Main {
       val newTarget = if (newIndex == 0) number else target
       (newIndex, newTarget)
     })._2
+    // this also works but is way slower:
+    1.to(max).scanLeft(0)((lastIndex, number) => {
+      (lastIndex + advance + 1) % number
+    }).lastIndexOf(0)
   }
 }
