@@ -8,7 +8,7 @@ object Main {
     println(part1(371, 2017)) // 1311
 
     assert(1.to(9).map(n => part2(3, n)).toList == List(1, 2, 2, 2, 5, 5, 5, 5, 9))
-    println(part2(371, 50000000))
+    println(part2(371, 50000000)) // 39170601
   }
 
   def part1(advance: Int, max: Int): Int = {
