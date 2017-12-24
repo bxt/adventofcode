@@ -25,13 +25,13 @@ object Main {
 
   def dance(initial: String, input: String): String = {
     val instructions = input.split(',').map(parse _)
-    instructions.foldLeft(initial)((x, y) => y(x))
+    instructions.foldLeft(initial)((state, move) => move(state))
   }
 
   def parse(input: String): String => String = input match {
     case spinRx(stepsStr) => rotate(-stepsStr.toInt)
     case exchangeRx(pos1Str, pos2Str) => s => swapLetter(s(pos1Str.toInt), s(pos2Str.toInt))(s)
-    case partnerRx(a, b) => swapLetter(a.head, b.head)
+    case partnerRx(letter1Str, letter2Str) => swapLetter(letter1Str.head, letter2Str.head)
   }
 
   def swapLetter(letter1: Char, letter2: Char)(input: String): String = {
