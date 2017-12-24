@@ -26,8 +26,8 @@ object Main {
       (newIndex, newTarget)
     })._2
     // this also works but is way slower:
-    1.to(max).scanLeft(0)((lastIndex, number) => {
+    /*1.to(max).scanLeft(0)((lastIndex, number) => {
       (lastIndex + advance + 1) % number
-    }).lastIndexOf(0)
+    }).lastIndexOf(0)*/
   }
 }
