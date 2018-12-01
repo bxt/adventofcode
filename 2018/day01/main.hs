@@ -1,16 +1,16 @@
+import Data.Set (member, fromList, insert)
 
 withoutLeadingPlus :: String -> String
 withoutLeadingPlus ('+':xs) = xs
 withoutLeadingPlus xs       = xs
 
 parseFrequencyList :: String -> [Int]
-parseFrequencyList = map read . map withoutLeadingPlus . lines
+parseFrequencyList = map (read . withoutLeadingPlus) . lines
 
--- taken from 2016/1
-findDuplicate :: Eq a => [a] -> a
-findDuplicate (x:xs) = aux [x] xs where
-  aux ys (x:xs) | x `elem` tail ys = x
-                | otherwise        = aux (x:ys) xs
+findDuplicate :: (Ord a, Eq a) => [a] -> a
+findDuplicate (x:xs) = aux (fromList [x]) xs where
+  aux seen (x:xs) | x `member` seen = x
+                  | otherwise       = aux (x `insert` seen) xs
 
 cumsum :: [Int] -> [Int]
 cumsum = scanl (+) 0
@@ -19,4 +19,4 @@ main :: IO()
 main = do
   freqencyList <- parseFrequencyList <$> readFile "input.txt"
   print $ sum freqencyList -- 536
-  print $ findDuplicate $ cumsum $ cycle freqencyList
+  print $ findDuplicate $ cumsum $ cycle freqencyList -- 75108
