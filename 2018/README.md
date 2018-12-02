@@ -29,7 +29,7 @@ year I follow (A-Z):
 * [glguy](https://github.com/glguy/advent2018) (Haskell, C++, Rust)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2018) (Python)
 
- [aoc01]: http://adventofcode.com/2017/day/1
- [aoc02]: http://adventofcode.com/2017/day/2
+ [aoc01]: http://adventofcode.com/2018/day/1
+ [aoc02]: http://adventofcode.com/2018/day/2
  [hs01]: day01/main.hs
  [hs02]: day02/main.hs
