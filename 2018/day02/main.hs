@@ -1,22 +1,25 @@
 import Data.Map (fromListWith, toList)
-import Data.Function (on)
+import Data.List (tails)
 
-buildFrequencyLists :: [String] -> [[(Char, Integer)]]
-buildFrequencyLists = map (toList . fromListWith (+) . map (\x -> (x,1)))
+frequencies :: Ord a => [a] -> [(a, Int)]
+frequencies = toList . fromListWith (+) . map (\x -> (x,1))
 
-countFor :: Integer -> [[(Char, Integer)]] -> Int
-countFor n = length . filter (any ((== n) . snd))
+checksum :: [String] -> Int
+checksum idList = product $ map (`countWhereAnySndIs` freqencyLists) [2,3]
+  where
+    freqencyLists = map frequencies idList
+    countWhereAnySndIs :: Eq a => a -> [[(b, a)]] -> Int
+    countWhereAnySndIs n = length . filter (any ((== n) . snd))
 
-diff :: Eq a => [a] -> [a] -> [a]
-diff (x:xs) (y:ys) = if x == y then x:rest else rest
-  where rest = diff xs ys
-diff []     []     = []
-diff _      _      = error "unequal list length"
+keepCommon :: Eq a => [a] -> [a] -> [a]
+keepCommon xs ys = map fst $ filter (uncurry (==)) $ zip xs ys
+
+findCommonsOfPairWithOneDifference :: Eq a => [[a]] -> [a]
+findCommonsOfPairWithOneDifference = head . (>>= aux) . tails where
+  aux (x:xs) = filter ((== length x - 1) . length) $ map (keepCommon x) xs
 
 main :: IO()
 main = do
   idList <- lines <$> readFile "input.txt"
-  let freqencyLists = buildFrequencyLists idList
-  print $ (countFor 3 freqencyLists) * (countFor 2 freqencyLists) -- 5658
-  let combos = [(x, y) | x <- idList, y <- idList]
-  print $ snd $ head $ filter (\((x, _), y) -> length x == length y + 1) $ zip combos $ map (uncurry diff) $ combos
+  print $ checksum idList -- 5658
+  print $ findCommonsOfPairWithOneDifference idList -- nmgyjkpruszlbaqwficavxneo
