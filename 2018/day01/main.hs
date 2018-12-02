@@ -12,11 +12,11 @@ findDuplicate (x:xs) = aux (fromList [x]) xs where
   aux seen (x:xs) | x `member` seen = x
                   | otherwise       = aux (x `insert` seen) xs
 
-cumsum :: [Int] -> [Int]
-cumsum = scanl (+) 0
+accumulate :: [Int] -> [Int]
+accumulate = scanl (+) 0
 
 main :: IO()
 main = do
   freqencyList <- parseFrequencyList <$> readFile "input.txt"
   print $ sum freqencyList -- 536
-  print $ findDuplicate $ cumsum $ cycle freqencyList -- 75108
+  print $ findDuplicate $ accumulate $ cycle freqencyList -- 75108
