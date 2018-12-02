@@ -5,7 +5,10 @@ Advent of Code
 
 This repository contains the code I used to solve the challenges from http://adventofcode.com/
 
-I participated in three years so far:
+I participated in four years so far:
+
+[2018](2018)
+------------
 
 [2017](2017)
 ------------
@@ -15,3 +18,6 @@ I participated in three years so far:
 
 [2015](2015)
 ------------
+
+
+> »Thymian fliegt!« – Ich, wenn ich diese Liste sehe
