@@ -4,16 +4,10 @@ import Data.Array.IArray
 import Data.Array.Base (UArray)
 
 type Coords = (Int, Int)
-
-data Rect = Rect { x :: Int
-                 , y :: Int
-                 , w :: Int
-                 , h :: Int
-                 } deriving (Show)
-
-data Claim = Claim { identifier :: Int
-                   , area :: Rect
-                   } deriving (Show)
+type Extend = (Coords, Coords)
+type ClaimMap = Array Coords Int
+data Rect = Rect { x :: Int , y :: Int , w :: Int , h :: Int } deriving (Show)
+data Claim = Claim { identifier :: Int , area :: Rect } deriving (Show)
 
 claimList :: Parsec String u [Claim]
 claimList = many (claim <* endOfLine) <* eof
@@ -21,26 +15,33 @@ claimList = many (claim <* endOfLine) <* eof
         area = Rect <$> int <* char ',' <*> int <* string ": " <*> int <* char 'x' <*> int
         int  = read <$> many1 digit
 
-positions :: Claim -> [Coords]
-positions Claim {area = a} = range ((x a,y a),(x a + w a - 1, y a + h a - 1))
+extend :: Claim -> Extend
+extend Claim {area = a} = ((x a,y a),(x a + w a - 1, y a + h a - 1))
 
-minMax :: Ord a => [a] -> (a, a)
-minMax = (,) <$> minimum <*> maximum
+mergeExtends :: Extend -> Extend -> Extend
+mergeExtends ((fromX1, fromY1), (toX1, toY1)) ((fromX2, fromY2), (toX2, toY2)) =
+  ((min fromX1 fromX2, min fromY1 fromY2), (max toX1 toX2, max toY1 toY2))
+
+positions :: Claim -> [Coords]
+positions = range . extend
 
 fromRight :: Show a => Either a b -> b
 fromRight = either (error . show) id
 
+buildClaimMap :: [Claim] -> ClaimMap
+buildClaimMap input = accumArray (+) 0 bounds values where
+  bounds = foldl1 mergeExtends $ map extend input
+  values = input >>= flip zip (repeat 1) . positions
+
+countOverclaimed :: ClaimMap -> Int
+countOverclaimed = length . filter (>1) . elems
+
+notOverclaimed :: ClaimMap -> Claim -> Bool
+notOverclaimed claimMap = all (== 1) . map (claimMap !) . positions
+
 main :: IO()
 main = do
-  input <- fromRight <$> parseFromFile claimList "input.txt"
-  let xs = [x . area, (+) <$> x . area <*> w . area] <*> input
-  let ys = [y . area, (+) <$> y . area <*> h . area] <*> input
-  let (xFrom, xTo) = minMax xs :: Coords
-  let (yFrom, yTo) = minMax ys :: Coords
-  let values = (flip zip (repeat 1) . positions) =<< input :: [(Coords, Int)]
-  let array = accumArray (+) 0 ((xFrom, yFrom), (xTo, yTo)) values :: Array Coords Int
-
-  print $ length $ filter (>1) $ elems array -- 100595
-
-  let nonOverlapping = filter (all (== 1) . map (array !) . positions) input
-  print $ identifier $ head nonOverlapping
+  claims <- fromRight <$> parseFromFile claimList "input.txt"
+  let claimMap = buildClaimMap claims
+  print $ countOverclaimed claimMap -- 100595
+  print $ identifier $ head $ filter (notOverclaimed claimMap) claims -- 415
