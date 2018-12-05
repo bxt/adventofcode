@@ -14,9 +14,12 @@ especially valuable or pretty with a star (☆).
 
 Day | Haskell   | Description                             
 ----|-----------|--------------------------------------------------------------
-02  | [x][hs01] | [Being clever with modulus or just summing][aoc01]
+01  | [x][hs01] | [Being clever with modulus or just summing][aoc01]
 02  | [x][hs02] | [Diffing and counting][aoc02]
-Σ   |         2 |
+03  | [x][hs03] | [Fabric claim rectangle overlaps][aoc03]
+04  | [x][hs04] | [Sleep pattern aggregations][aoc04]
+05  | [x][hs05] | [Desctructive chemistry text processing][aoc05]
+Σ   |         5 |
 
 Other solutions
 ---------------
@@ -31,5 +34,11 @@ year I follow (A-Z):
 
  [aoc01]: http://adventofcode.com/2018/day/1
  [aoc02]: http://adventofcode.com/2018/day/2
+ [aoc03]: http://adventofcode.com/2018/day/3
+ [aoc04]: http://adventofcode.com/2018/day/4
+ [aoc05]: http://adventofcode.com/2018/day/5
  [hs01]: day01/main.hs
  [hs02]: day02/main.hs
+ [hs03]: day03/main.hs
+ [hs04]: day04/main.hs
+ [hs05]: day05/main.hs
