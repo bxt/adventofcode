@@ -43,7 +43,7 @@ react (x:y:xs) | x *=-=* y = react xs
 react xs                    = xs
 
 -- | React all possible elements
--- >>> react "dabAcCaCBAcCcaDA"
+-- >>> reactAll "dabAcCaCBAcCcaDA"
 -- "dabCBAcaDA"
 reactAll :: String -> String
 reactAll = fst . head . dropWhile (uncurry (/=)) . zipOwnTail . iterate react
