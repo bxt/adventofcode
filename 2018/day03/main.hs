@@ -15,16 +15,30 @@ claimList = many (claim <* endOfLine) <* eof
         area = Rect <$> int <* char ',' <*> int <* string ": " <*> int <* char 'x' <*> int
         int  = read <$> many1 digit
 
+-- | Caluclate the corner coordinates of a claim
+-- >>> extend Claim { identifier = 0, area = Rect { x = 1, y = 3, w = 2, h = 4 } }
+-- ((1,3),(2,6))
 extend :: Claim -> Extend
 extend Claim {area = a} = ((x a,y a),(x a + w a - 1, y a + h a - 1))
 
+-- | Caluclate the bounding extend of two extends
+-- >>> mergeExtends ((1,3),(2,6)) ((3,2),(4,3))
+-- ((1,2),(4,6))
 mergeExtends :: Extend -> Extend -> Extend
 mergeExtends ((fromX1, fromY1), (toX1, toY1)) ((fromX2, fromY2), (toX2, toY2)) =
   ((min fromX1 fromX2, min fromY1 fromY2), (max toX1 toX2, max toY1 toY2))
 
+-- | Caluclate the positions occupied by a claim
+-- >>> positions Claim { identifier = 0, area = Rect { x = 1, y = 3, w = 2, h = 4 } }
+-- [(1,3),(1,4),(1,5),(1,6),(2,3),(2,4),(2,5),(2,6)]
 positions :: Claim -> [Coords]
 positions = range . extend
 
+-- | Use a right, crash when left
+-- >>> fromRight (Right 3)
+-- 3
+-- >>> fromRight (Left "Ouch!")
+-- *** Exception: "Ouch!"
 fromRight :: Show a => Either a b -> b
 fromRight = either (error . show) id
 
