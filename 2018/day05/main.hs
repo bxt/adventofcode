@@ -1,5 +1,4 @@
 import Data.Char (toLower, isSpace)
-import Data.List (dropWhileEnd)
 import Data.Function (on)
 
 -- instead of x-mas bells and whistles we have some faaaaancy operators XD
@@ -28,25 +27,13 @@ import Data.Function (on)
 (*=-=*) :: Char -> Char -> Bool
 x *=-=* y = x /= y && x ~= y
 
--- | Pairs of element and next element in list
--- >>> zipOwnTail [1,2,3]
--- [(1,2),(2,3)]
-zipOwnTail :: [a] -> [(a, a)]
-zipOwnTail xs = zip xs (tail xs)
-
--- | React all possible elements, one pass
--- >>> react "XAaxBbZ"
--- "XxZ"
-react :: String -> String
-react (x:y:xs) | x *=-=* y = react xs
-               | otherwise = x : react (y:xs)
-react xs                    = xs
-
 -- | React all possible elements
 -- >>> reactAll "dabAcCaCBAcCcaDA"
 -- "dabCBAcaDA"
 reactAll :: String -> String
-reactAll = fst . head . dropWhile (uncurry (/=)) . zipOwnTail . iterate react
+reactAll = foldr react "" where -- reads string from back, "" is like an empty stack
+  react x (y:xs) | x *=-=* y = xs -- when element matches, discard it and pop the match
+  react x xs                 = x : xs -- otherwise push to stack
 
 reactedLength :: String -> Int
 reactedLength = length . reactAll
