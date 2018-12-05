@@ -5,6 +5,12 @@ Advent of Code 2018
 
 This directory contains the code I used to solve the challenges from [Advent of Code 2018](http://adventofcode.com/2018).
 
+This year I also used [doctest](http://hackage.haskell.org/package/doctest) in
+the Haskell code which is a very quick & easy solution for TDD I think
+especially with:
+
+    fswatch -o . | xargs -n1 -I{} doctest main.hs
+
 Contents
 --------
 
