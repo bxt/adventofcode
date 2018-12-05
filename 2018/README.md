@@ -27,7 +27,7 @@ Other solutions
 I enjoy looking at how other coders solved the riddles to learn even more. This
 year I follow (A-Z):
 
-* [cschell](https://github.com/cschell/adventofcode/tree/master/2017) (Ruby)
+* [cschell](https://github.com/cschell/adventofcode/tree/master/2018) (Ruby, Python)
 * [fdlk](https://github.com/fdlk/advent-2018/tree/master/src/main/kotlin/nl/kelpin/fleur/advent2018) (kotlin)
 * [glguy](https://github.com/glguy/advent2018) (Haskell, C++, Rust)
 * [msullivan](https://github.com/msullivan/advent-of-code/tree/master/2018) (Python)
