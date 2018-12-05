@@ -24,6 +24,7 @@ findDuplicate (x:xs) = aux (fromList [x]) xs where
                   | otherwise       = aux (x `insert` seen) xs
 
 -- | Build cummulative sums
+-- prop> last (accumulate xs) == sum (xs :: [Int])
 -- >>> accumulate [1,2,3,1000]
 -- [0,1,3,6,1006]
 accumulate :: [Int] -> [Int]

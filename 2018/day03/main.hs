@@ -35,8 +35,7 @@ positions :: Claim -> [Coords]
 positions = range . extend
 
 -- | Use a right, crash when left
--- >>> fromRight (Right 3)
--- 3
+-- prop> fromRight (Right a) == a
 -- >>> fromRight (Left "Ouch!")
 -- *** Exception: "Ouch!"
 fromRight :: Show a => Either a b -> b

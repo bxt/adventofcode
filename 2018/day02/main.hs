@@ -1,7 +1,11 @@
 import Data.Map (fromListWith, toList)
 import Data.List (tails)
 
+-- $setup
+-- >>> import Data.List (nub, sort)
+
 -- | Find how often each element occurs in list
+-- prop> (sort $ nub $ xs) == (sort $ nub $ map fst $ frequencies (xs :: [Int]))
 -- >>> frequencies [1,2,3,1,1,3,1]
 -- [(1,4),(2,1),(3,2)]
 frequencies :: Ord a => [a] -> [(a, Int)]
@@ -18,6 +22,7 @@ checksum idList = product $ map (`countWhereAnySndIs` freqencyLists) [2,3]
     countWhereAnySndIs n = length . filter (any ((== n) . snd))
 
 -- | Keeps the items which are the same in two lists
+-- prop> keepCommon a a == a
 -- >>> keepCommon "abcde" "axcye"
 -- "ace"
 -- >>> keepCommon "fghij" "fguij"
