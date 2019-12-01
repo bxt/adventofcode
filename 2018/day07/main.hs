@@ -63,7 +63,8 @@ nextStep cs done = listToMaybe
 -- "ABCD"
 runSequence :: [Constraint] -> [Char]
 runSequence cs = foo cs Set.empty (nextStep cs Set.empty) where
-  foo cs done (Just x) = x : foo cs (Set.insert x done) (nextStep cs (Set.insert x done))
+  foo cs done (Just x) = let done' = Set.insert x done
+                         in x : foo cs done' (nextStep cs done')
   foo _  _    Nothing  = []
 
 main :: IO()
