@@ -5,7 +5,7 @@ Advent of Code
 
 This repository contains the code I used to solve the challenges from http://adventofcode.com/
 
-I participated in four years so far:
+I participated in those years so far:
 
 [2019](2019)
 ------------
