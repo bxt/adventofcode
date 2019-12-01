@@ -9,7 +9,7 @@ end
 # discs = [[5,4],[2,1]]
 
 def find_good_time(discs)
-  (1..Float::INFINITY).find do |time|
+  (1..).find do |time|
     discs.all? do |disc_no, max, start|
       (time + disc_no + start) % max == 0
     end
