@@ -263,6 +263,45 @@ func wiresIntersectionPoints(wires [][]instruction) []point {
 	return filteredIntersections
 }
 
+func (line line) length() int {
+	fx, tx := minmax(line.x1, line.x2)
+	fy, ty := minmax(line.y1, line.y2)
+	return ty - fy + tx - fx
+}
+
+func wiresOptimalIntersectionDistance(wires [][]instruction) int {
+	var wireLines [][]line
+
+	for _, instructions := range wires {
+		wireLines = append(wireLines, convertInstructionsToLines(instructions))
+	}
+
+	linesA, linesB := wireLines[0], wireLines[1]
+
+	minDistance := -1
+
+	var distanceA int
+	for _, lineA := range linesA {
+		var distanceB int
+		for _, lineB := range linesB {
+			for _, intersection := range intersectionPoints(lineA, lineB) {
+				if intersection.mag() > 0 {
+					lineDistanceA := abs(intersection.x-lineA.x1) + abs(intersection.y-lineA.y1)
+					lineDistanceB := abs(intersection.x-lineB.x1) + abs(intersection.y-lineB.y1)
+					potentialDistance := distanceA + lineDistanceA + distanceB + lineDistanceB
+					if minDistance == -1 || potentialDistance < minDistance {
+						minDistance = potentialDistance
+					}
+				}
+			}
+			distanceB += lineB.length()
+		}
+		distanceA += lineA.length()
+	}
+
+	return minDistance
+}
+
 func main() {
 	assertEquals([]instruction{{"U", 3}, {"L", 5}}, parseInstructons("U3,L5"))
 	assertEquals([]line{{0, 0, 0, 3}, {0, 3, -5, 3}, {-5, 3, -5, 1}, {-5, 1, 4, 1}},
@@ -291,4 +330,17 @@ func main() {
 	check(scanner.Err())
 
 	fmt.Printf("Part 1: %d\n", closestPoint(wiresIntersectionPoints(wires)).mag()) // 316
+
+	assertEquals(30, wiresOptimalIntersectionDistance([][]instruction{
+		parseInstructons("R8,U5,L5,D3"), parseInstructons("U7,R6,D4,L4")}))
+	assertEquals(610, wiresOptimalIntersectionDistance([][]instruction{
+		parseInstructons("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
+		parseInstructons("U62,R66,U55,R34,D71,R55,D58,R83")},
+	))
+	assertEquals(410, wiresOptimalIntersectionDistance([][]instruction{
+		parseInstructons("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
+		parseInstructons("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
+	}))
+
+	fmt.Printf("Part 2: %d\n", wiresOptimalIntersectionDistance(wires)) // ?
 }
