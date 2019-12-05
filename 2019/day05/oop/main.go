@@ -70,42 +70,31 @@ func (m *machine) getOperation() operation {
 	return operation(m.getInstruction() % 100)
 }
 
-type operand struct {
-	m        *machine
-	position int
-}
-
-func (m *machine) getOperand(position int) operand {
-	return operand{m, position}
-}
-
-func (o operand) getRawMode() int {
-	instruction := o.m.getInstruction()
+func (m *machine) getRawOperandMode(position int) int {
+	instruction := m.getInstruction()
 	instruction /= 10
-	for i := 0; i < o.position; i++ {
+	for i := 0; i < position; i++ {
 		instruction /= 10
 	}
 	return instruction % 10
 }
 
-func (o operand) getMode() mode {
-	return mode(o.getRawMode())
-}
-func (o operand) getRaw() int {
-	return o.m.getRawOperand(o.position)
+func (m *machine) getOperandMode(position int) mode {
+	return mode(m.getRawOperandMode(position))
 }
 
-func (o operand) write(value int) {
-	o.m.state[o.getRaw()] = value
+func (m *machine) writeOperand(position int, value int) {
+	m.state[m.getRawOperand(position)] = value
 }
 
-func (o operand) resolve() int {
-	mode := o.getMode()
+func (m *machine) resolveOperand(position int) int {
+	value := m.getRawOperand(position)
+	mode := m.getOperandMode(position)
 	switch mode {
 	case positional:
-		return o.m.state[o.getRaw()]
+		return m.state[value]
 	case immediate:
-		return o.getRaw()
+		return value
 	default:
 		panic(fmt.Sprintf("Unknown operand mode: %d", mode))
 	}
@@ -136,41 +125,41 @@ Loop:
 		// fmt.Printf("Op: %d, pc: %d, mA: %d, mB: %d, st: %v\n", operation, m.programCounter, m.getOperandMode(1), m.getOperandMode(2), m.state)
 		switch operation {
 		case add:
-			m.getOperand(3).write(m.getOperand(1).resolve() + m.getOperand(2).resolve())
+			m.writeOperand(3, m.resolveOperand(1)+m.resolveOperand(2))
 			m.advanceProgramCounter(4)
 		case mul:
-			m.getOperand(3).write(m.getOperand(1).resolve() * m.getOperand(2).resolve())
+			m.writeOperand(3, m.resolveOperand(1)*m.resolveOperand(2))
 			m.advanceProgramCounter(4)
 		case in:
-			m.getOperand(1).write(m.dequeueInput())
+			m.writeOperand(1, m.dequeueInput())
 			m.advanceProgramCounter(2)
 		case out:
-			m.emitOutput(m.getOperand(1).resolve())
+			m.emitOutput(m.resolveOperand(1))
 			m.advanceProgramCounter(2)
 		case jnz:
-			if m.getOperand(1).resolve() != 0 {
-				m.jumpProgramCounter(m.getOperand(2).resolve())
+			if m.resolveOperand(1) != 0 {
+				m.jumpProgramCounter(m.resolveOperand(2))
 			} else {
 				m.advanceProgramCounter(3)
 			}
 		case jz:
-			if m.getOperand(1).resolve() == 0 {
-				m.jumpProgramCounter(m.getOperand(2).resolve())
+			if m.resolveOperand(1) == 0 {
+				m.jumpProgramCounter(m.resolveOperand(2))
 			} else {
 				m.advanceProgramCounter(3)
 			}
 		case lt:
-			if m.getOperand(1).resolve() < m.getOperand(2).resolve() {
-				m.getOperand(3).write(1)
+			if m.resolveOperand(1) < m.resolveOperand(2) {
+				m.writeOperand(3, 1)
 			} else {
-				m.getOperand(3).write(0)
+				m.writeOperand(3, 0)
 			}
 			m.advanceProgramCounter(4)
 		case eq:
-			if m.getOperand(1).resolve() == m.getOperand(2).resolve() {
-				m.getOperand(3).write(1)
+			if m.resolveOperand(1) == m.resolveOperand(2) {
+				m.writeOperand(3, 1)
 			} else {
-				m.getOperand(3).write(0)
+				m.writeOperand(3, 0)
 			}
 			m.advanceProgramCounter(4)
 		case hlt:
