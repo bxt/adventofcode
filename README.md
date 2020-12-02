@@ -7,6 +7,9 @@ This repository contains the code I used to solve the challenges from http://adv
 
 I participated in those years so far:
 
+[2020](2020)
+------------
+
 [2019](2019)
 ------------
 
