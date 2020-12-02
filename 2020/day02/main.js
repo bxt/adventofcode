@@ -13,8 +13,7 @@ const entries = parseInput(text);
 
 const part1 = (inputs) => {
   return inputs.filter(input => {
-    const letterCount = input.pw.split('').filter(x => x === input.letter).length;
-    return letterCount >= input.from && letterCount <= input.to
+    return (input.pw[input.from * 1 - 1] == input.letter) != (input.pw[input.to * 1 - 1] == input.letter)
   }).length
 };
 
@@ -24,6 +23,9 @@ const example = parseInput(`
 2-9 c: ccccccccc
 `);
 
-if (part1(example) !== 2) throw new Error("Example is wrong!");
+if (part1(example) !== 1) throw new Error("Example is wrong!");
 
 console.log("Result part 1: " + part1(entries));
+
+
+// 456 wrong
