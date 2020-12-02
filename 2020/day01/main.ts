@@ -1,4 +1,4 @@
-#!/usr/bin/env deno run --allow-read day01.ts
+#!/usr/bin/env deno run --allow-read
 
 const TARGET = 2020;
 
