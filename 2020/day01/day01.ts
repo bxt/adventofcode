@@ -2,11 +2,10 @@
 
 const TARGET = 2020;
 
-
 const parseInput = (string: string): number[] =>
   string.trim().split(/\W+/).map(Number);
 
-const text = await Deno.readTextFile('input.txt');
+const text = await Deno.readTextFile("input.txt");
 
 const entries = parseInput(text);
 
@@ -20,7 +19,7 @@ const part1 = (numbers: number[]): number => {
   }
 
   throw new Error("Not found");
-}
+};
 
 const example = parseInput(`
   1721
@@ -47,7 +46,7 @@ const part2 = (numbers: number[]): number => {
   }
 
   throw new Error("Not found");
-}
+};
 
 if (part2(example) !== 241861950) throw new Error("Example is wrong!");
 
