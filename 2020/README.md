@@ -17,7 +17,8 @@ especially valuable or pretty with a star (☆).
 Day | Deno         | Description
 ----|-------------|--------------------------------------------------------------
 01  | [x][deno01] | [Combining, finding, summing, multiplying][aoc01]
-Σ   |           1 |
+02  | [x][deno02] | [Password policies][aoc02]
+Σ   |           2 |
 
 Other solutions
 ---------------
@@ -28,4 +29,6 @@ year I follow (A-Z):
 * none yet 😇
 
  [aoc01]: http://adventofcode.com/2020/day/1
+ [aoc02]: http://adventofcode.com/2020/day/2
  [deno01]: day01/main.ts
+ [deno01]: day02/main.ts
