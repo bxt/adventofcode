@@ -31,4 +31,4 @@ year I follow (A-Z):
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
  [deno01]: day01/main.ts
- [deno01]: day02/main.ts
+ [deno02]: day02/main.ts
