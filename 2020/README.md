@@ -1,4 +1,4 @@
-Advent of Code 20202
+Advent of Code 2020
 ===================
 
 **Spoiler Warning:** If you want to solve the challenges by yourself, don't read the code.
