@@ -19,7 +19,8 @@ Day | Deno         | Description
 01  | [x][deno01] | [Combining, finding, summing, multiplying][aoc01]
 02  | [x][deno02] | [Password policies][aoc02]
 03  | [x][deno03] | [Walking through a map of tees][aoc03]
-Σ   |           3 |
+04  | [x][deno04] | [Walking through a map of tees][aoc04]
+Σ   |           4 |
 
 Other solutions
 ---------------
@@ -32,6 +33,8 @@ year I follow (A-Z):
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
  [aoc03]: http://adventofcode.com/2020/day/3
+ [aoc04]: http://adventofcode.com/2020/day/4
  [deno01]: day01/main.ts
  [deno02]: day02/main.ts
  [deno03]: day03/main.ts
+ [deno04]: day04/main.ts
