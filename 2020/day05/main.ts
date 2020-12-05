@@ -13,14 +13,10 @@ const getSeatId = (seat: string): number =>
     2,
   );
 
-const testSeatId = (seat: string, expectedSeatId: number) => {
-  assertEquals(getSeatId(seat), expectedSeatId, seat);
-};
-
-testSeatId("FBFBBFFRLR", 357);
-testSeatId("BFFFBBFRRR", 567);
-testSeatId("FFFBBBFRRR", 119);
-testSeatId("BBFFBBFRLL", 820);
+assertEquals(getSeatId("FBFBBFFRLR"), 357);
+assertEquals(getSeatId("BFFFBBFRRR"), 567);
+assertEquals(getSeatId("FFFBBBFRRR"), 119);
+assertEquals(getSeatId("BBFFBBFRLL"), 820);
 
 const input = await Deno.readTextFile("input.txt");
 
