@@ -44,6 +44,33 @@ struct rule
   uint16_t outputPattern;
 };
 
+struct ruleset
+{
+  size_t length;
+  size_t allocated;
+  struct rule *rules;
+};
+
+struct ruleset makeRuleset() {
+  size_t length = 0;
+  size_t allocated = 8;
+  struct rule *rules = (struct rule *)malloc(sizeof(struct rule) * allocated);
+  struct ruleset ruleset = {length, allocated, rules};
+  return ruleset;
+}
+
+void appendToRuleset(struct ruleset *ruleset, struct rule rule) {
+  if (ruleset->length >= ruleset->allocated) {
+    size_t newAllocated = ruleset->allocated * 2;
+    struct rule *newRules = (struct rule *)malloc(sizeof(struct rule) * newAllocated);
+    memcpy(newRules, ruleset->rules, sizeof(struct rule) * ruleset->length);
+    ruleset->allocated = newAllocated;
+    ruleset->rules = newRules;
+  }
+  ruleset->rules[ruleset->length] = rule;
+  ruleset->length++;
+}
+
 void parseArrow(FILE *fp, char ch, int patternSize) {
   if(ch != ' ') {
     printf("Expected space to start pattern %d arrow, got %c", patternSize, ch);
@@ -78,11 +105,8 @@ int countPattern(size_t patternSize, int *patternData) {
 
 int main(int argc, char const *argv[])
 {
-  size_t rule3sCount = 8;
-  struct rule *rule3s = (struct rule *)malloc(sizeof(struct rule) * rule3sCount);
-
-  size_t rule2sCount = 8;
-  struct rule *rule2s = (struct rule *)malloc(sizeof(struct rule) * rule2sCount);
+  struct ruleset rule2s = makeRuleset();
+  struct ruleset rule3s = makeRuleset();
 
   FILE *fp;
   fp = fopen("input.txt", "r");
@@ -93,9 +117,6 @@ int main(int argc, char const *argv[])
   uint16_t pattern = 0;
   int replacementIndex = 0;
   uint16_t replacement = 0;
-
-  size_t rule3sIndex = 0;
-  size_t rule2sIndex = 0;
 
   for (char ch = getc(fp); ch != EOF; ch = getc(fp)) {
     if (mode == MODE_INITIAL) {
@@ -137,19 +158,11 @@ int main(int argc, char const *argv[])
     } else if (mode == MODE_RULE2_REPLACEMENT) {
       if (replacementIndex >= 9) {
         if (ch == '\n') {
-          if (rule2sIndex >= rule2sCount) {
-            size_t newRule2sCount = rule2sCount * 2;
-            struct rule *newRule2s = (struct rule *)malloc(sizeof(struct rule) * newRule2sCount);
-            memcpy(newRule2s, rule2s, sizeof(struct rule) * rule2sIndex);
-            rule2sCount = newRule2sCount;
-            rule2s = newRule2s;
-          }
           struct rule rule2 = {
               pattern,
               replacement,
           };
-          rule2s[rule2sIndex] = rule2;
-          rule2sIndex++;
+          appendToRuleset(&rule2s, rule2);
           mode = MODE_INITIAL;
           patternIndex = 0;
           pattern = 0;
@@ -208,19 +221,11 @@ int main(int argc, char const *argv[])
     } else if (mode == MODE_RULE3_REPLACEMENT) {
       if (replacementIndex >= 16) {
         if (ch == '\n') {
-          if (rule3sIndex >= rule3sCount) {
-            size_t newRule3sCount = rule3sCount * 2;
-            struct rule *newRule3s = (struct rule *)malloc(sizeof(struct rule) * newRule3sCount);
-            memcpy(newRule3s, rule3s, sizeof(struct rule) * rule3sIndex);
-            rule3sCount = newRule3sCount;
-            rule3s = newRule3s;
-          }
           struct rule rule3 = {
               pattern,
               replacement,
           };
-          rule3s[rule3sIndex] = rule3;
-          rule3sIndex++;
+          appendToRuleset(&rule3s, rule3);
           mode = MODE_INITIAL;
           patternIndex = 0;
           pattern = 0;
@@ -254,18 +259,10 @@ int main(int argc, char const *argv[])
     }
   }
 
-  size_t rule3sWithoutRotation = rule3sIndex;
+  size_t rule3sWithoutRotation = rule3s.length;
   for (size_t i = 0; i < rule3sWithoutRotation; i++) {
     for (int k = 0; k < 7; k++) {
-      if (rule3sIndex >= rule3sCount) {
-        size_t newRule3sCount = rule3sCount * 2;
-        struct rule *newRule3s = (struct rule *)malloc(sizeof(struct rule) * newRule3sCount);
-        memcpy(newRule3s, rule3s, sizeof(struct rule) * rule3sIndex);
-        rule3sCount = newRule3sCount;
-        rule3s = newRule3s;
-      }
-
-      uint16_t pattern = rule3s[i].inputPattern;
+      uint16_t pattern = rule3s.rules[i].inputPattern;
       uint16_t permutedPattern = 0;
       for (int l = 0; l < 9; l++) {
         permutedPattern <<= 1;
@@ -276,25 +273,16 @@ int main(int argc, char const *argv[])
 
       struct rule rule3 = {
           permutedPattern,
-          rule3s[i].outputPattern,
+          rule3s.rules[i].outputPattern,
       };
-      rule3s[rule3sIndex] = rule3;
-      rule3sIndex++;
+      appendToRuleset(&rule3s, rule3);
     }
   }
 
-  size_t rule2sWithoutRotation = rule2sIndex;
+  size_t rule2sWithoutRotation = rule2s.length;
   for (size_t i = 0; i < rule2sWithoutRotation; i++) {
     for (int k = 0; k < 7; k++) {
-      if (rule2sIndex >= rule2sCount) {
-        size_t newRule2sCount = rule2sCount * 2;
-        struct rule *newRule2s = (struct rule *)malloc(sizeof(struct rule) * newRule2sCount);
-        memcpy(newRule2s, rule2s, sizeof(struct rule) * rule2sIndex);
-        rule2sCount = newRule2sCount;
-        rule2s = newRule2s;
-      }
-
-      uint16_t pattern = rule2s[i].inputPattern;
+      uint16_t pattern = rule2s.rules[i].inputPattern;
       uint16_t permutedPattern = 0;
       for (int l = 0; l < 4; l++) {
         permutedPattern <<= 1;
@@ -305,10 +293,9 @@ int main(int argc, char const *argv[])
 
       struct rule rule2 = {
           permutedPattern,
-          rule2s[i].outputPattern,
+          rule2s.rules[i].outputPattern,
       };
-      rule2s[rule2sIndex] = rule2;
-      rule2sIndex++;
+      appendToRuleset(&rule2s, rule2);
     }
   }
 
@@ -324,8 +311,7 @@ int main(int argc, char const *argv[])
     int patchSize = patternSize % 2 == 0 ? 2 : 3;
     int newPatchSize = patchSize == 2 ? 3 : 4;
 
-    size_t rulesLength = patchSize == 2 ? rule2sIndex : rule3sIndex;
-    struct rule *rules = patchSize == 2 ? rule2s : rule3s;
+    struct ruleset ruleset = patchSize == 2 ? rule2s : rule3s;
 
     int patchCount = patternSize / patchSize;
 
@@ -343,9 +329,9 @@ int main(int argc, char const *argv[])
         }
 
         uint16_t replacement = 0;
-        for (size_t i = 0; i < rulesLength; i++) {
-          if(rules[i].inputPattern == pattern) {
-            replacement = rules[i].outputPattern;
+        for (size_t i = 0; i < ruleset.length; i++) {
+          if(ruleset.rules[i].inputPattern == pattern) {
+            replacement = ruleset.rules[i].outputPattern;
           }
         }
 
