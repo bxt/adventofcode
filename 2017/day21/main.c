@@ -57,11 +57,16 @@ struct ruleset makeRuleset(int patternSize) {
   return ruleset;
 }
 
+struct ruleset destroyRuleset(struct ruleset *ruleset) {
+  free(ruleset->rules);
+}
+
 void appendToRuleset(struct ruleset *ruleset, struct rule rule) {
   if (ruleset->length >= ruleset->allocated) {
     size_t newAllocated = ruleset->allocated * 2;
     struct rule *newRules = (struct rule *)malloc(sizeof(struct rule) * newAllocated);
     memcpy(newRules, ruleset->rules, sizeof(struct rule) * ruleset->length);
+    free(ruleset->rules);
     ruleset->allocated = newAllocated;
     ruleset->rules = newRules;
   }
@@ -311,13 +316,17 @@ int main(int argc, char const *argv[])
       }
     }
 
+    free(patternData);
     patternSize = newPatternSize;
     patternData = newPatternData;
   }
 
   printf("Result part 2: %d\n", countPattern(patternSize, patternData));
 
-  // FIXME: free memories again :)
+  destroyRuleset(&rule2s);
+  destroyRuleset(&rule3s);
+
+  free(patternData);
 
   return 0;
 }
