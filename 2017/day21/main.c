@@ -314,92 +314,52 @@ int main(int argc, char const *argv[])
 
   size_t patternSize = 3;
   int *patternData = (int *)malloc(sizeof(int) * patternSize * patternSize);
-
-  for (size_t i = 0; i < patternSize; i++) {
-    for (size_t k = 0; k < patternSize; k++) {
-      patternData[i * patternSize + k] = initialPattern[i][k];
-    }
-  }
-
+  memcpy(patternData, initialPattern, sizeof(int) * patternSize * patternSize);
 
   for (int iteration = 0; iteration < 18; iteration++) {
     if(iteration == 5) {
       printf("Result part 1: %d\n", countPattern(patternSize, patternData));
     }
 
-    if (patternSize % 2 == 0) {
-      int patchSize =  2;
-      int newPatchSize = 3;
-      int patchCount = patternSize / patchSize;
+    int patchSize = patternSize % 2 == 0 ? 2 : 3;
+    int newPatchSize = patchSize == 2 ? 3 : 4;
 
-      size_t newPatternSize = patchCount * newPatchSize;
-      int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
+    size_t rulesLength = patchSize == 2 ? rule2sIndex : rule3sIndex;
+    struct rule *rules = patchSize == 2 ? rule2s : rule3s;
 
-      for (int i = 0; i < patchCount; i++) {
-        for (int k = 0; k < patchCount; k++) {
-          uint16_t pattern = 0;
-          for (int pi = 0; pi < patchSize; pi++) {
-            for (int pk = 0; pk < patchSize; pk++) {
-              pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
-                << ((patchSize - pi) * patchSize - pk - 1);
-            }
+    int patchCount = patternSize / patchSize;
+
+    size_t newPatternSize = patchCount * newPatchSize;
+    int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
+
+    for (int i = 0; i < patchCount; i++) {
+      for (int k = 0; k < patchCount; k++) {
+        uint16_t pattern = 0;
+        for (int pi = 0; pi < patchSize; pi++) {
+          for (int pk = 0; pk < patchSize; pk++) {
+            pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
+              << ((patchSize - pi) * patchSize - pk - 1);
           }
+        }
 
-          uint16_t replacement = 0;
-          for (size_t i = 0; i < rule2sIndex; i++) {
-            if(rule2s[i].inputPattern == pattern) {
-              replacement = rule2s[i].outputPattern;
-            }
+        uint16_t replacement = 0;
+        for (size_t i = 0; i < rulesLength; i++) {
+          if(rules[i].inputPattern == pattern) {
+            replacement = rules[i].outputPattern;
           }
+        }
 
-          for (int pi = 0; pi < newPatchSize; pi++) {
-            for (int pk = 0; pk < newPatchSize; pk++) {
-              newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
-                (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
-            }
+        for (int pi = 0; pi < newPatchSize; pi++) {
+          for (int pk = 0; pk < newPatchSize; pk++) {
+            newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
+              (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
           }
         }
       }
-
-      patternSize = newPatternSize;
-      patternData = newPatternData;
-    } else {
-      int patchSize =  3;
-      int newPatchSize = 4;
-      int patchCount = patternSize / patchSize;
-
-      size_t newPatternSize = patchCount * newPatchSize;
-      int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
-
-      for (int i = 0; i < patchCount; i++) {
-        for (int k = 0; k < patchCount; k++) {
-          uint16_t pattern = 0;
-          for (int pi = 0; pi < patchSize; pi++) {
-            for (int pk = 0; pk < patchSize; pk++) {
-              pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
-                << ((patchSize - pi) * patchSize - pk - 1);
-            }
-          }
-
-          uint16_t replacement = 0;
-          for (size_t i = 0; i < rule3sIndex; i++) {
-            if(rule3s[i].inputPattern == pattern) {
-              replacement = rule3s[i].outputPattern;
-            }
-          }
-
-          for (int pi = 0; pi < newPatchSize; pi++) {
-            for (int pk = 0; pk < newPatchSize; pk++) {
-              newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
-                (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
-            }
-          }
-        }
-      }
-
-      patternSize = newPatternSize;
-      patternData = newPatternData;
     }
+
+    patternSize = newPatternSize;
+    patternData = newPatternData;
   }
 
   printf("Result part 2: %d\n", countPattern(patternSize, patternData));
