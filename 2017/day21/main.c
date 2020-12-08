@@ -72,16 +72,6 @@ void parseArrow(FILE *fp, char ch, int patternSize) {
   }
 }
 
-void printPattern(size_t patternSize, int *patternData) {
-  for (size_t i = 0; i < patternSize; i++) {
-    for (size_t k = 0; k < patternSize; k++) {
-      printf("%s", patternData[i * patternSize + k] ? "#" : ".");
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
 int countPattern(size_t patternSize, int *patternData) {
   int count = 0;
   for (size_t i = 0; i < patternSize; i++) {
@@ -153,7 +143,6 @@ int main(int argc, char const *argv[])
     } else if (mode == MODE_RULE2_REPLACEMENT) {
       if (replacementIndex >= 9) {
         if (ch == '\n') {
-          printf("PARSED RULE 2 %d, %d\n", pattern, replacement);
           if (rule2sIndex >= rule2sCount) {
             size_t newRule2sCount = rule2sCount * 2;
             struct rule2 *newRule2s = (struct rule2 *)malloc(sizeof(struct rule2) * newRule2sCount);
@@ -225,7 +214,6 @@ int main(int argc, char const *argv[])
     } else if (mode == MODE_RULE3_REPLACEMENT) {
       if (replacementIndex >= 16) {
         if (ch == '\n') {
-          printf("PARSED RULE 3 %d, %d\n", pattern, replacement);
           if (rule3sIndex >= rule3sCount) {
             size_t newRule3sCount = rule3sCount * 2;
             struct rule3 *newRule3s = (struct rule3 *)malloc(sizeof(struct rule3) * newRule3sCount);
@@ -330,13 +318,6 @@ int main(int argc, char const *argv[])
     }
   }
 
-  for (size_t i = 0; i < rule2sIndex; i++) {
-    printf("Has rule 2 with %d, %d\n", rule2s[i].inputPattern, rule2s[i].outputPattern);
-  }
-  for (size_t i = 0; i < rule3sIndex; i++) {
-    printf("Has rule 3 with %d, %d\n", rule3s[i].inputPattern, rule3s[i].outputPattern);
-  }
-
   size_t patternSize = 3;
   int *patternData = (int *)malloc(sizeof(int) * patternSize * patternSize);
 
@@ -351,7 +332,6 @@ int main(int argc, char const *argv[])
     if(iteration == 5) {
       printf("Result part 1: %d\n", countPattern(patternSize, patternData));
     }
-    printPattern(patternSize, patternData);
 
     if (patternSize % 2 == 0) {
       int patchSize =  2;
@@ -370,7 +350,6 @@ int main(int argc, char const *argv[])
                 << ((patchSize - pi) * patchSize - pk - 1);
             }
           }
-          printf("found pattern: %d\n", pattern);
 
           uint16_t replacement = 0;
           for (size_t i = 0; i < rule2sIndex; i++) {
@@ -378,9 +357,6 @@ int main(int argc, char const *argv[])
               replacement = rule2s[i].outputPattern;
             }
           }
-
-          printf("apply replacement: %d\n", replacement);
-
 
           for (int pi = 0; pi < newPatchSize; pi++) {
             for (int pk = 0; pk < newPatchSize; pk++) {
@@ -410,7 +386,6 @@ int main(int argc, char const *argv[])
                 << ((patchSize - pi) * patchSize - pk - 1);
             }
           }
-          printf("found pattern: %d\n", pattern);
 
           uint16_t replacement = 0;
           for (size_t i = 0; i < rule3sIndex; i++) {
@@ -418,9 +393,6 @@ int main(int argc, char const *argv[])
               replacement = rule3s[i].outputPattern;
             }
           }
-
-          printf("apply replacement: %d\n", replacement);
-
 
           for (int pi = 0; pi < newPatchSize; pi++) {
             for (int pk = 0; pk < newPatchSize; pk++) {
@@ -435,8 +407,6 @@ int main(int argc, char const *argv[])
       patternData = newPatternData;
     }
   }
-
-  printPattern(patternSize, patternData);
 
   printf("Result part 2: %d\n", countPattern(patternSize, patternData));
 
