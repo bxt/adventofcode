@@ -1,21 +1,35 @@
+
+// Run with e.g.:
+// gcc -Wall -o main main.c && ./main && rm main
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-const int pattern3Permutations[5][9] = {
-  {6, 7, 8, 3, 4, 5, 0, 1, 2},
-  {2, 1, 0, 5, 4, 3, 8, 7, 6},
-  {2, 5, 8, 1, 4, 7, 0, 3, 6},
-  {0, 1, 2, 3, 4, 5, 6, 7, 8},
-  {6, 3, 0, 7, 4, 1, 8, 5, 2},
+const int initialPattern[3][3] = {
+  {0, 1, 0},
+  {0, 0, 1},
+  {1, 1, 1},
 };
 
-const int pattern2Permutations[5][4] = {
-  {2, 3, 0, 1},
-  {1, 0, 3, 2},
-  {1, 3, 0, 2},
-  {0, 1, 2, 3},
-  {2, 0, 3, 1},
+const int pattern3Permutations[7][9] = {
+  {6, 7, 8, 3, 4, 5, 0, 1, 2}, // mirror X
+  {2, 1, 0, 5, 4, 3, 8, 7, 6}, // mirror Y
+  {2, 5, 8, 1, 4, 7, 0, 3, 6}, // 90 deg
+  {0, 1, 2, 3, 4, 5, 6, 7, 8}, // 180 deg
+  {6, 3, 0, 7, 4, 1, 8, 5, 2}, // 270 deg
+  {8, 5, 2, 7, 4, 1, 6, 3, 0}, // 90 deg + mirror X
+  {0, 3, 6, 1, 4, 7, 2, 5, 8}, // 270 deg + mirror X
+};
+
+const int pattern2Permutations[7][4] = {
+  {2, 3, 0, 1}, // mirror X
+  {1, 0, 3, 2}, // mirror Y
+  {1, 3, 0, 2}, // 90 deg
+  {0, 1, 2, 3}, // 180 deg
+  {2, 0, 3, 1}, // 270 deg
+  {3, 1, 2, 0}, // 90 deg + mirror X
+  {0, 2, 1, 3}, // 270 deg + mirror X
 };
 
 #define MODE_INITIAL 0
@@ -56,6 +70,26 @@ void parseArrow(FILE *fp, char ch, int patternSize) {
     printf("Expected space to end pattern %d arrow, got %c", patternSize, ch);
     exit(EXIT_FAILURE);
   }
+}
+
+void printPattern(size_t patternSize, int *patternData) {
+  for (size_t i = 0; i < patternSize; i++) {
+    for (size_t k = 0; k < patternSize; k++) {
+      printf("%s", patternData[i * patternSize + k] ? "#" : ".");
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
+
+int countPattern(size_t patternSize, int *patternData) {
+  int count = 0;
+  for (size_t i = 0; i < patternSize; i++) {
+    for (size_t k = 0; k < patternSize; k++) {
+      count += patternData[i * patternSize + k] ;
+    }
+  }
+  return count;
 }
 
 int main(int argc, char const *argv[])
@@ -240,7 +274,7 @@ int main(int argc, char const *argv[])
 
   size_t rule3sWithoutRotation = rule3sIndex;
   for (size_t i = 0; i < rule3sWithoutRotation; i++) {
-    for (int k = 0; k < 5; k++) {
+    for (int k = 0; k < 7; k++) {
       if (rule3sIndex >= rule3sCount) {
         size_t newRule3sCount = rule3sCount * 2;
         struct rule3 *newRule3s = (struct rule3 *)malloc(sizeof(struct rule3) * newRule3sCount);
@@ -269,7 +303,7 @@ int main(int argc, char const *argv[])
 
   size_t rule2sWithoutRotation = rule2sIndex;
   for (size_t i = 0; i < rule2sWithoutRotation; i++) {
-    for (int k = 0; k < 5; k++) {
+    for (int k = 0; k < 7; k++) {
       if (rule2sIndex >= rule2sCount) {
         size_t newRule2sCount = rule2sCount * 2;
         struct rule2 *newRule2s = (struct rule2 *)malloc(sizeof(struct rule2) * newRule2sCount);
@@ -303,6 +337,110 @@ int main(int argc, char const *argv[])
     printf("Has rule 3 with %d, %d\n", rule3s[i].inputPattern, rule3s[i].outputPattern);
   }
 
+  size_t patternSize = 3;
+  int *patternData = (int *)malloc(sizeof(int) * patternSize * patternSize);
+
+  for (size_t i = 0; i < patternSize; i++) {
+    for (size_t k = 0; k < patternSize; k++) {
+      patternData[i * patternSize + k] = initialPattern[i][k];
+    }
+  }
+
+
+  for (int iteration = 0; iteration < 18; iteration++) {
+    if(iteration == 5) {
+      printf("Result part 1: %d\n", countPattern(patternSize, patternData));
+    }
+    printPattern(patternSize, patternData);
+
+    if (patternSize % 2 == 0) {
+      int patchSize =  2;
+      int newPatchSize = 3;
+      int patchCount = patternSize / patchSize;
+
+      size_t newPatternSize = patchCount * newPatchSize;
+      int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
+
+      for (int i = 0; i < patchCount; i++) {
+        for (int k = 0; k < patchCount; k++) {
+          uint8_t pattern = 0;
+          for (int pi = 0; pi < patchSize; pi++) {
+            for (int pk = 0; pk < patchSize; pk++) {
+              pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
+                << ((patchSize - pi) * patchSize - pk - 1);
+            }
+          }
+          printf("found pattern: %d\n", pattern);
+
+          uint16_t replacement = 0;
+          for (size_t i = 0; i < rule2sIndex; i++) {
+            if(rule2s[i].inputPattern == pattern) {
+              replacement = rule2s[i].outputPattern;
+            }
+          }
+
+          printf("apply replacement: %d\n", replacement);
+
+
+          for (int pi = 0; pi < newPatchSize; pi++) {
+            for (int pk = 0; pk < newPatchSize; pk++) {
+              newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
+                (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
+            }
+          }
+        }
+      }
+
+      patternSize = newPatternSize;
+      patternData = newPatternData;
+    } else {
+      int patchSize =  3;
+      int newPatchSize = 4;
+      int patchCount = patternSize / patchSize;
+
+      size_t newPatternSize = patchCount * newPatchSize;
+      int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
+
+      for (int i = 0; i < patchCount; i++) {
+        for (int k = 0; k < patchCount; k++) {
+          uint16_t pattern = 0;
+          for (int pi = 0; pi < patchSize; pi++) {
+            for (int pk = 0; pk < patchSize; pk++) {
+              pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
+                << ((patchSize - pi) * patchSize - pk - 1);
+            }
+          }
+          printf("found pattern: %d\n", pattern);
+
+          uint16_t replacement = 0;
+          for (size_t i = 0; i < rule3sIndex; i++) {
+            if(rule3s[i].inputPattern == pattern) {
+              replacement = rule3s[i].outputPattern;
+            }
+          }
+
+          printf("apply replacement: %d\n", replacement);
+
+
+          for (int pi = 0; pi < newPatchSize; pi++) {
+            for (int pk = 0; pk < newPatchSize; pk++) {
+              newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
+                (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
+            }
+          }
+        }
+      }
+
+      patternSize = newPatternSize;
+      patternData = newPatternData;
+    }
+  }
+
+  printPattern(patternSize, patternData);
+
+  printf("Result part 2: %d\n", countPattern(patternSize, patternData));
+
+  // FIXME: free memories again :)
 
   return 0;
 }
