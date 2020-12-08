@@ -34,11 +34,8 @@ const int pattern2Permutations[PERMUTATION_COUNT][4] = {
   {0, 2, 1, 3}, // 270 deg + mirror X
 };
 
-#define MODE_INITIAL 0
-#define MODE_RULE3 1
-#define MODE_RULE2 2
-#define MODE_RULE3_REPLACEMENT 3
-#define MODE_RULE2_REPLACEMENT 4
+#define MODE_RULE_PATTERN 1
+#define MODE_RULE_REPLACEMENT 2
 
 struct rule {
   uint16_t inputPattern;
@@ -94,174 +91,157 @@ void addPermutationsToRuleset(struct ruleset *ruleset, const int *patternPermuta
   }
 }
 
-void parseArrow(FILE *fp, char ch, int patternSize) {
-  if(ch != ' ') {
-    printf("Expected space to start pattern %d arrow, got %c", patternSize, ch);
+struct scanner {
+  FILE *fp;
+  char ch;
+  int line;
+  int column;
+};
+
+struct scanner makeScanner(const char *fileName) {
+  FILE *fp;
+  fp = fopen(fileName, "r");
+  if (fp == NULL) exit(EXIT_FAILURE);
+
+  char ch = getc(fp);
+
+  int line = 1;
+  int column = 0;
+
+  struct scanner scanner = {fp, ch, line, column};
+  return scanner;
+}
+
+void advanceScanner(struct scanner *scanner) {
+  if (scanner->ch == '\n') {
+    scanner->line++;
+    scanner->column = 0;
+  } else {
+    scanner->column++;
+  }
+  scanner->ch = getc(scanner->fp);
+}
+
+void printPositionOfScanner(struct scanner *scanner) {
+  printf(" (line %d, column %d)\n", scanner->line, scanner->column);
+}
+
+void advanceScannerIf(struct scanner *scanner, char ch, const char *context) {
+  if (scanner->ch != ch) {
+    printf("Expected %c %s, got %c", ch, context, scanner->ch);
+    printPositionOfScanner(scanner);
     exit(EXIT_FAILURE);
   }
-  ch = getc(fp);
-  if (ch != '=') {
-    printf("Expected = in pattern %d arrow, got %c", patternSize, ch);
-    exit(EXIT_FAILURE);
+
+  advanceScanner(scanner);
+}
+
+void advanceScannerOver(struct scanner *scanner, const char *string, const char *context) {
+  while(*string != '\0') {
+    advanceScannerIf(scanner, *string, context);
+    string++;
   }
-  ch = getc(fp);
-  if(ch != '>') {
-    printf("Expected > in pattern %d arrow, got %c", patternSize, ch);
-    exit(EXIT_FAILURE);
-  }
-  ch = getc(fp);
-  if(ch != ' ') {
-    printf("Expected space to end pattern %d arrow, got %c", patternSize, ch);
+}
+
+void parseArrow(struct scanner *scanner) {
+  advanceScannerOver(scanner, " => ", "in pattern arrow");
+}
+
+int parseBinaryDigit(struct scanner *scanner, const char *context) {
+  if (scanner->ch == '.') {
+    advanceScanner(scanner);
+    return 0;
+  } else if (scanner->ch == '#') {
+    advanceScanner(scanner);
+    return 1;
+  } else {
+    printf("Expected . or # in binary digit %s, got %c", context, scanner->ch);
+    printPositionOfScanner(scanner);
     exit(EXIT_FAILURE);
   }
 }
 
-void parseRules(FILE *fp, struct ruleset *rule2s, struct ruleset *rule3s) {
-  int mode = MODE_INITIAL;
+void parseRulePattern(struct scanner *scanner, int *patternSize, uint16_t *pattern) {
+  *patternSize = -1;
+  *pattern = 0;
   int patternIndex = 0;
-  uint16_t pattern = 0;
-  int replacementIndex = 0;
-  uint16_t replacement = 0;
 
-  for (char ch = getc(fp); ch != EOF; ch = getc(fp)) {
-    if (mode == MODE_INITIAL) {
-      if (ch == '.') {
-        pattern <<= 1;
-        patternIndex++;
-      } else if (ch == '#') {
-        pattern <<= 1;
-        pattern |= 1;
-        patternIndex++;
-      } else if (ch == '/') {
+  while (*patternSize < 0 || patternIndex < *patternSize * *patternSize) {
+    if (*patternSize < 0) {
+      if(scanner->ch == '/') {
         if (patternIndex == 2) {
-          mode = MODE_RULE2;
+          *patternSize = 2;
         } else if (patternIndex == 3) {
-          mode = MODE_RULE3;
+          *patternSize = 3;
         } else {
           printf("Expected / at index 2 or 3, got %d", patternIndex);
+          printPositionOfScanner(scanner);
           exit(EXIT_FAILURE);
         }
       } else {
-        printf("Expected . or # at start of pattern, got %c", ch);
-        exit(EXIT_FAILURE);
-      }
-    } else if (mode == MODE_RULE2) {
-      if (patternIndex >= 4) {
-        parseArrow(fp, ch, 2);
-        mode = MODE_RULE2_REPLACEMENT;
-      } else if (ch == '.') {
-        pattern <<= 1;
+        int digit = parseBinaryDigit(scanner, "at start of pattern");
+        *pattern <<= 1;
+        *pattern |= digit;
         patternIndex++;
-      } else if (ch == '#') {
-        pattern <<= 1;
-        pattern |= 1;
-        patternIndex++;
-      } else {
-        printf("Expected . or # in rule 2 pattern, got %c", ch);
-        exit(EXIT_FAILURE);
       }
-    } else if (mode == MODE_RULE2_REPLACEMENT) {
-      if (replacementIndex >= 9) {
-        if (ch == '\n') {
-          struct rule rule2 = {
-              pattern,
-              replacement,
-          };
-          appendToRuleset(rule2s, rule2);
-          mode = MODE_INITIAL;
-          patternIndex = 0;
-          pattern = 0;
-          replacementIndex = 0;
-          replacement = 0;
-        } else {
-          printf("Expected new line at end of rule 2, got %c", ch);
-          exit(EXIT_FAILURE);
-        }
-      } else {
-        if (replacementIndex == 3 || replacementIndex == 6) {
-          if (ch == '/') {
-            ch = getc(fp);
-          } else {
-            printf("Expected / before pattern replacement index %d, got %c", replacementIndex, ch);
-            exit(EXIT_FAILURE);
-          }
-        }
-        if (ch == '.') {
-          replacement <<= 1;
-          replacementIndex++;
-        } else if (ch == '#') {
-          replacement <<= 1;
-          replacement |= 1;
-          replacementIndex++;
-        } else {
-          printf("Expected . or # in rule 2 replacement, got %c", ch);
-          exit(EXIT_FAILURE);
-        }
+    } else {
+      if (patternIndex % *patternSize == 0) {
+        advanceScannerIf(scanner, '/', "before pattern");
       }
-    } else if (mode == MODE_RULE3) {
-      if (patternIndex >= 9) {
-        parseArrow(fp, ch, 3);
-        mode = MODE_RULE3_REPLACEMENT;
-      } else {
-        if (patternIndex == 6) {
-          if (ch == '/') {
-            ch = getc(fp);
-          } else {
-            printf("Expected / before pattern index %d, got %c", patternIndex, ch);
-            exit(EXIT_FAILURE);
-          }
-        }
-        if (ch == '.') {
-          pattern <<= 1;
-          patternIndex++;
-        } else if (ch == '#') {
-          pattern <<= 1;
-          pattern |= 1;
-          patternIndex++;
-        } else {
-          printf("Expected . or # in rule 3 pattern, got %c", ch);
-          exit(EXIT_FAILURE);
-        }
-      }
-    } else if (mode == MODE_RULE3_REPLACEMENT) {
-      if (replacementIndex >= 16) {
-        if (ch == '\n') {
-          struct rule rule3 = {
-              pattern,
-              replacement,
-          };
-          appendToRuleset(rule3s, rule3);
-          mode = MODE_INITIAL;
-          patternIndex = 0;
-          pattern = 0;
-          replacementIndex = 0;
-          replacement = 0;
-        } else {
-          printf("Expected new line at end of rule 3, got %c", ch);
-          exit(EXIT_FAILURE);
-        }
-      } else {
-        if (replacementIndex != 0 && replacementIndex % 4 == 0) {
-          if (ch == '/') {
-            ch = getc(fp);
-          } else {
-            printf("Expected / before pattern replacement index %d, got %c", replacementIndex, ch);
-            exit(EXIT_FAILURE);
-          }
-        }
-        if (ch == '.') {
-          replacement <<= 1;
-          replacementIndex++;
-        } else if (ch == '#') {
-          replacement <<= 1;
-          replacement |= 1;
-          replacementIndex++;
-        } else {
-          printf("Expected . or # in rule 3 replacement, got %c", ch);
-          exit(EXIT_FAILURE);
-        }
-      }
+      int digit = parseBinaryDigit(scanner, "in rule pattern");
+      *pattern <<= 1;
+      *pattern |= digit;
+      patternIndex++;
     }
+  }
+}
+void parseRuleReplacement(struct scanner *scanner, int replacementSize, uint16_t *replacement) {
+  int replacementIndex = 0;
+  *replacement = 0;
+
+  while (replacementIndex < replacementSize * replacementSize) {
+    if (replacementIndex != 0 && replacementIndex % replacementSize == 0) {
+      advanceScannerIf(scanner, '/', "before pattern replacement");
+    }
+    int digit = parseBinaryDigit(scanner, "in rule replacement");
+    *replacement <<= 1;
+    *replacement |= digit;
+    replacementIndex++;
+  }
+}
+
+void parseRule(struct scanner *scanner, struct ruleset *rule2s, struct ruleset *rule3s) {
+  int patternSize;
+  uint16_t pattern;
+  parseRulePattern(scanner, &patternSize, &pattern);
+
+  parseArrow(scanner);
+
+  int replacementSize;
+  if (patternSize == 2) {
+    replacementSize = 3;
+  } else {
+    replacementSize = 4;
+  }
+  uint16_t replacement;
+  parseRuleReplacement(scanner, replacementSize, &replacement);
+
+  advanceScannerIf(scanner, '\n', "at end of rule");
+
+  struct rule rule = {
+      pattern,
+      replacement,
+  };
+  if (patternSize == 2) {
+    appendToRuleset(rule2s, rule);
+  } else {
+    appendToRuleset(rule3s, rule);
+  }
+}
+
+void parseRules(struct scanner *scanner, struct ruleset *rule2s, struct ruleset *rule3s) {
+  while (scanner->ch != EOF) {
+    parseRule(scanner, rule2s, rule3s);
   }
 }
 
@@ -280,11 +260,8 @@ int main(int argc, char const *argv[])
   struct ruleset rule2s = makeRuleset(2);
   struct ruleset rule3s = makeRuleset(3);
 
-  FILE *fp;
-  fp = fopen("input.txt", "r");
-  if (fp == NULL) exit(EXIT_FAILURE);
-
-  parseRules(fp, &rule2s, &rule3s);
+  struct scanner scanner = makeScanner("input.txt");
+  parseRules(&scanner, &rule2s, &rule3s);
 
   addPermutationsToRuleset(&rule2s, pattern2Permutations);
   addPermutationsToRuleset(&rule3s, pattern3Permutations);
