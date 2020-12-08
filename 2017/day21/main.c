@@ -12,7 +12,9 @@ const int initialPattern[3][3] = {
   {1, 1, 1},
 };
 
-const int pattern3Permutations[7][9] = {
+#define PERMUTATION_COUNT 7
+
+const int pattern3Permutations[PERMUTATION_COUNT][9] = {
   {6, 7, 8, 3, 4, 5, 0, 1, 2}, // mirror X
   {2, 1, 0, 5, 4, 3, 8, 7, 6}, // mirror Y
   {2, 5, 8, 1, 4, 7, 0, 3, 6}, // 90 deg
@@ -22,7 +24,7 @@ const int pattern3Permutations[7][9] = {
   {0, 3, 6, 1, 4, 7, 2, 5, 8}, // 270 deg + mirror X
 };
 
-const int pattern2Permutations[7][4] = {
+const int pattern2Permutations[PERMUTATION_COUNT][4] = {
   {2, 3, 0, 1}, // mirror X
   {1, 0, 3, 2}, // mirror Y
   {1, 3, 0, 2}, // 90 deg
@@ -38,24 +40,23 @@ const int pattern2Permutations[7][4] = {
 #define MODE_RULE3_REPLACEMENT 3
 #define MODE_RULE2_REPLACEMENT 4
 
-struct rule
-{
+struct rule {
   uint16_t inputPattern;
   uint16_t outputPattern;
 };
 
-struct ruleset
-{
+struct ruleset {
+  int patternSize;
   size_t length;
   size_t allocated;
   struct rule *rules;
 };
 
-struct ruleset makeRuleset() {
+struct ruleset makeRuleset(int patternSize) {
   size_t length = 0;
   size_t allocated = 8;
   struct rule *rules = (struct rule *)malloc(sizeof(struct rule) * allocated);
-  struct ruleset ruleset = {length, allocated, rules};
+  struct ruleset ruleset = {patternSize, length, allocated, rules};
   return ruleset;
 }
 
@@ -69,6 +70,28 @@ void appendToRuleset(struct ruleset *ruleset, struct rule rule) {
   }
   ruleset->rules[ruleset->length] = rule;
   ruleset->length++;
+}
+
+void addPermutationsToRuleset(struct ruleset *ruleset, const int *patternPermutations) {
+  size_t rulesWithoutRotation = ruleset->length;
+  int patternSizeSquared = ruleset->patternSize * ruleset->patternSize;
+  for (size_t i = 0; i < rulesWithoutRotation; i++) {
+    for (int k = 0; k < PERMUTATION_COUNT; k++) {
+      uint16_t pattern = ruleset->rules[i].inputPattern;
+      uint16_t permutedPattern = 0;
+      for (int l = 0; l < patternSizeSquared; l++) {
+        permutedPattern <<= 1;
+        if ((pattern & (1 << patternPermutations[k * patternSizeSquared + l])) > 0) {
+          permutedPattern |= 1;
+        }
+      }
+      struct rule rule = {
+          permutedPattern,
+          ruleset->rules[i].outputPattern,
+      };
+      appendToRuleset(ruleset, rule);
+    }
+  }
 }
 
 void parseArrow(FILE *fp, char ch, int patternSize) {
@@ -105,8 +128,8 @@ int countPattern(size_t patternSize, int *patternData) {
 
 int main(int argc, char const *argv[])
 {
-  struct ruleset rule2s = makeRuleset();
-  struct ruleset rule3s = makeRuleset();
+  struct ruleset rule2s = makeRuleset(2);
+  struct ruleset rule3s = makeRuleset(3);
 
   FILE *fp;
   fp = fopen("input.txt", "r");
@@ -259,45 +282,8 @@ int main(int argc, char const *argv[])
     }
   }
 
-  size_t rule3sWithoutRotation = rule3s.length;
-  for (size_t i = 0; i < rule3sWithoutRotation; i++) {
-    for (int k = 0; k < 7; k++) {
-      uint16_t pattern = rule3s.rules[i].inputPattern;
-      uint16_t permutedPattern = 0;
-      for (int l = 0; l < 9; l++) {
-        permutedPattern <<= 1;
-        if ((pattern & (1 << pattern3Permutations[k][l])) > 0) {
-          permutedPattern |= 1;
-        }
-      }
-
-      struct rule rule3 = {
-          permutedPattern,
-          rule3s.rules[i].outputPattern,
-      };
-      appendToRuleset(&rule3s, rule3);
-    }
-  }
-
-  size_t rule2sWithoutRotation = rule2s.length;
-  for (size_t i = 0; i < rule2sWithoutRotation; i++) {
-    for (int k = 0; k < 7; k++) {
-      uint16_t pattern = rule2s.rules[i].inputPattern;
-      uint16_t permutedPattern = 0;
-      for (int l = 0; l < 4; l++) {
-        permutedPattern <<= 1;
-        if ((pattern & (1 << pattern2Permutations[k][l])) > 0) {
-          permutedPattern |= 1;
-        }
-      }
-
-      struct rule rule2 = {
-          permutedPattern,
-          rule2s.rules[i].outputPattern,
-      };
-      appendToRuleset(&rule2s, rule2);
-    }
-  }
+  addPermutationsToRuleset(&rule2s, pattern2Permutations);
+  addPermutationsToRuleset(&rule3s, pattern3Permutations);
 
   size_t patternSize = 3;
   int *patternData = (int *)malloc(sizeof(int) * patternSize * patternSize);
