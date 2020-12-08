@@ -38,15 +38,9 @@ const int pattern2Permutations[7][4] = {
 #define MODE_RULE3_REPLACEMENT 3
 #define MODE_RULE2_REPLACEMENT 4
 
-struct rule3
+struct rule
 {
   uint16_t inputPattern;
-  uint16_t outputPattern;
-};
-
-struct rule2
-{
-  uint8_t inputPattern;
   uint16_t outputPattern;
 };
 
@@ -85,10 +79,10 @@ int countPattern(size_t patternSize, int *patternData) {
 int main(int argc, char const *argv[])
 {
   size_t rule3sCount = 8;
-  struct rule3 *rule3s = (struct rule3 *)malloc(sizeof(struct rule3) * rule3sCount);
+  struct rule *rule3s = (struct rule *)malloc(sizeof(struct rule) * rule3sCount);
 
   size_t rule2sCount = 8;
-  struct rule2 *rule2s = (struct rule2 *)malloc(sizeof(struct rule2) * rule2sCount);
+  struct rule *rule2s = (struct rule *)malloc(sizeof(struct rule) * rule2sCount);
 
   FILE *fp;
   fp = fopen("input.txt", "r");
@@ -145,13 +139,13 @@ int main(int argc, char const *argv[])
         if (ch == '\n') {
           if (rule2sIndex >= rule2sCount) {
             size_t newRule2sCount = rule2sCount * 2;
-            struct rule2 *newRule2s = (struct rule2 *)malloc(sizeof(struct rule2) * newRule2sCount);
-            memcpy(newRule2s, rule2s, sizeof(struct rule2) * rule2sIndex);
+            struct rule *newRule2s = (struct rule *)malloc(sizeof(struct rule) * newRule2sCount);
+            memcpy(newRule2s, rule2s, sizeof(struct rule) * rule2sIndex);
             rule2sCount = newRule2sCount;
             rule2s = newRule2s;
           }
-          struct rule2 rule2 = {
-              (uint8_t)pattern,
+          struct rule rule2 = {
+              pattern,
               replacement,
           };
           rule2s[rule2sIndex] = rule2;
@@ -216,12 +210,12 @@ int main(int argc, char const *argv[])
         if (ch == '\n') {
           if (rule3sIndex >= rule3sCount) {
             size_t newRule3sCount = rule3sCount * 2;
-            struct rule3 *newRule3s = (struct rule3 *)malloc(sizeof(struct rule3) * newRule3sCount);
-            memcpy(newRule3s, rule3s, sizeof(struct rule3) * rule3sIndex);
+            struct rule *newRule3s = (struct rule *)malloc(sizeof(struct rule) * newRule3sCount);
+            memcpy(newRule3s, rule3s, sizeof(struct rule) * rule3sIndex);
             rule3sCount = newRule3sCount;
             rule3s = newRule3s;
           }
-          struct rule3 rule3 = {
+          struct rule rule3 = {
               pattern,
               replacement,
           };
@@ -265,8 +259,8 @@ int main(int argc, char const *argv[])
     for (int k = 0; k < 7; k++) {
       if (rule3sIndex >= rule3sCount) {
         size_t newRule3sCount = rule3sCount * 2;
-        struct rule3 *newRule3s = (struct rule3 *)malloc(sizeof(struct rule3) * newRule3sCount);
-        memcpy(newRule3s, rule3s, sizeof(struct rule3) * rule3sIndex);
+        struct rule *newRule3s = (struct rule *)malloc(sizeof(struct rule) * newRule3sCount);
+        memcpy(newRule3s, rule3s, sizeof(struct rule) * rule3sIndex);
         rule3sCount = newRule3sCount;
         rule3s = newRule3s;
       }
@@ -280,7 +274,7 @@ int main(int argc, char const *argv[])
         }
       }
 
-      struct rule3 rule3 = {
+      struct rule rule3 = {
           permutedPattern,
           rule3s[i].outputPattern,
       };
@@ -294,14 +288,14 @@ int main(int argc, char const *argv[])
     for (int k = 0; k < 7; k++) {
       if (rule2sIndex >= rule2sCount) {
         size_t newRule2sCount = rule2sCount * 2;
-        struct rule2 *newRule2s = (struct rule2 *)malloc(sizeof(struct rule2) * newRule2sCount);
-        memcpy(newRule2s, rule2s, sizeof(struct rule2) * rule2sIndex);
+        struct rule *newRule2s = (struct rule *)malloc(sizeof(struct rule) * newRule2sCount);
+        memcpy(newRule2s, rule2s, sizeof(struct rule) * rule2sIndex);
         rule2sCount = newRule2sCount;
         rule2s = newRule2s;
       }
 
-      uint8_t pattern = rule2s[i].inputPattern;
-      uint8_t permutedPattern = 0;
+      uint16_t pattern = rule2s[i].inputPattern;
+      uint16_t permutedPattern = 0;
       for (int l = 0; l < 4; l++) {
         permutedPattern <<= 1;
         if ((pattern & (1 << pattern2Permutations[k][l])) > 0) {
@@ -309,7 +303,7 @@ int main(int argc, char const *argv[])
         }
       }
 
-      struct rule2 rule2 = {
+      struct rule rule2 = {
           permutedPattern,
           rule2s[i].outputPattern,
       };
@@ -343,7 +337,7 @@ int main(int argc, char const *argv[])
 
       for (int i = 0; i < patchCount; i++) {
         for (int k = 0; k < patchCount; k++) {
-          uint8_t pattern = 0;
+          uint16_t pattern = 0;
           for (int pi = 0; pi < patchSize; pi++) {
             for (int pk = 0; pk < patchSize; pk++) {
               pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
