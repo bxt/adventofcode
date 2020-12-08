@@ -7,31 +7,29 @@
 #include <string.h>
 
 const int initialPattern[3][3] = {
-  {0, 1, 0},
-  {0, 0, 1},
-  {1, 1, 1},
+    {0, 1, 0}, {0, 0, 1}, {1, 1, 1},
 };
 
 #define PERMUTATION_COUNT 7
 
 const int pattern3Permutations[PERMUTATION_COUNT][9] = {
-  {6, 7, 8, 3, 4, 5, 0, 1, 2}, // mirror X
-  {2, 1, 0, 5, 4, 3, 8, 7, 6}, // mirror Y
-  {2, 5, 8, 1, 4, 7, 0, 3, 6}, // 90 deg
-  {0, 1, 2, 3, 4, 5, 6, 7, 8}, // 180 deg
-  {6, 3, 0, 7, 4, 1, 8, 5, 2}, // 270 deg
-  {8, 5, 2, 7, 4, 1, 6, 3, 0}, // 90 deg + mirror X
-  {0, 3, 6, 1, 4, 7, 2, 5, 8}, // 270 deg + mirror X
+    {6, 7, 8, 3, 4, 5, 0, 1, 2}, // mirror X
+    {2, 1, 0, 5, 4, 3, 8, 7, 6}, // mirror Y
+    {2, 5, 8, 1, 4, 7, 0, 3, 6}, // 90 deg
+    {0, 1, 2, 3, 4, 5, 6, 7, 8}, // 180 deg
+    {6, 3, 0, 7, 4, 1, 8, 5, 2}, // 270 deg
+    {8, 5, 2, 7, 4, 1, 6, 3, 0}, // 90 deg + mirror X
+    {0, 3, 6, 1, 4, 7, 2, 5, 8}, // 270 deg + mirror X
 };
 
 const int pattern2Permutations[PERMUTATION_COUNT][4] = {
-  {2, 3, 0, 1}, // mirror X
-  {1, 0, 3, 2}, // mirror Y
-  {1, 3, 0, 2}, // 90 deg
-  {0, 1, 2, 3}, // 180 deg
-  {2, 0, 3, 1}, // 270 deg
-  {3, 1, 2, 0}, // 90 deg + mirror X
-  {0, 2, 1, 3}, // 270 deg + mirror X
+    {2, 3, 0, 1}, // mirror X
+    {1, 0, 3, 2}, // mirror Y
+    {1, 3, 0, 2}, // 90 deg
+    {0, 1, 2, 3}, // 180 deg
+    {2, 0, 3, 1}, // 270 deg
+    {3, 1, 2, 0}, // 90 deg + mirror X
+    {0, 2, 1, 3}, // 270 deg + mirror X
 };
 
 #define MODE_RULE_PATTERN 1
@@ -64,7 +62,8 @@ struct ruleset destroyRuleset(struct ruleset *ruleset) {
 void appendToRuleset(struct ruleset *ruleset, struct rule rule) {
   if (ruleset->length >= ruleset->allocated) {
     size_t newAllocated = ruleset->allocated * 2;
-    struct rule *newRules = (struct rule *)malloc(sizeof(struct rule) * newAllocated);
+    struct rule *newRules =
+        (struct rule *)malloc(sizeof(struct rule) * newAllocated);
     memcpy(newRules, ruleset->rules, sizeof(struct rule) * ruleset->length);
     free(ruleset->rules);
     ruleset->allocated = newAllocated;
@@ -106,7 +105,8 @@ struct scanner {
 struct scanner makeScanner(const char *fileName) {
   FILE *fp;
   fp = fopen(fileName, "r");
-  if (fp == NULL) exit(EXIT_FAILURE);
+  if (fp == NULL)
+    exit(EXIT_FAILURE);
 
   char ch = getc(fp);
 
@@ -142,7 +142,7 @@ void advanceScannerIf(struct scanner *scanner, char ch, const char *context) {
 }
 
 void advanceScannerOver(struct scanner *scanner, const char *string, const char *context) {
-  while(*string != '\0') {
+  while (*string != '\0') {
     advanceScannerIf(scanner, *string, context);
     string++;
   }
@@ -173,7 +173,7 @@ void parseRulePattern(struct scanner *scanner, int *patternSize, uint16_t *patte
 
   while (*patternSize < 0 || patternIndex < *patternSize * *patternSize) {
     if (*patternSize < 0) {
-      if(scanner->ch == '/') {
+      if (scanner->ch == '/') {
         if (patternIndex == 2) {
           *patternSize = 2;
         } else if (patternIndex == 3) {
@@ -254,14 +254,13 @@ int countPattern(size_t patternSize, int *patternData) {
   int count = 0;
   for (size_t i = 0; i < patternSize; i++) {
     for (size_t k = 0; k < patternSize; k++) {
-      count += patternData[i * patternSize + k] ;
+      count += patternData[i * patternSize + k];
     }
   }
   return count;
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
   struct ruleset rule2s = makeRuleset(2);
   struct ruleset rule3s = makeRuleset(3);
 
@@ -276,7 +275,7 @@ int main(int argc, char const *argv[])
   memcpy(patternData, initialPattern, sizeof(int) * patternSize * patternSize);
 
   for (int iteration = 0; iteration < 18; iteration++) {
-    if(iteration == 5) {
+    if (iteration == 5) {
       printf("Result part 1: %d\n", countPattern(patternSize, patternData));
     }
 
@@ -288,29 +287,33 @@ int main(int argc, char const *argv[])
     int patchCount = patternSize / patchSize;
 
     size_t newPatternSize = patchCount * newPatchSize;
-    int *newPatternData = (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
+    int *newPatternData =
+        (int *)malloc(sizeof(int) * newPatternSize * newPatternSize);
 
     for (int i = 0; i < patchCount; i++) {
       for (int k = 0; k < patchCount; k++) {
         uint16_t pattern = 0;
         for (int pi = 0; pi < patchSize; pi++) {
           for (int pk = 0; pk < patchSize; pk++) {
-            pattern |= patternData[(i * patchSize + pi) * patternSize + (k * patchSize + pk)]
-              << ((patchSize - pi) * patchSize - pk - 1);
+            pattern |= patternData[(i * patchSize + pi) * patternSize +
+                                   (k * patchSize + pk)]
+                       << ((patchSize - pi) * patchSize - pk - 1);
           }
         }
 
         uint16_t replacement = 0;
         for (size_t i = 0; i < ruleset.length; i++) {
-          if(ruleset.rules[i].inputPattern == pattern) {
+          if (ruleset.rules[i].inputPattern == pattern) {
             replacement = ruleset.rules[i].outputPattern;
           }
         }
 
         for (int pi = 0; pi < newPatchSize; pi++) {
           for (int pk = 0; pk < newPatchSize; pk++) {
-            newPatternData[(i * newPatchSize + pi) * newPatternSize + (k * newPatchSize + pk)] =
-              (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) & 1;
+            newPatternData[(i * newPatchSize + pi) * newPatternSize +
+                           (k * newPatchSize + pk)] =
+                (replacement >> ((newPatchSize - pi) * newPatchSize - pk - 1)) &
+                1;
           }
         }
       }
