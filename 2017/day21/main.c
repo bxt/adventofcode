@@ -116,25 +116,7 @@ void parseArrow(FILE *fp, char ch, int patternSize) {
   }
 }
 
-int countPattern(size_t patternSize, int *patternData) {
-  int count = 0;
-  for (size_t i = 0; i < patternSize; i++) {
-    for (size_t k = 0; k < patternSize; k++) {
-      count += patternData[i * patternSize + k] ;
-    }
-  }
-  return count;
-}
-
-int main(int argc, char const *argv[])
-{
-  struct ruleset rule2s = makeRuleset(2);
-  struct ruleset rule3s = makeRuleset(3);
-
-  FILE *fp;
-  fp = fopen("input.txt", "r");
-  if (fp == NULL) exit(EXIT_FAILURE);
-
+void parseRules(FILE *fp, struct ruleset *rule2s, struct ruleset *rule3s) {
   int mode = MODE_INITIAL;
   int patternIndex = 0;
   uint16_t pattern = 0;
@@ -185,7 +167,7 @@ int main(int argc, char const *argv[])
               pattern,
               replacement,
           };
-          appendToRuleset(&rule2s, rule2);
+          appendToRuleset(rule2s, rule2);
           mode = MODE_INITIAL;
           patternIndex = 0;
           pattern = 0;
@@ -248,7 +230,7 @@ int main(int argc, char const *argv[])
               pattern,
               replacement,
           };
-          appendToRuleset(&rule3s, rule3);
+          appendToRuleset(rule3s, rule3);
           mode = MODE_INITIAL;
           patternIndex = 0;
           pattern = 0;
@@ -281,6 +263,28 @@ int main(int argc, char const *argv[])
       }
     }
   }
+}
+
+int countPattern(size_t patternSize, int *patternData) {
+  int count = 0;
+  for (size_t i = 0; i < patternSize; i++) {
+    for (size_t k = 0; k < patternSize; k++) {
+      count += patternData[i * patternSize + k] ;
+    }
+  }
+  return count;
+}
+
+int main(int argc, char const *argv[])
+{
+  struct ruleset rule2s = makeRuleset(2);
+  struct ruleset rule3s = makeRuleset(3);
+
+  FILE *fp;
+  fp = fopen("input.txt", "r");
+  if (fp == NULL) exit(EXIT_FAILURE);
+
+  parseRules(fp, &rule2s, &rule3s);
 
   addPermutationsToRuleset(&rule2s, pattern2Permutations);
   addPermutationsToRuleset(&rule3s, pattern3Permutations);
