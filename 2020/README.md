@@ -28,7 +28,13 @@ Other solutions
 I enjoy looking at how other coders solved the riddles to learn even more. This
 year I follow (A-Z):
 
-* none yet 😇
+* [carlastabile](https://github.com/carlastabile/advent-of-code-2020) (Ruby)
+* [cschell](https://github.com/cschell/adventofcode/tree/master/2020) (Ruby)
+* [etrepum](https://github.com/etrepum/aoc-2020) (PureScript & Dhall)
+* [fdlk](https://github.com/fdlk/advent-2020) (R)
+* [glguy](https://github.com/glguy/advent2020) (Haskell)
+* [senegalo](https://github.com/senegalo/advent-of-code-2020) (Ruby)
+* [sophiebits](https://github.com/sophiebits/adventofcode/tree/main/2020) (Python)
 
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
