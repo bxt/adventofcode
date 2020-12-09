@@ -19,8 +19,13 @@ Day | Deno         | Description
 01  | [x][deno01] | [Combining, finding, summing, multiplying][aoc01]
 02  | [x][deno02] | [Password policies][aoc02]
 03  | [x][deno03] | [Walking through a map of tees][aoc03]
-04  | [x][deno04] | [Walking through a map of tees][aoc04]
-Σ   |           4 |
+04  | [x][deno04] | [Passport checks][aoc04]
+04  | [x][deno05] | [Airplane boarding with binary numbers][aoc05]
+04  | [x][deno06] | [Person customs declaration forms answer set operations][aoc06]
+04  | [x][deno07] | [Recursive colored bags][aoc07]
+04  | [x][deno08] | [Infinite loops in game boy instructions][aoc08]
+04  | [x][deno09] | [Sum of numbers encryptions][aoc09]
+Σ   |           9 |
 
 Other solutions
 ---------------
@@ -40,7 +45,17 @@ year I follow (A-Z):
  [aoc02]: http://adventofcode.com/2020/day/2
  [aoc03]: http://adventofcode.com/2020/day/3
  [aoc04]: http://adventofcode.com/2020/day/4
+ [aoc05]: http://adventofcode.com/2020/day/5
+ [aoc06]: http://adventofcode.com/2020/day/6
+ [aoc07]: http://adventofcode.com/2020/day/7
+ [aoc08]: http://adventofcode.com/2020/day/8
+ [aoc09]: http://adventofcode.com/2020/day/9
  [deno01]: day01/main.ts
  [deno02]: day02/main.ts
  [deno03]: day03/main.ts
  [deno04]: day04/main.ts
+ [deno05]: day05/main.ts
+ [deno06]: day06/main.ts
+ [deno07]: day07/main.ts
+ [deno08]: day08/main.ts
+ [deno09]: day09/main.ts
