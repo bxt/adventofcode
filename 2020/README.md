@@ -16,15 +16,15 @@ especially valuable or pretty with a star (☆).
 
 Day | Deno         | Description
 ----|-------------|--------------------------------------------------------------
-01  | [x][deno01] | [Combining, finding, summing, multiplying][aoc01]
-02  | [x][deno02] | [Password policies][aoc02]
-03  | [x][deno03] | [Walking through a map of tees][aoc03]
-04  | [x][deno04] | [Passport checks][aoc04]
-05  | [x][deno05] | [Airplane boarding with binary numbers][aoc05]
-06  | [x][deno06] | [Person customs declaration forms answer set operations][aoc06]
-07  | [x][deno07] | [Recursive colored bags][aoc07]
-08  | [x][deno08] | [Infinite loops in game boy instructions][aoc08]
-09  | [x][deno09] | [Sum of numbers encryptions][aoc09]
+01  | [✓][deno01] | [Combining, finding, summing, multiplying][aoc01]
+02  | [✓][deno02] | [Password policies][aoc02]
+03  | [✓][deno03] | [Walking through a map of tees][aoc03]
+04  | [✓][deno04] | [Passport checks][aoc04]
+05  | [✓][deno05] | [Airplane boarding with binary numbers][aoc05]
+06  | [✓][deno06] | [Person customs declaration forms answer set operations][aoc06]
+07  | [✓][deno07] | [Recursive colored bags][aoc07]
+08  | [✓][deno08] | [Infinite loops in game boy instructions][aoc08]
+09  | [✓][deno09] | [Sum of numbers encryptions][aoc09]
 Σ   |           9 |
 
 Other solutions
