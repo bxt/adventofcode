@@ -86,7 +86,6 @@ const part2 = (jolts: number[]): number => {
     if (l === 2) return 2;
     if (l === 3) return 4;
     if (l === 4) return 7;
-    if (l === 5) return 13;
     throw new Error("Not implmented!");
   });
 
@@ -95,4 +94,4 @@ const part2 = (jolts: number[]): number => {
 
 assertEquals(part2(example), 8);
 
-console.log(part2(inputParsed));
+console.log("Result part 2: " + part2(inputParsed));
