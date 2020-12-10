@@ -80,9 +80,15 @@ const part2 = (jolts: number[]): number => {
     (part) => part.length,
   );
 
-  const factors = lengths.filter((l) => l > 0).map((l) =>
-    Math.pow(2, l - 1) - (l > 3 ? Math.pow(2, l - 3) - 1 : 0)
-  );
+  const factors = lengths.map((l) => {
+    if (l === 0) return 1;
+    if (l === 1) return 1;
+    if (l === 2) return 2;
+    if (l === 3) return 4;
+    if (l === 4) return 7;
+    if (l === 5) return 13;
+    throw new Error("Not implmented!");
+  });
 
   return product(factors);
 };
