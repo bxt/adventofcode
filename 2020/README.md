@@ -36,8 +36,8 @@ Takeaways
 * I really like working with deno, and especially setting it up is a nice experience: you install a single binary for deno and maybe the VS code extension, and already you get package management, type safety, linting, formatting, autocompletion, and a basic testing framework with coverage reports. Setting up the same can get really annoying for node. For languages like Ruby it's almost impossible to do.
 * Even though deno sometimes feels a bit "beta", I didn't encounter any severe problems
 * TypeScript is very clever and can figure out surprisingly many things at compile-time already.
-* However, I feel TypeScript is a bit verbose sometimes, and certainly invites to over-egineer things to sprinkle everything with types. E.g. on day 12 [I came up with a solution][deno12] which looks eerie similar to [this haskell one](https://github.com/glguy/advent2020/blob/master/execs/Day12.hs), but looks a lot more Java-ish...
-* Since TS can figure out so many things it's frustrating when it can not, and you run into issues like inferring just on type parameter is [not yet](https://github.com/microsoft/TypeScript/pull/26349) possible, or [`Array.includes` can not "filter" types](https://github.com/microsoft/TypeScript/issues/26255).
+* However, I feel TypeScript is a bit verbose sometimes, and certainly invites to over-egineer things to sprinkle everything with types. E.g. on day 12 [I came up with a solution][deno12] which works eerie similarly to [this haskell one](https://github.com/glguy/advent2020/blob/master/execs/Day12.hs), but looks a lot more Java-ish...
+* Since TS can figure out so many things it's frustrating when it can not, and you run into issues like inferring just one type parameter is [not yet](https://github.com/microsoft/TypeScript/pull/26349) possible, or [`Array.includes` can not "filter" types](https://github.com/microsoft/TypeScript/issues/26255).
 
 Other solutions
 ---------------
