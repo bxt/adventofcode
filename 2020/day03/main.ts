@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { ensureElementOf } from "../utils.ts";
 
 const TREE = "#";
 const SPACE = ".";
@@ -6,16 +7,9 @@ type Entry = typeof TREE | typeof SPACE;
 
 const parseInput = (string: string): Entry[][] =>
   string.trim().split("\n").map((line) => (
-    line.split("").map((letter) => {
-      switch (letter) {
-        case ".":
-          return SPACE;
-        case "#":
-          return TREE;
-        default:
-          throw new Error(`Found ${letter} instead of tree or space!`);
-      }
-    })
+    line.split("").map((letter) =>
+      ensureElementOf(letter, [TREE, SPACE] as const)
+    )
   ));
 
 const input = await Deno.readTextFile("input.txt");

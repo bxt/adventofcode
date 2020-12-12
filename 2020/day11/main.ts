@@ -1,23 +1,12 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-
-const sum = (numbers: number[]): number =>
-  numbers.reduce((acc, number) => acc + number, 0);
+import { addCoords, Coord, scaleCoord, sum } from "../utils.ts";
 
 enum Cell {
   Empty = "L",
   Occupied = "#",
   Floor = ".",
 }
-
-type Coord = readonly [number, number];
-
-const addCoords = (
-  [x1, y1]: Coord,
-  [x2, y2]: Coord,
-): Coord => ([x1 + x2, y1 + y2]);
-
-const scaleCoord = ([x, y]: Coord, s: number): Coord => ([x * s, y * s]);
 
 const parseInput = (string: string): Cell[][] =>
   string.trim().split(/[\n ]+/)

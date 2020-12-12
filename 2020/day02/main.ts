@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { matchGroups } from "../utils.ts";
 
 type Entry = {
   from: number;
@@ -8,20 +9,14 @@ type Entry = {
 };
 
 const parseInput = (string: string): Entry[] =>
-  string.trim().split(/\n/).map((string) => {
-    const groups = string.match(
-      /(?<from>\d+)-(?<to>\d+) (?<letter>[a-z]): (?<password>.*)/,
-    )?.groups;
-
-    if (!groups) throw new Error(`Did not match: ${string}`);
-
-    return {
-      from: Number(groups.from),
-      letter: groups.letter,
-      password: groups.password,
-      to: Number(groups.to),
-    };
-  });
+  string.trim().split(/\n/).map(
+    matchGroups(/(?<from>\d+)-(?<to>\d+) (?<letter>[a-z]): (?<password>.*)/),
+  ).map((groups) => ({
+    from: Number(groups.from),
+    letter: groups.letter,
+    password: groups.password,
+    to: Number(groups.to),
+  }));
 
 const text = await Deno.readTextFile("input.txt");
 

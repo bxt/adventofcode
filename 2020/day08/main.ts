@@ -1,7 +1,9 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { ensureElementOf } from "../utils.ts";
 
-type Instruction = { operation: "nop" | "acc" | "jmp"; argument: number };
+const operations = ["nop", "acc", "jmp"] as const;
+type Instruction = { operation: typeof operations[number]; argument: number };
 
 const parseInput = (string: string): Instruction[] =>
   [...string.matchAll(
@@ -11,11 +13,10 @@ const parseInput = (string: string): Instruction[] =>
       if (!groups) throw new Error("?");
       const { operation, argument } = groups;
 
-      if (operation !== "nop" && operation !== "acc" && operation !== "jmp") {
-        throw new Error(`Invalid operation: ${operation}`);
-      }
-
-      return { operation, argument: Number(argument) };
+      return {
+        operation: ensureElementOf(operation, operations),
+        argument: Number(argument),
+      };
     });
 
 const example = parseInput(`

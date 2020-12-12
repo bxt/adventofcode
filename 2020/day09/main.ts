@@ -1,8 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-
-const sum = (numbers: number[]) =>
-  numbers.reduce((acc, number) => acc + number, 0);
+import { sum } from "../utils.ts";
 
 const parseInput = (string: string): number[] =>
   string.trim().split(/[^0-9]+/)

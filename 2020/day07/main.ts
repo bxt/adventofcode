@@ -1,8 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-
-const sum = (numbers: number[]) =>
-  numbers.reduce((acc, number) => acc + number, 0);
+import { sum } from "../utils.ts";
 
 type Bag = {
   color: string;
