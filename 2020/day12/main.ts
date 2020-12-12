@@ -27,8 +27,8 @@ const headings = { E, N, W, S } as const;
 
 type Ship = { waypoint: Coord; position: Coord };
 
-const overWaypoint = overProp<Ship, "waypoint">("waypoint" as const);
-const overPosition = overProp<Ship, "position">("position" as const);
+const overWaypoint = overProp<Ship, "waypoint">("waypoint");
+const overPosition = overProp<Ship, "position">("position");
 
 const parseInput = (string: string): Instruction[] =>
   string.trim().split(/[\n ]+/).map(
