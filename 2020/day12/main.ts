@@ -10,6 +10,11 @@ import {
   scaleCoord,
 } from "../utils.ts";
 
+const addCoord = (a: Coord) => (b: Coord): Coord => addCoords(a, b);
+
+const overProp = <T, P extends keyof T>(prop: P) =>
+  (t: T, f: ((input: T[P]) => T[P])): T => ({ ...t, [prop]: f(t[prop]) });
+
 const actions = ["N", "S", "E", "W", "L", "R", "F"] as const;
 
 type Instruction = { action: typeof actions[number]; number: number };
@@ -21,6 +26,9 @@ const S: Coord = [0, -1];
 const headings = { E, N, W, S } as const;
 
 type Ship = { waypoint: Coord; position: Coord };
+
+const overWaypoint = overProp<Ship, "waypoint">("waypoint" as const);
+const overPosition = overProp<Ship, "position">("position" as const);
 
 const parseInput = (string: string): Instruction[] =>
   string.trim().split(/[\n ]+/).map(
@@ -60,9 +68,9 @@ const degreesToAmount = (degrees: number): number => {
   throw new Error(`Unimplemented amount of degrees: ${degrees}`);
 };
 
-const walkOne = (moveShipOrWaypoint: "ship" | "waypoint") =>
+const walkOne = (movementOver: (t: Ship, f: (input: Coord) => Coord) => Ship) =>
   (ship: Ship, instruction: Instruction): Ship => {
-    const { waypoint, position } = ship;
+    const { waypoint } = ship;
     const { action, number } = instruction;
     switch (action) {
       case "N":
@@ -70,15 +78,7 @@ const walkOne = (moveShipOrWaypoint: "ship" | "waypoint") =>
       case "E":
       case "W": {
         const offset = headings[action];
-        return moveShipOrWaypoint === "ship"
-          ? {
-            position: addCoords(position, scaleCoord(offset, number)),
-            waypoint,
-          }
-          : {
-            position,
-            waypoint: addCoords(waypoint, scaleCoord(offset, number)),
-          };
+        return movementOver(ship, addCoord(scaleCoord(offset, number)));
       }
       case "L":
       case "R": {
@@ -86,29 +86,21 @@ const walkOne = (moveShipOrWaypoint: "ship" | "waypoint") =>
         const amount = degreesToAmount(number);
         const numberOfHeadings = Object.keys(headings).length;
         const leftTurns = (numberOfHeadings + amount * sign) % numberOfHeadings;
-        return {
-          waypoint: Array(leftTurns).fill(0).reduce(
-            rotateLeftNinetyDegreesCoord,
-            waypoint,
-          ),
-          position,
-        };
+        return overWaypoint(
+          ship,
+          (w) =>
+            Array(leftTurns).fill(0).reduce(rotateLeftNinetyDegreesCoord, w),
+        );
       }
       case "F":
-        return {
-          waypoint,
-          position: addCoords(
-            position,
-            scaleCoord(waypoint, number),
-          ),
-        };
+        return overPosition(ship, addCoord(scaleCoord(waypoint, number)));
     }
   };
 
 const walkAllPart1 = (instructions: Instruction[]): Ship => {
   const initialShip: Ship = { waypoint: headings.E, position: [0, 0] };
 
-  return instructions.reduce(walkOne("ship"), initialShip);
+  return instructions.reduce(walkOne(overPosition), initialShip);
 };
 
 assertEquals(
@@ -132,7 +124,7 @@ const walkAllPart2 = (instructions: Instruction[]): Ship => {
     position: [0, 0],
   };
 
-  return instructions.reduce(walkOne("waypoint"), initialShip);
+  return instructions.reduce(walkOne(overWaypoint), initialShip);
 };
 
 assertEquals(
