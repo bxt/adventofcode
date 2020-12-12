@@ -25,9 +25,9 @@ Day | Deno         | Description
 07  | [✓][deno07] | [Recursive colored bags][aoc07]
 08  | [✓][deno08] | [Infinite loops in game boy instructions][aoc08]
 09  | [✓][deno09] | [Sum of numbers encryptions][aoc09]
-09  | [✓][deno10] | [Jolt adapter combinations][aoc10]
-09  | [✓][deno11] | [Game of life with seats][aoc11]
-09  | [✓][deno12] | [Ship navigation instructions][aoc12]
+10  | [✓][deno10] | [Jolt adapter combinations][aoc10]
+11  | [✓][deno11] | [Game of life with seats][aoc11]
+12  | [✓][deno12] | [Ship navigation instructions][aoc12]
 Σ   |          12 |
 
 Takeaways
