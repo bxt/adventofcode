@@ -1,4 +1,4 @@
-#!/usr/bin/env deno test --allow-read
+#!/usr/bin/env deno test --allow-read --coverage --unstable
 import {
   assertEquals,
   assertThrows,
@@ -7,6 +7,7 @@ import {
   addCoords,
   ensureElementOf,
   manhattanNormCoord,
+  matchGroups,
   rotateLeftNinetyDegreesCoord,
   scaleCoord,
   sum,
@@ -33,9 +34,9 @@ Deno.test("manhattanNormCoord", () => {
 });
 
 Deno.test("rotateLeftNinetyDegreesCoord", () => {
-  assertEquals(rotateLeftNinetyDegreesCoord([7, 13]), [13, -7]);
-  assertEquals(rotateLeftNinetyDegreesCoord([-7, 13]), [13, 7]);
-  assertEquals(rotateLeftNinetyDegreesCoord([0, 13]), [13, 0]);
+  assertEquals(rotateLeftNinetyDegreesCoord([7, 13]), [-13, 7]);
+  assertEquals(rotateLeftNinetyDegreesCoord([-7, 13]), [-13, -7]);
+  assertEquals(rotateLeftNinetyDegreesCoord([0, 13]), [-13, 0]);
 });
 
 Deno.test("ensureElementOf", () => {
@@ -51,4 +52,18 @@ Deno.test("ensureElementOf", () => {
     // @ts-expect-error We should be notified that this check does not make sense
     ensureElementOf(4, ["a", "b"]);
   });
+});
+
+Deno.test("matchGroups", () => {
+  assertThrows((): void => {
+    assertEquals(matchGroups(/a/)("a"), {});
+  });
+  assertThrows((): void => {
+    assertEquals(matchGroups(/a/)("b"), {});
+  });
+  assertEquals(matchGroups(/a(?<b>c)/)("ac"), { b: "c" });
+  assertEquals(
+    matchGroups(/a(?<b>\d+)c(?<d>e?)/)("a123c"),
+    { b: "123", d: "" },
+  );
 });
