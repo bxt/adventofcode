@@ -60,23 +60,154 @@ assertEquals(part1(example), 295);
 
 console.log("Result part 1: " + part1(inputParsed));
 
-const allAligned = (offsets: number[], candidates: number[]): boolean => {
-  for (let i = 1; i < offsets.length; i++) {
-    if (
-      candidates[i] - offsets[i] !== candidates[i - 1] - offsets[i - 1]
-    ) {
-      return false;
-    }
-  }
-  return true;
+const mathModulus = (a: number, b: number) => {
+  return ((a % b) + Math.abs(b)) % Math.abs(b);
 };
 
-assertEquals(allAligned([5, 9, 10], [5, 9, 10]), true);
-assertEquals(allAligned([15, 19, 20], [5, 9, 10]), true);
-assertEquals(allAligned([15, 19, 21], [5, 9, 10]), false);
+assertEquals(mathModulus(7, 3), 1);
+assertEquals(mathModulus(6, 3), 0);
+assertEquals(mathModulus(3, 6), 3);
+assertEquals(mathModulus(5, -22), 5);
+assertEquals(mathModulus(-22, 5), 3);
 
-const solve = (numbers: number[], offsets: number[]) => {
-  return -1;
+const euklid = (x: number, y: number) => {
+  let a = x;
+  let b = y;
+  let q = 1;
+  let u = 1;
+  let s = 0;
+  let v = 0;
+  let t = 1;
+  while (b !== 0) {
+    console.log({ a, b, q, u, s, v, t });
+    const r = mathModulus(a, b);
+    q = (a - r) / b;
+    a = b;
+    b = r;
+    [s, t, u, v] = [u - q * s, v - q * t, s, t];
+  }
+
+  return { gcd: a, u, v };
+};
+
+assertEquals(euklid(99, 78), { gcd: 3, u: -11, v: 14 });
+assertEquals(euklid(78, 99), { gcd: 3, u: 14, v: -11 });
+assertEquals(euklid(5, -22), { gcd: 1, u: 9, v: 2 });
+assertEquals(euklid(499, 23), { gcd: 1, u: -10, v: 217 });
+assertEquals(euklid(499, -23), { gcd: 1, u: -10, v: -217 });
+assertEquals(euklid(-499, 23), { gcd: 1, u: 10, v: 217 });
+assertEquals(euklid(23, 499), { gcd: 1, u: 217, v: -10 });
+assertEquals(euklid(23, -499), { gcd: 1, u: 217, v: 10 });
+assertEquals(euklid(-23, 499), { gcd: 1, u: -217, v: -10 });
+assertEquals(euklid(449, 23), { gcd: 1, u: 2, v: -39 });
+assertEquals(euklid(449, -23), { gcd: 1, u: 2, v: 39 });
+assertEquals(euklid(-449, 23), { gcd: 1, u: -2, v: -39 });
+assertEquals(euklid(23, 449), { gcd: 1, u: -39, v: 2 });
+assertEquals(euklid(23, -449), { gcd: 1, u: -39, v: -2 });
+assertEquals(euklid(-23, 449), { gcd: 1, u: 39, v: 2 });
+
+type DiophantSoltuion = {
+  xConst: number;
+  xFactor: number;
+  yConst: number;
+  yFactor: number;
+};
+
+// ax + by = offset
+const diophant = (a: number, b: number, offset: number): DiophantSoltuion => {
+  const { gcd, u, v } = euklid(a, b);
+  if (offset % gcd !== 0) throw new Error("offset not divisible by gcd");
+  const scale = offset / gcd;
+
+  console.log({ scale, offset, gcd, u, v });
+
+  let xFactor = b / gcd;
+  let yFactor = -a / gcd;
+  if (xFactor < 0 && yFactor < 0) {
+    xFactor = -xFactor;
+    yFactor = -yFactor;
+  }
+
+  const optimizeFactor = Math.floor(scale * u / xFactor);
+
+  const xConst = scale * u - optimizeFactor * xFactor;
+  const yConst = scale * v - optimizeFactor * yFactor;
+
+  return { xConst, xFactor, yConst, yFactor };
+};
+
+assertEquals(
+  diophant(6, 10, 100),
+  { xConst: 0, xFactor: 5, yConst: 10, yFactor: -3 },
+);
+assertEquals(
+  diophant(10, 6, 100),
+  { xConst: 1, xFactor: 3, yConst: 15, yFactor: -5 },
+);
+assertEquals(
+  diophant(23, -449, 394 - 2),
+  { xConst: 427, xFactor: 449, yConst: 21, yFactor: 23 },
+);
+assertEquals(
+  diophant(23, -41, -13),
+  { xConst: 3, xFactor: 41, yConst: 2, yFactor: 23 },
+);
+assertEquals(
+  diophant(23, -41, -13),
+  { xConst: 3, xFactor: 41, yConst: 2, yFactor: 23 },
+);
+
+const recurse = (previous: DiophantSoltuion[]): number => {
+  const processedPairs = [];
+  for (let i = 0; i < previous.length - 1; i++) {
+    processedPairs.push(
+      diophant(
+        previous[i].yFactor,
+        -previous[i + 1].xFactor,
+        previous[i + 1].xConst - previous[i].yConst,
+      ),
+    );
+  }
+  console.log({ processedPairs });
+
+  if (processedPairs.length === 1) {
+    return processedPairs[0].yConst; // evaluate for t = 0
+  }
+
+  console.log("-- recurse --");
+  const previousYConst = recurse(processedPairs);
+  console.log("-- back from recurse --");
+
+  const lastEquation = processedPairs[processedPairs.length - 1];
+
+  const result = lastEquation.yConst + previousYConst * lastEquation.yFactor;
+
+  console.log({ previousYConst, result, lastEquation });
+
+  return result;
+};
+
+const solve = (numbers: number[], offsets: number[]): number => {
+  const processedPairs = [];
+  for (let i = 0; i < numbers.length - 1; i++) {
+    processedPairs.push(
+      diophant(numbers[i], -numbers[i + 1], offsets[i] - offsets[i + 1]),
+    );
+  }
+
+  console.log({ processedPairs });
+
+  console.log("-- start recurse --");
+  const previousYConst = recurse(processedPairs);
+  console.log("-- back from final recurse --");
+
+  const lastEquation = processedPairs[processedPairs.length - 1];
+
+  const result = lastEquation.yConst + previousYConst * lastEquation.yFactor;
+
+  console.log({ previousYConst, result, lastEquation });
+
+  return result * numbers[numbers.length - 1] - offsets[numbers.length - 1];
 };
 
 const part2 = (busLines: BusLines): number => {
@@ -94,6 +225,6 @@ const part2 = (busLines: BusLines): number => {
 
 assertEquals(part2(parseBusLines("17,x,13,19")), 3417);
 
-assertEquals(part2(example.busLines), 1068788);
+assertEquals(part2(example.busLines), 1068781);
 
 console.log("Result part 2: " + part2(inputParsed.busLines));
