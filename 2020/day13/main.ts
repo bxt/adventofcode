@@ -1,15 +1,5 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { getColorEnabled } from "https://deno.land/std@0.79.0/fmt/colors.ts";
-import {
-  addCoords,
-  Coord,
-  ensureElementOf,
-  manhattanNormCoord,
-  matchGroups,
-  rotateLeftNinetyDegreesCoord,
-  scaleCoord,
-} from "../utils.ts";
 
 type BusLines = (number | null)[];
 
@@ -60,6 +50,9 @@ assertEquals(part1(example), 295);
 
 console.log("Result part 1: " + part1(inputParsed));
 
+/**
+ * Calculate modulus taking into account sign conversion like the math people do them.
+ */
 const mathModulus = (a: number, b: number) => {
   return ((a % b) + Math.abs(b)) % Math.abs(b);
 };
@@ -70,6 +63,10 @@ assertEquals(mathModulus(3, 6), 3);
 assertEquals(mathModulus(5, -22), 5);
 assertEquals(mathModulus(-22, 5), 3);
 
+/**
+ * For two numbers x, y, return gcd and u, v such that ux + vy = gcd,
+ * aka a linear combination of the gcd.
+ */
 const euklid = (x: number, y: number) => {
   let a = x;
   let b = y;
@@ -79,7 +76,6 @@ const euklid = (x: number, y: number) => {
   let v = 0;
   let t = 1;
   while (b !== 0) {
-    console.log({ a, b, q, u, s, v, t });
     const r = mathModulus(a, b);
     q = (a - r) / b;
     a = b;
@@ -113,21 +109,24 @@ type DiophantSoltuion = {
   yFactor: number;
 };
 
-// ax + by = offset
+/**
+ * For an equation like "ax + by = offset" returns parameters for solution
+ * equations like "x = xFactor * t + xConst" and "y = yFactor * t + yConst"
+ */
 const diophant = (a: number, b: number, offset: number): DiophantSoltuion => {
   const { gcd, u, v } = euklid(a, b);
+  // Seems all bus lines are prime anyways, but hey:
   if (offset % gcd !== 0) throw new Error("offset not divisible by gcd");
   const scale = offset / gcd;
 
-  console.log({ scale, offset, gcd, u, v });
-
   let xFactor = b / gcd;
   let yFactor = -a / gcd;
+
+  // Optimize the factors:
   if (xFactor < 0 && yFactor < 0) {
     xFactor = -xFactor;
     yFactor = -yFactor;
   }
-
   const optimizeFactor = Math.floor(scale * u / xFactor);
 
   const xConst = scale * u - optimizeFactor * xFactor;
@@ -168,23 +167,16 @@ const recurse = (previous: DiophantSoltuion[]): number => {
       ),
     );
   }
-  console.log({ processedPairs });
 
   if (processedPairs.length === 1) {
     return processedPairs[0].yConst; // evaluate for t = 0
   }
 
-  console.log("-- recurse --");
   const previousYConst = recurse(processedPairs);
-  console.log("-- back from recurse --");
 
   const lastEquation = processedPairs[processedPairs.length - 1];
 
-  const result = lastEquation.yConst + previousYConst * lastEquation.yFactor;
-
-  console.log({ previousYConst, result, lastEquation });
-
-  return result;
+  return lastEquation.yConst + previousYConst * lastEquation.yFactor; // put into equation
 };
 
 const solve = (numbers: number[], offsets: number[]): number => {
@@ -195,17 +187,11 @@ const solve = (numbers: number[], offsets: number[]): number => {
     );
   }
 
-  console.log({ processedPairs });
-
-  console.log("-- start recurse --");
   const previousYConst = recurse(processedPairs);
-  console.log("-- back from final recurse --");
 
   const lastEquation = processedPairs[processedPairs.length - 1];
 
-  const result = lastEquation.yConst + previousYConst * lastEquation.yFactor;
-
-  console.log({ previousYConst, result, lastEquation });
+  const result = lastEquation.yConst + previousYConst * lastEquation.yFactor; // put into equation
 
   return result * numbers[numbers.length - 1] - offsets[numbers.length - 1];
 };
@@ -216,7 +202,6 @@ const part2 = (busLines: BusLines): number => {
   );
   const filteredIndexedBusLines =
     (indexedBusLines.filter((b) => b) as [number, number][]);
-  console.log({ filteredIndexedBusLines });
 
   const numbers = filteredIndexedBusLines.map(([a, _]) => a);
   const offsets = filteredIndexedBusLines.map(([_, b]) => b);
