@@ -11,16 +11,23 @@ import {
   scaleCoord,
 } from "../utils.ts";
 
-type Config = { time: number; busLines: (number | null)[] };
+type BusLines = (number | null)[];
+
+type Config = { time: number; busLines: BusLines };
+
+const parseBusLines = (
+  busLinesString: string,
+): BusLines =>
+  busLinesString.trim().split(",").map(
+    (busLineString) => busLineString === "x" ? null : Number(busLineString),
+  );
 
 const parseInput = (
   string: string,
 ): Config => {
   const [timeString, busLinesString] = string.trim().split(/[\n ]+/);
 
-  const busLines = busLinesString.trim().split(",").map(
-    (busLineString) => busLineString === "x" ? null : Number(busLineString),
-  );
+  const busLines = parseBusLines(busLinesString);
   return { time: Number(timeString), busLines };
 };
 
@@ -52,3 +59,41 @@ const part1 = (config: Config): number => {
 assertEquals(part1(example), 295);
 
 console.log("Result part 1: " + part1(inputParsed));
+
+const allAligned = (offsets: number[], candidates: number[]): boolean => {
+  for (let i = 1; i < offsets.length; i++) {
+    if (
+      candidates[i] - offsets[i] !== candidates[i - 1] - offsets[i - 1]
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+assertEquals(allAligned([5, 9, 10], [5, 9, 10]), true);
+assertEquals(allAligned([15, 19, 20], [5, 9, 10]), true);
+assertEquals(allAligned([15, 19, 21], [5, 9, 10]), false);
+
+const solve = (numbers: number[], offsets: number[]) => {
+  return -1;
+};
+
+const part2 = (busLines: BusLines): number => {
+  const indexedBusLines = busLines.map((b, i) =>
+    b === null ? null : [b, i] as const
+  );
+  const filteredIndexedBusLines =
+    (indexedBusLines.filter((b) => b) as [number, number][]);
+  console.log({ filteredIndexedBusLines });
+
+  const numbers = filteredIndexedBusLines.map(([a, _]) => a);
+  const offsets = filteredIndexedBusLines.map(([_, b]) => b);
+  return solve(numbers, offsets);
+};
+
+assertEquals(part2(parseBusLines("17,x,13,19")), 3417);
+
+assertEquals(part2(example.busLines), 1068788);
+
+console.log("Result part 2: " + part2(inputParsed.busLines));
