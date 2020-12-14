@@ -1,8 +1,17 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { matchGroups, sum } from "../utils.ts";
+import { ensureElementOf, matchGroups, sum } from "../utils.ts";
 
-type Mask = (0 | 1 | null)[];
+const one = "1";
+const zero = "0";
+
+const binaryDigits: BinaryDigit[] = [one, zero];
+
+type BinaryDigit = typeof one | typeof zero;
+
+type MaybeBinaryDigit = BinaryDigit | null;
+
+type Mask = MaybeBinaryDigit[];
 
 type SetMemoryInstruction = {
   kind: "set-memory";
@@ -30,7 +39,7 @@ const parseInput = (
       return {
         kind: "set-mask",
         mask: maskString.split("").map((x) =>
-          x === "X" ? null : x === "0" ? 0 : 1
+          x === "X" ? null : x === "0" ? zero : one
         ),
       };
     } else {
@@ -58,8 +67,8 @@ assertEquals(example[0].kind, "set-mask");
 if (example[0].kind === "set-mask") {
   assertEquals(example[0].mask.length, 36);
   assertEquals(example[0].mask[0], null);
-  assertEquals(example[0].mask[34], 0);
-  assertEquals(example[0].mask[29], 1);
+  assertEquals(example[0].mask[34], zero);
+  assertEquals(example[0].mask[29], one);
 }
 assertEquals(example[1], { kind: "set-memory", value: 11, address: 8 });
 assertEquals(example.length, 4);
@@ -68,17 +77,22 @@ const input = await Deno.readTextFile("input.txt");
 
 const inputParsed = parseInput(input);
 
+const convertToBinary = (value: number): BinaryDigit[] =>
+  value.toString(2).split("").map((d) => ensureElementOf(d, binaryDigits))
+    .reverse();
+
+const convertFromBinary = (binaryDigits: BinaryDigit[]): number =>
+  parseInt(binaryDigits.join(""), 2);
+
 const applyMask = (value: number, mask: Mask): number => {
-  const valueBinary = value.toString(2).split("").map(Number).reverse();
+  const valueBinary = convertToBinary(value);
   const mapped = mask.map((maskDigit, iBackwards) => {
     const i = 35 - iBackwards;
     if (maskDigit !== null) return maskDigit;
-    if (i >= valueBinary.length) return 0;
+    if (i >= valueBinary.length) return zero;
     return valueBinary[i];
   });
-  const result = mapped.join("");
-  const resultInt = parseInt(result, 2);
-  return resultInt;
+  return convertFromBinary(mapped);
 };
 
 const runInstructionPart1 = (
@@ -127,41 +141,30 @@ const example2 = parseInput(`
   mem[26] = 1
 `);
 
+// Oh man, a list monad would be nice...
+const prependToAll = <T>(arrays: T[][], elements: T[]) =>
+  elements.flatMap((e) => arrays.map((a) => [e, ...a]));
+
 const spreadMask = (address: number, mask: Mask): number[] => {
-  const valueBinary = address.toString(2).split("").reverse() as ("0" | "1")[];
-  const mappeds = mask.reduce(
-    (
-      digitsSoFar: ("0" | "1")[][],
-      maskDigit: 1 | 0 | null,
-      iBackwards: number,
-    ): ("0" | "1")[][] => {
-      const i = 35 - iBackwards;
-      switch (maskDigit) {
-        case 0:
-        case 1: {
-          const digit = maskDigit === 1
-            ? "1" as const
-            : i >= valueBinary.length
-            ? "0" as const
-            : valueBinary[i];
-          return digitsSoFar.map((d) => [digit, ...d]);
-        }
-        case null: {
-          return [
-            ...digitsSoFar.map((d) => ["1" as const, ...d]),
-            ...digitsSoFar.map((d) => ["0" as const, ...d]),
-          ];
-        }
-      }
-    },
-    [[]] as ("0" | "1")[][],
-  );
-  const results = mappeds.map((mapped) => {
-    const result = mapped.join("");
-    const resultInt = parseInt(result, 2);
-    return resultInt;
-  });
-  return results;
+  const valueBinary = convertToBinary(address);
+  const mappeds = mask.reduce((digitsSoFar, maskDigit, iBackwards) => {
+    const i = 35 - iBackwards;
+    let newDigits: BinaryDigit[] | null = null;
+    switch (maskDigit) {
+      case "0":
+        newDigits = [i >= valueBinary.length ? zero : valueBinary[i]];
+        break;
+      case "1":
+        newDigits = [one];
+        break;
+      case null:
+        newDigits = binaryDigits;
+        break;
+    }
+    return prependToAll(digitsSoFar, newDigits);
+  }, [[]] as BinaryDigit[][]);
+
+  return mappeds.map(convertFromBinary);
 };
 
 const runInstructionPart2 = (
