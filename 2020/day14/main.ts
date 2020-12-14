@@ -4,13 +4,20 @@ import { matchGroups, sum } from "../utils.ts";
 
 type Mask = (0 | 1 | null)[];
 
-type Instruction = { kind: "set-mask"; mask: Mask } | {
+type SetMemoryInstruction = {
   kind: "set-memory";
   value: number;
   address: number;
 };
 
+type Instruction = { kind: "set-mask"; mask: Mask } | SetMemoryInstruction;
+
 type Memory = { values: Record<number, number>; mask: Mask };
+
+type InstructionEvaluator = (
+  memory: Memory,
+  instruction: Instruction,
+) => Memory;
 
 const parseInput = (
   string: string,
@@ -74,7 +81,10 @@ const applyMask = (value: number, mask: Mask): number => {
   return resultInt;
 };
 
-const runInstruction = (memory: Memory, instruction: Instruction): Memory => {
+const runInstructionPart1 = (
+  memory: Memory,
+  instruction: Instruction,
+): Memory => {
   switch (instruction.kind) {
     case "set-mask": {
       return { ...memory, mask: instruction.mask };
@@ -91,12 +101,93 @@ const runInstruction = (memory: Memory, instruction: Instruction): Memory => {
   }
 };
 
-const part1 = (instructions: Instruction[]): number => {
+const runInstructions = (
+  instructions: Instruction[],
+  instructionEvaluator: InstructionEvaluator,
+): number => {
   const initalMemory: Memory = { values: {}, mask: [] };
-  const finalMemory = instructions.reduce(runInstruction, initalMemory);
+  const finalMemory = instructions.reduce(
+    instructionEvaluator,
+    initalMemory,
+  );
   return sum(Object.values(finalMemory.values).filter((v) => v));
 };
+
+const part1 = (instructions: Instruction[]): number =>
+  runInstructions(instructions, runInstructionPart1);
 
 assertEquals(part1(example), 165);
 
 console.log("Result part 1: " + part1(inputParsed));
+
+const example2 = parseInput(`
+  mask = 000000000000000000000000000000X1001X
+  mem[42] = 100
+  mask = 00000000000000000000000000000000X0XX
+  mem[26] = 1
+`);
+
+const spreadMask = (address: number, mask: Mask): number[] => {
+  const valueBinary = address.toString(2).split("").reverse() as ("0" | "1")[];
+  const mappeds = mask.reduce(
+    (
+      digitsSoFar: ("0" | "1")[][],
+      maskDigit: 1 | 0 | null,
+      iBackwards: number,
+    ): ("0" | "1")[][] => {
+      const i = 35 - iBackwards;
+      switch (maskDigit) {
+        case 0:
+        case 1: {
+          const digit = maskDigit === 1
+            ? "1" as const
+            : i >= valueBinary.length
+            ? "0" as const
+            : valueBinary[i];
+          return digitsSoFar.map((d) => [digit, ...d]);
+        }
+        case null: {
+          return [
+            ...digitsSoFar.map((d) => ["1" as const, ...d]),
+            ...digitsSoFar.map((d) => ["0" as const, ...d]),
+          ];
+        }
+      }
+    },
+    [[]] as ("0" | "1")[][],
+  );
+  const results = mappeds.map((mapped) => {
+    const result = mapped.join("");
+    const resultInt = parseInt(result, 2);
+    return resultInt;
+  });
+  return results;
+};
+
+const runInstructionPart2 = (
+  memory: Memory,
+  instruction: Instruction,
+): Memory => {
+  switch (instruction.kind) {
+    case "set-mask": {
+      return { ...memory, mask: instruction.mask };
+    }
+    case "set-memory": {
+      const addresses = spreadMask(instruction.address, memory.mask);
+
+      const values = { ...memory.values };
+      addresses.forEach((address) => {
+        values[address] = instruction.value;
+      });
+
+      return { ...memory, values };
+    }
+  }
+};
+
+const part2 = (instructions: Instruction[]): number =>
+  runInstructions(instructions, runInstructionPart2);
+
+assertEquals(part2(example2), 208);
+
+console.log("Result part 2: " + part2(inputParsed));
