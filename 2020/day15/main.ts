@@ -10,18 +10,13 @@ const lastSpokenAfter = (startingNumbers: number[], index: number): number => {
     startingNumbers.slice(0, -1).map((n, i) => [n, i + 1]),
   );
   let lastSpoken = startingNumbers[startingNumbers.length - 1];
-  // console.log({ init: true, lastSpoken });
 
   for (let i = startingNumbers.length + 1; i <= index; i++) {
     const nextSpoken = lastSpokenAt[lastSpoken] === undefined
       ? 0
       : i - lastSpokenAt[lastSpoken] - 1;
     lastSpokenAt[String(lastSpoken)] = i - 1;
-    // console.log({ i, lastSpoken, nextSpoken });
     lastSpoken = nextSpoken;
-    if (i % 100000 === 0) {
-      console.log({ i });
-    }
   }
 
   return lastSpoken;
