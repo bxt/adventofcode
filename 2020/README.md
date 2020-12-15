@@ -30,7 +30,8 @@ Day | Deno         | Description
 12  | [✓][deno12] | [Ship navigation instructions][aoc12]
 13  | [✓][deno13] | [Bus arrivals vs. Chinese remainder theorem][aoc13]
 14  | [✓][deno14] | [Ship docking computer with bit masks][aoc14]
-Σ   |          14 |
+15  | [✓][deno15] | [Evles playing Van Eck’s memory game][aoc15]
+Σ   |          15 |
 
 Takeaways
 ---------
@@ -81,6 +82,7 @@ year I follow (A-Z):
  [aoc12]: http://adventofcode.com/2020/day/12
  [aoc13]: http://adventofcode.com/2020/day/13
  [aoc14]: http://adventofcode.com/2020/day/14
+ [aoc15]: http://adventofcode.com/2020/day/15
  [deno01]: day01/main.ts
  [deno02]: day02/main.ts
  [deno03]: day03/main.ts
@@ -93,5 +95,6 @@ year I follow (A-Z):
  [deno10]: day10/main.ts
  [deno11]: day11/main.ts
  [deno12]: day12/main.ts
- [deno14]: day13/main.ts
- [deno13]: day14/main.ts
+ [deno13]: day13/main.ts
+ [deno14]: day14/main.ts
+ [deno15]: day15/main.ts
