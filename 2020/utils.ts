@@ -1,6 +1,9 @@
 export const sum = (numbers: number[]): number =>
   numbers.reduce((acc, number) => acc + number, 0);
 
+export const product = (numbers: number[]): number =>
+  numbers.reduce((acc, number) => acc * number, 1);
+
 export type Coord = readonly [number, number];
 
 export const addCoords = (

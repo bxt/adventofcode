@@ -8,6 +8,7 @@ import {
   ensureElementOf,
   manhattanNormCoord,
   matchGroups,
+  product,
   rotateLeftNinetyDegreesCoord,
   scaleCoord,
   sum,
@@ -16,6 +17,12 @@ import {
 Deno.test("sum", () => {
   assertEquals(sum([1, 4, 6, 4]), 15);
   assertEquals(sum([1, 4, -6, 4]), 3);
+});
+
+Deno.test("product", () => {
+  assertEquals(product([1, 4, 6, 4]), 96);
+  assertEquals(product([1, 4, -6, 4]), -96);
+  assertEquals(product([1, 4, 0, 6]), 0);
 });
 
 Deno.test("addCoords", () => {

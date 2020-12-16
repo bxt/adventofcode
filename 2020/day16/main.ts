@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { matchGroups, sum } from "../utils.ts";
+import { matchGroups, product, sum } from "../utils.ts";
 
 type Range = {
   from: number;
@@ -131,17 +131,19 @@ const example2 = parseInput(`
 const elimintateSingle = (
   possibleAssigments: number[][],
 ): number[][] | false => {
-  const updatedPossibleAssigments = [...possibleAssigments];
+  const newAssignments = [...possibleAssigments];
   let isAnythingChanged = false;
-  for (let i = 0; i < updatedPossibleAssigments.length; i++) {
-    if (updatedPossibleAssigments[i].length === 1) {
-      for (let k = i + 1; k < updatedPossibleAssigments.length; k++) {
+
+  for (let i = 0; i < newAssignments.length; i++) {
+    if (newAssignments[i].length === 1) {
+      const elementToRemove = newAssignments[i][0];
+      for (let k = 0; k < newAssignments.length; k++) {
         if (
-          updatedPossibleAssigments[k].indexOf(updatedPossibleAssigments[i][0])
+          k !== i && newAssignments[k].indexOf(elementToRemove) !== -1
         ) {
           isAnythingChanged = true;
-          updatedPossibleAssigments[k] = updatedPossibleAssigments[k].filter(
-            (ruleIndex) => ruleIndex !== updatedPossibleAssigments[i][0],
+          newAssignments[k] = newAssignments[k].filter(
+            (ruleIndex) => ruleIndex !== elementToRemove,
           );
         }
       }
@@ -150,39 +152,47 @@ const elimintateSingle = (
 
   if (!isAnythingChanged) return false;
 
-  return updatedPossibleAssigments;
+  return newAssignments;
 };
+
+assertEquals(elimintateSingle([[1], [1, 2], [1, 2, 3]]), [[1], [2], [3]]);
+assertEquals(elimintateSingle([[1, 2], [1, 2]]), false);
+assertEquals(elimintateSingle([[1], [2], [3]]), false);
 
 const calculateAssignment = (input: Input): number[] => {
   const filteredNearbyTickets = input.nearbyTickets.filter((ticket) =>
     invalidEntries(input.fieldRules, ticket).length === 0
   );
 
-  console.log({ filteredNearbyTickets });
-
-  const possibleAssigments = input.myTicket.map((_, fieldIndex) =>
+  let possibleAssigments = input.myTicket.map((_, fieldIndex) =>
     input.fieldRules.flatMap((rule, ruleIndex) => {
       const intialValid = (
         filteredNearbyTickets.every((ticket) => {
             const anyInRange = rule.ranges.some((range) => {
               return isInRange(ticket[fieldIndex], range);
             });
-            console.log({ ticket, anyInRange });
             return anyInRange;
           })
           ? [ruleIndex]
           : []
       );
-      console.log({ rule, ruleIndex, intialValid });
       return intialValid;
     })
   );
 
-  console.log({ possibleAssigments });
+  while (true) {
+    const eliminationResult = elimintateSingle(possibleAssigments);
+    if (eliminationResult === false) break;
+    possibleAssigments = eliminationResult;
+  }
 
-  console.log(elimintateSingle(possibleAssigments));
-
-  return [-1];
+  if (
+    possibleAssigments.every((assignment) => assignment.length === 1)
+  ) {
+    return possibleAssigments.map((a) => a[0]);
+  } else {
+    throw new Error("Not implmented");
+  }
 };
 
 assertEquals(calculateAssignment(example2), [1, 0, 2]);
@@ -190,7 +200,15 @@ assertEquals(calculateAssignment(example2), [1, 0, 2]);
 const part2 = (input: Input): number => {
   const assignemnt = calculateAssignment(input);
 
-  return -1;
+  return product(
+    input.fieldRules.map((fieldRule, i) =>
+      fieldRule.name.startsWith("departure")
+        ? (
+          input.myTicket[assignemnt.indexOf(i)]
+        )
+        : 1
+    ),
+  );
 };
 
 console.log("Result part 2: " + part2(inputParsed));
