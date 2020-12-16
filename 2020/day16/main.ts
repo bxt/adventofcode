@@ -165,19 +165,13 @@ const calculateAssignment = (input: Input): number[] => {
   );
 
   let possibleAssigments = input.myTicket.map((_, fieldIndex) =>
-    input.fieldRules.flatMap((rule, ruleIndex) => {
-      const intialValid = (
-        filteredNearbyTickets.every((ticket) => {
-            const anyInRange = rule.ranges.some((range) => {
-              return isInRange(ticket[fieldIndex], range);
-            });
-            return anyInRange;
-          })
-          ? [ruleIndex]
-          : []
-      );
-      return intialValid;
-    })
+    input.fieldRules.flatMap((rule, ruleIndex) => (
+      filteredNearbyTickets.every((ticket) =>
+          rule.ranges.some((range) => isInRange(ticket[fieldIndex], range))
+        )
+        ? [ruleIndex]
+        : []
+    ))
   );
 
   while (true) {
@@ -203,9 +197,7 @@ const part2 = (input: Input): number => {
   return product(
     input.fieldRules.map((fieldRule, i) =>
       fieldRule.name.startsWith("departure")
-        ? (
-          input.myTicket[assignemnt.indexOf(i)]
-        )
+        ? input.myTicket[assignemnt.indexOf(i)]
         : 1
     ),
   );
