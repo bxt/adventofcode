@@ -20,16 +20,33 @@ export const rotateLeftNinetyDegreesCoord = (
   [x, y]: Coord,
 ): Coord => [-y + 0, /* <- convert -0 to 0, lol */ x];
 
-export const ensureElementOf = <A, B extends A>(
+export type Maybe<T> = T | null;
+
+export const maybeElementOf = <A, B extends A>(
   element: A,
   to: readonly B[],
-): B => {
+): Maybe<B> => {
   if (!to.includes(element as B)) {
-    throw new Error(`Not part of type: ${element}`);
+    return null;
   }
 
   return element as B;
 };
+
+export const assertMaybe = <T>(
+  element: Maybe<T>,
+): T => {
+  if (element === null) {
+    throw new Error(`Maybe: ${element}`);
+  }
+
+  return element;
+};
+
+export const ensureElementOf = <A, B extends A>(
+  element: A,
+  to: readonly B[],
+): B => assertMaybe(maybeElementOf(element, to));
 
 export const matchGroups = (regexp: RegExp) =>
   (input: string): Record<string, string> => {

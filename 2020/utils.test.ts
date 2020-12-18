@@ -8,6 +8,7 @@ import {
   ensureElementOf,
   manhattanNormCoord,
   matchGroups,
+  maybeElementOf,
   product,
   rotateLeftNinetyDegreesCoord,
   scaleCoord,
@@ -44,6 +45,15 @@ Deno.test("rotateLeftNinetyDegreesCoord", () => {
   assertEquals(rotateLeftNinetyDegreesCoord([7, 13]), [-13, 7]);
   assertEquals(rotateLeftNinetyDegreesCoord([-7, 13]), [-13, -7]);
   assertEquals(rotateLeftNinetyDegreesCoord([0, 13]), [-13, 0]);
+});
+
+Deno.test("maybeElementOf", () => {
+  assertEquals(maybeElementOf(7, [7, 13]), 7);
+  assertEquals(maybeElementOf(6, [7, 13]), null);
+  // @ts-expect-error We should be notified that this check does not make sense
+  assertEquals(maybeElementOf("oy", [7, 13]), null);
+  // @ts-expect-error We should be notified that this check does not make sense
+  assertEquals(maybeElementOf(4, ["a", "b"]), null);
 });
 
 Deno.test("ensureElementOf", () => {
