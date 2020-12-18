@@ -6,18 +6,14 @@
  */
 
 /**
- * Adds together all numbers in an array.
- * @param {Array<number>} numbers
- * @returns {number} Sum of all numbers
+ * Adds together all numbers in an array and returns their sum.
  */
 export function sum(numbers: number[]): number {
   return numbers.reduce((acc, number) => acc + number, 0);
 }
 
 /**
- * Multiplies together all numbers in an array.
- * @param {Array<number>} numbers
- * @returns {number} Product of all numbers
+ * Multiplies together all numbers in an array and returns their product.
  */
 export function product(numbers: number[]): number {
   return numbers.reduce((acc, number) => acc * number, 1);
@@ -29,20 +25,14 @@ export function product(numbers: number[]): number {
 export type Coord = readonly [number, number];
 
 /**
- * Adds together two coords
- * @param {Coord} a
- * @param {Coord} b
- * @returns {number} Component-wise sum of a and b
+ * Adds together two coords and returns their component-wise sum.
  */
 export function addCoords([x1, y1]: Coord, [x2, y2]: Coord): Coord {
   return ([x1 + x2, y1 + y2]);
 }
 
 /**
- * Scales a coord with a scalar (plain number)
- * @param {Coord} coord
- * @param {number} scalar
- * @returns {Coord} coord with each component scaled by scalar
+ * Scales a coord with a scalar (plain number), multiplies each component.
  */
 export function scaleCoord([x, y]: Coord, s: number): Coord {
   return ([x * s, y * s]);
@@ -50,8 +40,6 @@ export function scaleCoord([x, y]: Coord, s: number): Coord {
 
 /**
  * Calculates the manhatten distance form the coord to the origin (0,0)
- * @param {Coord} coord
- * @returns {number} manhattan distance
  */
 export function manhattanNormCoord([x, y]: Coord): number {
   return Math.abs(x) + Math.abs(y);
@@ -61,9 +49,6 @@ export function manhattanNormCoord([x, y]: Coord): number {
  * Rotates a coord by 90 degrees to the left around the origin (0,0)
  *
  * This assumes that you x axis faces down, otherwise the rotation is right actually...
- *
- * @param {Coord} coord
- * @returns {number} coord rotated
  */
 export function rotateLeftNinetyDegreesCoord([x, y]: Coord): Coord {
   return [-y + 0, /* <- convert -0 to 0, lol */ x];
