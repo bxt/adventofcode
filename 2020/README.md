@@ -37,10 +37,20 @@ Takeaways
 ---------
 
 * Deno seems great:
-  * I really like working with deno, and especially setting it up is a nice experience: you install a single binary for deno (and maybe the VS code extension) and already you get package management, type safety, linting, formatting, autocompletion, and a basic testing framework with coverage reports. Setting up the same can get really annoying for node. For languages like Ruby it's almost impossible to get such a setup.
-  * Since [1.6 you can even export a standalone binary](https://deno.land/posts/v1.6#codedeno-compilecode-self-contained-standalone-binaries).
+  * I really like working with deno, and especially setting it up is a nice experience: you install a single binary for deno (and maybe the VS code extension) and already you get a fully working environment, and also a well equipped-one. Setting up similar tooling can get really annoying for node. For languages like Ruby it's almost impossible to get such a setup. We get:
+    * package management
+    * type checks
+    * linting
+    * formatting
+    * autocompletion
+    * automatic imports
+    * a basic testing framework
+    * with coverage reports
+    * [debugger support](https://deno.land/manual/getting_started/debugging_your_code)
+    * documentation, e.g. [here's the docs of the utils file](https://doc.deno.land/https/raw.githubusercontent.com/bxt/adventofcode/main/2020/utils.ts) I used for this year.
+    * Since [1.6 you can even export a standalone binary](https://deno.land/posts/v1.6#codedeno-compilecode-self-contained-standalone-binaries).
   * Even though deno sometimes feels a bit "beta", I didn't encounter any severe problems. One thing I found a bit annoying is that the formatter sometimes removed big chunks of code, but I could always get them back with <kbd>⌘</kbd> <kbd>Z</kbd>.
-  * It feels great to be able to use all the latest language features and TypeScript consistently across the codebase (including e.g. tests) without having to set up many things. In fact, I have 0 config files, and the configuration always felt reasonable.
+  * It feels great to be able to use all the latest language features and TypeScript consistently across the codebase (including e.g. tests) without having to set up many things. In fact, I have 0 config files, and the defaults always felt reasonable.
   * I did not target browsers though... with those I think things would become more messy.
 * Types... there are pros and cons. Adding all the types feels a bit tedious form at times, but it makes up by catching so many small errors all the time:
   * I feel TypeScript is a bit verbose sometimes, and certainly invites to over-engineer things to sprinkle everything with types. E.g. on day 12 [I came up with a solution][deno12] which works eerie similarly to [this haskell one](https://github.com/glguy/advent2020/blob/master/execs/Day12.hs), but looks a lot more Java-ish...
