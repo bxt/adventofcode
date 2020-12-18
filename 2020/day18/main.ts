@@ -37,6 +37,11 @@ const lexer = (s: string): Term[] =>
     )
   );
 
+/**
+  * Calculates the value of a term, inspired by the Shunting-Yard algorithm
+  * but instead of creating Reverse Polish notation (RPN) or an abstract syntax
+  * tree (AST) is just caluclates the values directly.
+  */
 class Evaluator {
   readonly #operatorPrecedences: OperatorPrecedences;
   #resultStack: number[] = [];
