@@ -266,10 +266,9 @@ const allPossibilities = (
 };
 
 const checkPossibilities = (grammar: Grammar) => {
-  const ps = allPossibilities(grammar, 0);
-  console.log(ps);
-  ps.forEach((p) => {
-    assert(isWordInGrammar(parseWord(p), grammar));
+  const possibilities = allPossibilities(grammar, 0);
+  possibilities.forEach((possibility) => {
+    assert(isWordInGrammar(parseWord(possibility), grammar));
   });
 };
 
@@ -277,35 +276,17 @@ checkPossibilities(exampleWithAliases.grammar);
 
 assertEquals(inputParsed.words.length, 468);
 
-{
-  const nttr: Record<NonTerminal, string[]> = {};
-  inputParsed.grammar.forEach((rule) => {
-    if ("terminal" in rule) {
-      console.log(
-        `${rule.nonTerminal}: "${rule.terminal}"`,
-      );
-    } else if ("alias" in rule) {
-      nttr[rule.nonTerminal] ||= [];
-      nttr[rule.nonTerminal].push(String(rule.alias));
-    } else {
-      nttr[rule.nonTerminal] ||= [];
-      nttr[rule.nonTerminal].push(rule.nonTerminals.map(String).join(" "));
-    }
-  });
-  [...Object.entries(nttr)].forEach(([k, v]) => {
-    console.log(
-      `${k}: ${v.join(" | ")}`,
-    );
-  });
-}
+const part1Result = part1(inputParsed);
 
-console.log("Result part 1: " + part1(inputParsed));
-// 105 too low
-
-const ps = allPossibilities(inputParsed.grammar, 0);
-
-console.log(
-  "Result part 1: " +
-    inputParsed.words.map((w) => w.join("")).filter((w) => ps.includes(w))
-      .length,
+assertEquals(
+  (() => {
+    const possibilities = allPossibilities(inputParsed.grammar, 0);
+    return inputParsed.words.map((w) => w.join("")).filter((w) =>
+      possibilities.includes(w)
+    ).length;
+  })(),
+  part1Result,
 );
+
+console.log("Result part 1: " + part1Result);
+// 105 too low
