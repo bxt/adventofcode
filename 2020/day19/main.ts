@@ -3,7 +3,6 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { getColorEnabled } from "https://deno.land/std@0.79.0/fmt/colors.ts";
 import { ensureElementOf, matchGroups } from "../utils.ts";
 
 type NonTerminal = number;
@@ -11,12 +10,17 @@ const terminals = ["a", "b"] as const;
 type Terminal = typeof terminals[number];
 type Rule =
   & { nonTerminal: NonTerminal }
-  & ({ terminal: Terminal } | { nonTerminals: [NonTerminal, NonTerminal] });
+  & ({ terminal: Terminal } | { nonTerminals: [NonTerminal, NonTerminal] } | {
+    alias: NonTerminal;
+  });
 type Grammar = Rule[];
 type Word = Terminal[];
 
 const range = (length: number): number[] =>
   Array(length).fill(null).map((_, n) => n);
+
+const parseWord = (wordString: string): Word =>
+  wordString.trim().split("").map((t) => ensureElementOf(t, terminals));
 
 const parseInput = (string: string): { grammar: Grammar; words: Word[] } => {
   const [grammarString, wordsString] = string.trim().split("\n\n");
@@ -29,7 +33,6 @@ const parseInput = (string: string): { grammar: Grammar; words: Word[] } => {
     nonTerminalList,
   );
   let nextUnusedNonTerminal = nonTerminalList.length;
-  const aliases: [NonTerminal, NonTerminal][] = [];
 
   const grammar: Grammar = grammarString.split("\n").flatMap((ruleString) => {
     const [nonTerminalString, productions] = ruleString.split(": ");
@@ -52,8 +55,10 @@ const parseInput = (string: string): { grammar: Grammar; words: Word[] } => {
             nonTerminals: [nonTerminals[0], nonTerminals[1]],
           }];
         } else if (nonTerminals.length === 1) {
-          aliases.push([nonTerminal, nonTerminals[0]]);
-          return []; // deal with later
+          return [{
+            nonTerminal,
+            alias: nonTerminals[0],
+          }];
         } else { // > 2
           const rules: Rule[] = [];
           rules.push(
@@ -87,21 +92,7 @@ const parseInput = (string: string): { grammar: Grammar; words: Word[] } => {
     }
   });
 
-  aliases.forEach(([obsoleteNonTerminal, insteadNonTerminal]) => {
-    grammar.forEach((rule) => {
-      if ("nonTerminals" in rule) {
-        rule.nonTerminals = rule.nonTerminals.map((nonTerminal) => {
-          return nonTerminal === obsoleteNonTerminal
-            ? insteadNonTerminal
-            : nonTerminal;
-        }) as [NonTerminal, NonTerminal];
-      }
-    });
-  });
-
-  const words = wordsString.split(/\n/).map((wordString) =>
-    wordString.trim().split("").map((t) => ensureElementOf(t, terminals))
-  );
+  const words = wordsString.split(/\n/).map(parseWord);
 
   return { grammar, words };
 };
@@ -137,7 +128,7 @@ const input = await Deno.readTextFile("input.txt");
 
 const inputParsed = parseInput(input);
 
-// Cocke–Younger–Kasami algorithm
+// Cocke–Younger–Kasami algorithm, but can also handle A -> B
 const isWordInGrammar = (word: Word, grammar: Grammar) => {
   // matches indexed by [spanLength - 1][spanStart][nonTerminal]
   const partialMatches: Record<NonTerminal, boolean>[][] = range(word.length)
@@ -145,13 +136,29 @@ const isWordInGrammar = (word: Word, grammar: Grammar) => {
       range(word.length - spanLengthMinusOne).map((_) => ({}))
     );
 
-  for (let i = 0; i < word.length; i++) {
+  const handleAliases = (
+    { spanLength, spanStart }: { spanLength: number; spanStart: number },
+  ): void => {
+    grammar.forEach((rule) => {
+      if ("alias" in rule) {
+        const { nonTerminal, alias } = rule;
+        const matchesAlias = partialMatches[spanLength - 1][spanStart][alias];
+        if (matchesAlias) {
+          partialMatches[spanLength - 1][spanStart][nonTerminal] = true;
+        }
+      }
+    });
+  };
+
+  for (let spanStart = 0; spanStart < word.length; spanStart++) {
     const spanLength = 1;
     const rule = grammar.find((rule) =>
-      "terminal" in rule && rule.terminal === word[i]
+      "terminal" in rule && rule.terminal === word[spanStart]
     );
-    if (!rule) throw new Error(`No rule for terminal ${word[i]}`);
-    partialMatches[spanLength - 1][i][rule.nonTerminal] = true;
+    if (!rule) throw new Error(`No rule for terminal ${word[spanStart]}`);
+    partialMatches[spanLength - 1][spanStart][rule.nonTerminal] = true;
+
+    handleAliases({ spanLength, spanStart });
   }
 
   for (let spanLength = 2; spanLength <= word.length; spanLength++) {
@@ -180,6 +187,8 @@ const isWordInGrammar = (word: Word, grammar: Grammar) => {
           }
         });
       }
+
+      handleAliases({ spanLength, spanStart });
     }
   }
 
@@ -228,15 +237,75 @@ assertEquals(
 );
 assertEquals(part1(exampleWithAliases), 2);
 
-inputParsed.grammar.forEach((rule) => {
-  console.log(
-    `${rule.nonTerminal}: ${
-      ("terminal" in rule)
-        ? `"${rule.terminal}"`
-        : rule.nonTerminals.map(String).join(" ")
-    }`,
-  );
-});
+const allPossibilities = (
+  grammar: Grammar,
+  nonTerminal: NonTerminal,
+): string[] => {
+  const cache: Record<NonTerminal, string[]> = {};
+  const recursion = (nonTerminal: NonTerminal): string[] => {
+    if (cache[nonTerminal]) return cache[nonTerminal];
+
+    const possibilities = grammar.filter((rule) =>
+      rule.nonTerminal === nonTerminal
+    ).flatMap((rule) => {
+      if ("terminal" in rule) {
+        return [rule.terminal];
+      } else if ("alias" in rule) {
+        return recursion(rule.alias);
+      } else {
+        const [a, b] = rule.nonTerminals;
+        const possA = recursion(a);
+        const possB = recursion(b);
+        return possA.flatMap((pa) => possB.map((pb) => pa + pb));
+      }
+    });
+    cache[nonTerminal] = possibilities;
+    return possibilities;
+  };
+  return recursion(nonTerminal);
+};
+
+const checkPossibilities = (grammar: Grammar) => {
+  const ps = allPossibilities(grammar, 0);
+  console.log(ps);
+  ps.forEach((p) => {
+    assert(isWordInGrammar(parseWord(p), grammar));
+  });
+};
+
+checkPossibilities(exampleWithAliases.grammar);
+
+assertEquals(inputParsed.words.length, 468);
+
+{
+  const nttr: Record<NonTerminal, string[]> = {};
+  inputParsed.grammar.forEach((rule) => {
+    if ("terminal" in rule) {
+      console.log(
+        `${rule.nonTerminal}: "${rule.terminal}"`,
+      );
+    } else if ("alias" in rule) {
+      nttr[rule.nonTerminal] ||= [];
+      nttr[rule.nonTerminal].push(String(rule.alias));
+    } else {
+      nttr[rule.nonTerminal] ||= [];
+      nttr[rule.nonTerminal].push(rule.nonTerminals.map(String).join(" "));
+    }
+  });
+  [...Object.entries(nttr)].forEach(([k, v]) => {
+    console.log(
+      `${k}: ${v.join(" | ")}`,
+    );
+  });
+}
 
 console.log("Result part 1: " + part1(inputParsed));
 // 105 too low
+
+const ps = allPossibilities(inputParsed.grammar, 0);
+
+console.log(
+  "Result part 1: " +
+    inputParsed.words.map((w) => w.join("")).filter((w) => ps.includes(w))
+      .length,
+);
