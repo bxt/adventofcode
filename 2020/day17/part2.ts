@@ -93,8 +93,6 @@ const next = (pocketDimension: Entry[][][][]): Entry[][][][] => {
   return result;
 };
 
-console.log(next([[example]]));
-
 assertEquals(
   next([[example]])[1][0],
   parseInput(`
