@@ -13,8 +13,13 @@ import {
   sum,
 } from "../utils.ts";
 
-const range = (length: number): number[] =>
-  Array(length).fill(null).map((_, n) => n);
+function range(length: number): number[] {
+  return Array(length).fill(null).map((_, n) => n);
+}
+
+function rangeCoords(extend: Coord): Coord[] {
+  return range(extend[1]).flatMap((y) => range(extend[0]).map((x) => [x, y]));
+}
 
 const entries = ["#", "."] as const;
 type Entry = typeof entries[number];
@@ -28,10 +33,13 @@ const parseInput = (string: string): Tile[] =>
     const { idString, dataString } = matchGroups(
       /Tile (?<idString>\d+):(?<dataString>(\n *[.#]{10}){10})/,
     )(tileString.trim());
+
     const id = Number(idString);
+
     const data = dataString.trim().split(/\n */).map((row) =>
       row.split("").map((e) => ensureElementOf(e, entries))
     );
+
     return { id, data };
   });
 
@@ -39,26 +47,25 @@ const input = await Deno.readTextFile("input.txt");
 
 const tiles = parseInput(input);
 
-const neighbourCoordOffsets: Coord[] = [
+const neighborCoordOffsets: Coord[] = [
   [+1, 0],
   [-1, 0],
   [0, +1],
   [0, -1],
 ];
 
-const directionSelectors: Record<
-  number,
-  Record<number, (tile: Tile) => Entry[]>
-> = {
+type SparseCoordArray<T> = Record<number, Record<number, T>>;
+
+const directionSelectors: SparseCoordArray<(tile: Tile) => Entry[]> = {
   "1": {
-    "0": (tile) => tile.data.map((row) => row[TILE_SIZE - 1]),
+    "0": (tile) => tile.data[tile.data.length - 1],
   },
   "-1": {
-    "0": (tile) => tile.data.map((row) => row[0]),
+    "0": (tile) => tile.data[0],
   },
   "0": {
-    "1": (tile) => tile.data[TILE_SIZE - 1],
-    "-1": (tile) => tile.data[0],
+    "1": (tile) => tile.data.map((row) => row[row.length - 1]),
+    "-1": (tile) => tile.data.map((row) => row[0]),
   },
 };
 
@@ -89,11 +96,21 @@ const transformations: Transformation[] = [
   rotate,
 ];
 
+function indexWithCoord<T>(
+  array: T[][] | SparseCoordArray<T>,
+  coord: Coord,
+): T {
+  const [x, y] = coord;
+  return array[y][x];
+}
+
 const matchUp = (tile: Tile, otherTile: Tile, direction: Coord): boolean => {
-  const reference = directionSelectors[direction[0]][direction[1]](tile);
+  const reference = indexWithCoord(directionSelectors, direction)(tile);
   const oppositeDirection = scaleCoord(direction, -1);
-  const directionSelector =
-    directionSelectors[oppositeDirection[0]][oppositeDirection[1]];
+  const directionSelector = indexWithCoord(
+    directionSelectors,
+    oppositeDirection,
+  );
 
   for (let i = 0; i < transformations.length; i++) {
     if (entriesEqual(directionSelector(otherTile), reference)) return true;
@@ -111,49 +128,63 @@ while (positionsToCheck.length) {
   assert(positionToCheck !== undefined);
   const [coord, tile] = positionToCheck;
 
-  neighbourCoordOffsets.forEach((neighbourCoordOffset) => {
-    tiles.forEach((otherTile) => {
-      if (tilePositions[otherTile.id] !== undefined) return;
-      const isMatching = matchUp(tile, otherTile, neighbourCoordOffset);
+  neighborCoordOffsets.forEach((neighborCoordOffset) => {
+    tiles.forEach((neighborTile) => {
+      if (tilePositions[neighborTile.id] !== undefined) return;
+      const isMatching = matchUp(tile, neighborTile, neighborCoordOffset);
       if (isMatching) {
-        const neighbourCoord = addCoords(neighbourCoordOffset, coord);
-        tilePositions[otherTile.id] = neighbourCoord;
-        positionsToCheck.push([neighbourCoord, otherTile]);
+        const neighborCoord = addCoords(neighborCoordOffset, coord);
+        tilePositions[neighborTile.id] = neighborCoord;
+        positionsToCheck.push([neighborCoord, neighborTile]);
       }
     });
   });
 }
 
-const coordCorrection = scaleCoord([
-  Math.min(...Object.values(tilePositions).map((coord) => coord[0])),
-  Math.min(...Object.values(tilePositions).map((coord) => coord[1])),
-], -1);
-const coordExtend = addCoords(
-  addCoords([
-    Math.max(...Object.values(tilePositions).map((coord) => coord[0])),
-    Math.max(...Object.values(tilePositions).map((coord) => coord[1])),
-  ], coordCorrection),
-  [1, 1],
+assertEquals(Object.keys(tilePositions).length, tiles.length);
+
+function minMax(numbers: number[]): [number, number] {
+  return [Math.min(...numbers), Math.max(...numbers)];
+}
+
+function boundsOfCoords(coords: Coord[]): [Coord, Coord] {
+  const xs = coords.map((coord) => coord[0]);
+  const ys = coords.map((coord) => coord[1]);
+  const [minX, maxX] = minMax(xs);
+  const [minY, maxY] = minMax(ys);
+  return [[minX, minY], [maxX, maxY]];
+}
+
+const [minCoord, maxCoord] = boundsOfCoords(Object.values(tilePositions));
+
+const coordCorrection = scaleCoord(minCoord, -1);
+const coordExtend = addCoords(addCoords(maxCoord, coordCorrection), [1, 1]);
+
+const inverseTilePosition: SparseCoordArray<TileId> = {};
+Object.entries(tilePositions).forEach((
+  [tileId, coord],
+) => {
+  const correctedCoord = addCoords(coord, coordCorrection);
+  inverseTilePosition[correctedCoord[1]] ||= {};
+  inverseTilePosition[correctedCoord[1]][correctedCoord[0]] = Number(tileId);
+}), function equalsCoord([x1, y1]: Coord, [x2, y2]: Coord) {
+  return x1 === x2 && y1 === y2;
+};
+
+const oppositeCorner = addCoords(coordExtend, [-1, -1]);
+const cornerCoords: Coord[] = [
+  [0, 0],
+  [0, oppositeCorner[1]],
+  [oppositeCorner[0], 0],
+  oppositeCorner,
+];
+const cornerPieceIds = cornerCoords.map((coord) =>
+  indexWithCoord(inverseTilePosition, coord)
 );
 
-const correctedTilePositions: Record<TileId, Coord> = Object.fromEntries(
-  Object.entries(tilePositions).map((
-    [tileId, coord],
-  ) => [tileId, addCoords(coord, coordCorrection)]),
-);
+assertEquals(cornerPieceIds.length, 4);
 
-const cornerPieces = Object.entries(correctedTilePositions).filter((
-  [_, coord],
-) =>
-  coord[0] === 0 && coord[1] === 0 ||
-  coord[0] === 0 && coord[1] === coordExtend[1] - 1 ||
-  coord[0] === coordExtend[0] - 1 && coord[1] === 0 ||
-  coord[0] === coordExtend[0] - 1 && coord[1] === coordExtend[1] - 1
-);
-
-const part1 = product(
-  cornerPieces.map(([tileId, _]) => Number(tileId)),
-);
+const part1 = product(cornerPieceIds);
 
 console.log("Result part 1: " + part1);
 
@@ -161,13 +192,14 @@ const map = range(coordExtend[1]).flatMap((tileY) =>
   range(TILE_SIZE - 2).map((y) =>
     range(coordExtend[0]).flatMap((tileX) =>
       range(TILE_SIZE - 2).map((x) => {
-        const tileId = Object.entries(correctedTilePositions).find((
-          [_, [x, y]],
-        ) => tileX === x && tileY === y)?.[0];
-        assert(tileId !== undefined); // a gap?
+        const tileCoord: Coord = [tileX, tileY];
+        const tileId = indexWithCoord(inverseTilePosition, tileCoord);
+
         const tile = tiles.find((t) => t.id === Number(tileId));
         assert(tile !== undefined);
-        return tile.data[y + 1][x + 1];
+
+        const innerCoord: Coord = [x + 1, y + 1];
+        return indexWithCoord(tile.data, innerCoord);
       })
     )
   )
@@ -178,34 +210,36 @@ const seaMonster = [
   "#    ##    ##    ###",
   " #  #  #  #  #  #   ",
 ];
-const seaMonsterCoords = range(seaMonster.length).flatMap((y) =>
-  range(seaMonster[y].length).flatMap((x) =>
-    (seaMonster[y].charAt(x) === "#") ? [[x, y]] : []
-  )
-);
+const seaMonsterExtend: Coord = [seaMonster[0].length, seaMonster.length];
+const seaMonsterCoords: Coord[] = rangeCoords(seaMonsterExtend).flatMap((
+  [x, y],
+) => (seaMonster[y].charAt(x) === "#") ? [[x, y]] : []);
+
+assertEquals(seaMonsterCoords.length, 15);
 
 const mapTile = { id: -1, data: map };
 
 for (let i = 0; i < transformations.length; i++) {
   transformations[i](mapTile);
-  const seaMonsterPostions: Coord[] = [];
+  const mapExtend: Coord = [mapTile.data[0].length, mapTile.data.length];
 
-  range(mapTile.data.length - seaMonster.length).forEach((y) => {
-    range(mapTile.data[y].length - seaMonster[0].length).forEach((x) => {
-      if (
-        seaMonsterCoords.every(([sx, sy]) => {
-          return mapTile.data[y + sy][x + sx] === "#";
-        })
-      ) {
-        seaMonsterPostions.push([x, y]);
-      }
-    });
-  });
+  const seaMonsterPostions: Coord[] = rangeCoords(
+    addCoords(mapExtend, scaleCoord(seaMonsterExtend, -1)),
+  ).flatMap((coord) =>
+    seaMonsterCoords.every((seaMonsterCoord) =>
+        indexWithCoord(
+          mapTile.data,
+          addCoords(coord, seaMonsterCoord),
+        ) === "#"
+      )
+      ? [coord]
+      : []
+  );
 
   if (seaMonsterPostions.length > 0) {
     seaMonsterPostions.forEach(([x, y]) => {
       seaMonsterCoords.forEach(([sx, sy]) => {
-        return mapTile.data[y + sy][x + sx] = ".";
+        mapTile.data[y + sy][x + sx] = ".";
       });
     });
 
