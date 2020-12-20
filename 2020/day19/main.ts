@@ -3,7 +3,7 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { ensureElementOf, matchGroups } from "../utils.ts";
+import { ensureElementOf, matchGroups, range } from "../utils.ts";
 
 type NonTerminal = number;
 
@@ -20,9 +20,6 @@ type Grammar = Rule[];
 type Word = Terminal[];
 
 type ParsedInput = { grammar: Grammar; words: Word[] };
-
-const range = (length: number): number[] =>
-  Array(length).fill(null).map((_, n) => n);
 
 const parseWord = (wordString: string): Word =>
   wordString.trim().split("").map((t) => ensureElementOf(t, terminals));

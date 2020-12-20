@@ -5,28 +5,26 @@ import {
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 import {
   addCoords,
+  boundsOfCoords,
   Coord,
+  CoordArray,
   ensureElementOf,
+  indexWithCoord,
   matchGroups,
   product,
+  range,
+  rangeCoords,
   scaleCoord,
+  SparseCoordArray,
   sum,
 } from "../utils.ts";
-
-function range(length: number): number[] {
-  return Array(length).fill(null).map((_, n) => n);
-}
-
-function rangeCoords(extend: Coord): Coord[] {
-  return range(extend[1]).flatMap((y) => range(extend[0]).map((x) => [x, y]));
-}
 
 const entries = ["#", "."] as const;
 type Entry = typeof entries[number];
 
 const TILE_SIZE = 10;
 type TileId = number;
-type Tile = { id: TileId; data: Entry[][] };
+type Tile = { id: TileId; data: CoordArray<Entry> };
 
 const parseInput = (string: string): Tile[] =>
   string.trim().split("\n\n").map((tileString) => {
@@ -53,8 +51,6 @@ const neighborCoordOffsets: Coord[] = [
   [0, +1],
   [0, -1],
 ];
-
-type SparseCoordArray<T> = Record<number, Record<number, T>>;
 
 const directionSelectors: SparseCoordArray<(tile: Tile) => Entry[]> = {
   "1": {
@@ -96,14 +92,6 @@ const transformations: Transformation[] = [
   rotate,
 ];
 
-function indexWithCoord<T>(
-  array: T[][] | SparseCoordArray<T>,
-  coord: Coord,
-): T {
-  const [x, y] = coord;
-  return array[y][x];
-}
-
 const matchUp = (tile: Tile, otherTile: Tile, direction: Coord): boolean => {
   const reference = indexWithCoord(directionSelectors, direction)(tile);
   const oppositeDirection = scaleCoord(direction, -1);
@@ -143,18 +131,6 @@ while (positionsToCheck.length) {
 
 assertEquals(Object.keys(tilePositions).length, tiles.length);
 
-function minMax(numbers: number[]): [number, number] {
-  return [Math.min(...numbers), Math.max(...numbers)];
-}
-
-function boundsOfCoords(coords: Coord[]): [Coord, Coord] {
-  const xs = coords.map((coord) => coord[0]);
-  const ys = coords.map((coord) => coord[1]);
-  const [minX, maxX] = minMax(xs);
-  const [minY, maxY] = minMax(ys);
-  return [[minX, minY], [maxX, maxY]];
-}
-
 const [minCoord, maxCoord] = boundsOfCoords(Object.values(tilePositions));
 
 const coordCorrection = scaleCoord(minCoord, -1);
@@ -167,9 +143,7 @@ Object.entries(tilePositions).forEach((
   const correctedCoord = addCoords(coord, coordCorrection);
   inverseTilePosition[correctedCoord[1]] ||= {};
   inverseTilePosition[correctedCoord[1]][correctedCoord[0]] = Number(tileId);
-}), function equalsCoord([x1, y1]: Coord, [x2, y2]: Coord) {
-  return x1 === x2 && y1 === y2;
-};
+});
 
 const oppositeCorner = addCoords(coordExtend, [-1, -1]);
 const cornerCoords: Coord[] = [

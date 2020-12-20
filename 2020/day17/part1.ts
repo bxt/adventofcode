@@ -3,7 +3,7 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { ensureElementOf, sum } from "../utils.ts";
+import { ensureElementOf, range, sum } from "../utils.ts";
 
 // SUSI OFFICIALLY ENTERED THE BUILDING! https://www.twitch.tv/veloxxmusic
 
@@ -112,10 +112,7 @@ assertEquals(
 );
 
 const part1 = (input: Entry[][]) => {
-  const finalPocketDimension = Array(6).fill(null).reduce(
-    (pocketDimension: Entry[][][], _) => next(pocketDimension),
-    [input],
-  );
+  const finalPocketDimension = range(6).reduce(next, [input]);
   return sum(
     finalPocketDimension.flatMap((slice) =>
       slice.flatMap((row) => row.flatMap((e) => e === ACTIVE ? 1 : 0))

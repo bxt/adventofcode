@@ -1,10 +1,11 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { minMax, range } from "../utils.ts";
 
-const range = (from: number, to: number): number[] =>
-  Array(to - from + 1).fill(true).map((_, i) => i + from);
+const rangeFromTo = (from: number, to: number): number[] =>
+  range(to - from + 1).map((n) => n + from);
 
-assertEquals(range(2, 5), [2, 3, 4, 5]);
+assertEquals(rangeFromTo(2, 5), [2, 3, 4, 5]);
 
 const getSeatId = (seat: string): number =>
   parseInt(
@@ -22,12 +23,11 @@ const input = await Deno.readTextFile("input.txt");
 
 const seatIds = new Set(input.trim().split("\n").map(getSeatId));
 
-const minSeatId = Math.min(...seatIds);
-const maxSeatId = Math.max(...seatIds);
+const [minSeatId, maxSeatId] = minMax(seatIds);
 
 console.log("Result part 1: " + maxSeatId);
 
-const missingSeatIds = range(minSeatId, maxSeatId).filter((seatId) =>
+const missingSeatIds = rangeFromTo(minSeatId, maxSeatId).filter((seatId) =>
   !seatIds.has(seatId)
 );
 

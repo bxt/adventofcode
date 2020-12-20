@@ -6,6 +6,7 @@ import {
   ensureElementOf,
   manhattanNormCoord,
   matchGroups,
+  range,
   rotateLeftNinetyDegreesCoord,
   scaleCoord,
 } from "../utils.ts";
@@ -88,8 +89,7 @@ const walkOne = (movementOver: (t: Ship, f: (input: Coord) => Coord) => Ship) =>
         const leftTurns = (numberOfHeadings + amount * sign) % numberOfHeadings;
         return overWaypoint(
           ship,
-          (w) =>
-            Array(leftTurns).fill(0).reduce(rotateLeftNinetyDegreesCoord, w),
+          (w) => range(leftTurns).reduce(rotateLeftNinetyDegreesCoord, w),
         );
       }
       case "F":

@@ -1,6 +1,13 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { addCoords, Coord, scaleCoord, sum } from "../utils.ts";
+import {
+  addCoords,
+  Coord,
+  CoordArray,
+  indexWithCoord,
+  scaleCoord,
+  sum,
+} from "../utils.ts";
 
 enum Cell {
   Empty = "L",
@@ -8,7 +15,7 @@ enum Cell {
   Floor = ".",
 }
 
-const parseInput = (string: string): Cell[][] =>
+const parseInput = (string: string): CoordArray<Cell> =>
   string.trim().split(/[\n ]+/)
     .map((line) =>
       line.split("").map((l) =>
@@ -54,7 +61,7 @@ const countOccupied = (cellList: Cell[]): number =>
 
 class Game {
   constructor(
-    private cells: Cell[][],
+    private cells: CoordArray<Cell>,
     private readonly minOccupiedToBecomeEmpty: number,
     private readonly maxDistance?: number,
   ) {
@@ -65,8 +72,8 @@ class Game {
       x < this.cells[y].length;
   }
 
-  private getCellValue([x, y]: Coord): Cell {
-    return this.cells[y][x];
+  private getCellValue(coord: Coord): Cell {
+    return indexWithCoord(this.cells, coord);
   }
 
   private getNeighborValues(coord: Coord): Cell[] {
@@ -135,13 +142,14 @@ const runGame = (game: Game): number => {
   return game.getOccupiedCount();
 };
 
-const part1 = (cells: Cell[][]): number => runGame(new Game(cells, 4, 1));
+const part1 = (cells: CoordArray<Cell>): number =>
+  runGame(new Game(cells, 4, 1));
 
 assertEquals(part1(example), 37);
 
 console.log("Result part 1: " + part1(inputParsed));
 
-const part2 = (cells: Cell[][]) => runGame(new Game(cells, 5));
+const part2 = (cells: CoordArray<Cell>) => runGame(new Game(cells, 5));
 
 assertEquals(part2(example), 26);
 

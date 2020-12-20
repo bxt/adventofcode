@@ -5,11 +5,16 @@ import {
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 import {
   addCoords,
+  boundsOfCoords,
   ensureElementOf,
+  indexWithCoord,
   manhattanNormCoord,
   matchGroups,
   maybeElementOf,
+  minMax,
   product,
+  range,
+  rangeCoords,
   rotateLeftNinetyDegreesCoord,
   scaleCoord,
   sum,
@@ -24,6 +29,21 @@ Deno.test("product", () => {
   assertEquals(product([1, 4, 6, 4]), 96);
   assertEquals(product([1, 4, -6, 4]), -96);
   assertEquals(product([1, 4, 0, 6]), 0);
+});
+
+Deno.test("minMax", () => {
+  assertEquals(minMax([]), [Infinity, -Infinity]);
+  assertEquals(minMax([1, 4, 6, 4]), [1, 6]);
+  assertEquals(minMax([1, 4, -6, 4]), [-6, 4]);
+  assertEquals(minMax(new Set([1, 4, 6])), [1, 6]);
+});
+
+Deno.test("range", () => {
+  assertEquals(range(3), [0, 1, 2]);
+  assertEquals(range(0), []);
+  assertThrows((): void => {
+    range(-1);
+  });
 });
 
 Deno.test("addCoords", () => {
@@ -45,6 +65,30 @@ Deno.test("rotateLeftNinetyDegreesCoord", () => {
   assertEquals(rotateLeftNinetyDegreesCoord([7, 13]), [-13, 7]);
   assertEquals(rotateLeftNinetyDegreesCoord([-7, 13]), [-13, -7]);
   assertEquals(rotateLeftNinetyDegreesCoord([0, 13]), [-13, 0]);
+});
+
+Deno.test("indexWithCoord", () => {
+  assertEquals(indexWithCoord([["a", "b"], ["c", "d"]], [0, 0]), "a");
+  assertEquals(indexWithCoord([["a", "b"], ["c", "d"]], [1, 0]), "b");
+  assertEquals(indexWithCoord([["a", "b"], ["c", "d"]], [0, 1]), "c");
+  assertEquals(indexWithCoord([["a", "b"], ["c", "d"]], [1, 1]), "d");
+  assertEquals(indexWithCoord({ 3: { 6: "Z" } }, [6, 3]), "Z");
+});
+
+Deno.test("boundsOfCoords", () => {
+  assertEquals(boundsOfCoords([[0, 0], [0, 0], [0, 0]]), [[0, 0], [0, 0]]);
+  assertEquals(
+    boundsOfCoords([[1, 10], [7, 0], [-3, -1]]),
+    [[-3, -1], [7, 10]],
+  );
+});
+
+Deno.test("rangeCoords", () => {
+  assertEquals(rangeCoords([0, 0]), []);
+  assertEquals(
+    rangeCoords([3, 2]),
+    [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1]],
+  );
 });
 
 Deno.test("maybeElementOf", () => {
