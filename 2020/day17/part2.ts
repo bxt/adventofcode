@@ -36,13 +36,13 @@ const example = parseInput(`
 `);
 
 const offsets = [1, 0, -1];
-const neighbours = offsets.flatMap((w) =>
+const neighbors = offsets.flatMap((w) =>
   offsets.flatMap((z) =>
     offsets.flatMap((y) => offsets.map((x) => ({ x, y, z, w })))
   )
 ).filter(({ x, y, z, w }) => !(x === 0 && y === 0 && z === 0 && w === 0));
 
-assertEquals(neighbours.length, 80);
+assertEquals(neighbors.length, 80);
 
 const getValueAt = (
   pocketDimension: Entry[][][][],
@@ -65,8 +65,8 @@ const next = (pocketDimension: Entry[][][][]): Entry[][][][] => {
       for (let y = -1; y < pocketDimension[0][0].length + 1; y++) {
         const row: Entry[] = [];
         for (let x = -1; x < pocketDimension[0][0][0].length + 1; x++) {
-          const activeNeighbours =
-            neighbours.map(({ x: xn, y: yn, z: zn, w: wn }) => ({
+          const activeneighbors =
+            neighbors.map(({ x: xn, y: yn, z: zn, w: wn }) => ({
               x: x + xn,
               y: y + yn,
               z: z + zn,
@@ -76,10 +76,10 @@ const next = (pocketDimension: Entry[][][][]): Entry[][][][] => {
             ).length;
           const currentValue = getValueAt(pocketDimension, { x, y, z, w });
           const nextValue = currentValue === ACTIVE
-            ? (activeNeighbours === 2 || activeNeighbours === 3)
+            ? (activeneighbors === 2 || activeneighbors === 3)
               ? ACTIVE
               : INACTIVE
-            : (activeNeighbours === 3)
+            : (activeneighbors === 3)
             ? ACTIVE
             : INACTIVE;
           row.push(nextValue);

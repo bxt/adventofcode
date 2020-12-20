@@ -35,11 +35,11 @@ const example = parseInput(`
 `);
 
 const offsets = [1, 0, -1];
-const neighbours = offsets.flatMap((z) =>
+const neighbors = offsets.flatMap((z) =>
   offsets.flatMap((y) => offsets.map((x) => ({ x, y, z })))
 ).filter(({ x, y, z }) => !(x === 0 && y === 0 && z === 0));
 
-assertEquals(neighbours.length, 26);
+assertEquals(neighbors.length, 26);
 
 const getValueAt = (pocketDimension: Entry[][][], trinion: Trinion): Entry => {
   const { x, y, z } = trinion;
@@ -56,7 +56,7 @@ const next = (pocketDimension: Entry[][][]): Entry[][][] => {
     for (let y = -1; y < pocketDimension[0].length + 1; y++) {
       const row: Entry[] = [];
       for (let x = -1; x < pocketDimension[0][0].length + 1; x++) {
-        const activeNeighbours = neighbours.map(({ x: xn, y: yn, z: zn }) => ({
+        const activeneighbors = neighbors.map(({ x: xn, y: yn, z: zn }) => ({
           x: x + xn,
           y: y + yn,
           z: z + zn,
@@ -65,10 +65,8 @@ const next = (pocketDimension: Entry[][][]): Entry[][][] => {
         ).length;
         const currentValue = getValueAt(pocketDimension, { x, y, z });
         const nextValue = currentValue === ACTIVE
-          ? (activeNeighbours === 2 || activeNeighbours === 3)
-            ? ACTIVE
-            : INACTIVE
-          : (activeNeighbours === 3)
+          ? (activeneighbors === 2 || activeneighbors === 3) ? ACTIVE : INACTIVE
+          : (activeneighbors === 3)
           ? ACTIVE
           : INACTIVE;
         row.push(nextValue);
