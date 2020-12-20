@@ -31,7 +31,12 @@ Day | Deno         | Description
 13  | [✓][deno13] | [Bus arrivals vs. Chinese remainder theorem][aoc13]
 14  | [✓][deno14] | [Ship docking computer with bit masks][aoc14]
 15  | [✓][deno15] | [Evles playing Van Eck’s memory game][aoc15]
-Σ   |          15 |
+16  | [✓][deno16] | [Ticket field ranges 2SAT][aoc16]
+17  | [✓][deno17] | [Conway Cubes engergy source][aoc17]
+18  | [✓][deno18] | [Child with operator precedence problems, shunting-Yard to the rescue][aoc18]
+19  | [✓][deno19] | [Evles need some parsing help, CYK to the rescue][aoc19]
+20  | [✓][deno20] | [Connecting tiles to find sea monsters][aoc20]
+Σ   |          20 |
 
 Takeaways
 ---------
@@ -93,6 +98,11 @@ year I follow (A-Z):
  [aoc13]: http://adventofcode.com/2020/day/13
  [aoc14]: http://adventofcode.com/2020/day/14
  [aoc15]: http://adventofcode.com/2020/day/15
+ [aoc16]: http://adventofcode.com/2020/day/16
+ [aoc17]: http://adventofcode.com/2020/day/17
+ [aoc18]: http://adventofcode.com/2020/day/18
+ [aoc19]: http://adventofcode.com/2020/day/19
+ [aoc20]: http://adventofcode.com/2020/day/20
  [deno01]: day01/main.ts
  [deno02]: day02/main.ts
  [deno03]: day03/main.ts
@@ -108,3 +118,8 @@ year I follow (A-Z):
  [deno13]: day13/main.ts
  [deno14]: day14/main.ts
  [deno15]: day15/main.ts
+ [deno16]: day16/main.ts
+ [deno17]: day17/main.ts
+ [deno18]: day18/main.ts
+ [deno19]: day18/main.ts
+ [deno20]: day20/main.ts
