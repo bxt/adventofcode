@@ -177,3 +177,21 @@ export function matchGroups(
     return groups;
   };
 }
+
+export function intersectSets<T>(...sets: Set<T>[]): Set<T>;
+export function intersectSets<T>(
+  set1: Iterable<T>,
+  ...otherSets: Set<T>[]
+): Set<T>;
+export function intersectSets<T>(
+  set1: Iterable<T>,
+  ...otherSets: Set<T>[]
+): Set<T> {
+  return new Set(
+    [...set1].filter((item) => otherSets.every((set) => set.has(item))),
+  );
+}
+
+export function minusSets<T>(as: Iterable<T>, bs: Set<T>): Set<T> {
+  return new Set([...as].filter((a) => !bs.has(a)));
+}

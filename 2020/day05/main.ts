@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { minMax, range } from "../utils.ts";
+import { minMax, minusSets, range } from "../utils.ts";
 
 const rangeFromTo = (from: number, to: number): number[] =>
   range(to - from + 1).map((n) => n + from);
@@ -27,10 +27,10 @@ const [minSeatId, maxSeatId] = minMax(seatIds);
 
 console.log("Result part 1: " + maxSeatId);
 
-const missingSeatIds = rangeFromTo(minSeatId, maxSeatId).filter((seatId) =>
-  !seatIds.has(seatId)
-);
+const missingSeatIds = minusSets(rangeFromTo(minSeatId, maxSeatId), seatIds);
 
-assertEquals(missingSeatIds.length, 1);
+assertEquals(missingSeatIds.size, 1);
 
-console.log("Result part 1: " + missingSeatIds[0]);
+const [missingSeatId] = missingSeatIds;
+
+console.log("Result part 2: " + missingSeatId);

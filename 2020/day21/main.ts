@@ -3,21 +3,7 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import {
-  addCoords,
-  boundsOfCoords,
-  Coord,
-  CoordArray,
-  ensureElementOf,
-  indexWithCoord,
-  matchGroups,
-  product,
-  range,
-  rangeCoords,
-  scaleCoord,
-  SparseCoordArray,
-  sum,
-} from "../utils.ts";
+import { intersectSets, matchGroups, minusSets, sum } from "../utils.ts";
 
 type Ingredient = string;
 type Allergen = string;
@@ -38,12 +24,6 @@ const input = await Deno.readTextFile("input.txt");
 
 const parsedInput = parseInput(input);
 
-const intersectSets = <T>(as: Set<T>, bs: Set<T>): Set<T> =>
-  new Set([...as].filter((a) => bs.has(a)));
-
-const minusSets = <T>(as: Set<T>, bs: Set<T>): Set<T> =>
-  new Set([...as].filter((a) => !bs.has(a)));
-
 const calculateAllergenPossibilities = (
   ingredientsAndAllergens: [Ingredient[], Allergen[]][],
 ): Record<Allergen, Set<Ingredient>> => {
@@ -63,7 +43,7 @@ const calculateAllergenPossibilities = (
     .fromEntries(
       Object.entries(allergenSets).map((
         [a, sets],
-      ) => [a, sets.reduce(intersectSets)]),
+      ) => [a, intersectSets(...sets)]),
     );
 
   return allergenPossibilities;

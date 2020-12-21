@@ -8,10 +8,12 @@ import {
   boundsOfCoords,
   ensureElementOf,
   indexWithCoord,
+  intersectSets,
   manhattanNormCoord,
   matchGroups,
   maybeElementOf,
   minMax,
+  minusSets,
   product,
   range,
   rangeCoords,
@@ -127,4 +129,34 @@ Deno.test("matchGroups", () => {
     matchGroups(/a(?<b>\d+)c(?<d>e?)/)("a123c"),
     { b: "123", d: "" },
   );
+});
+
+Deno.test("intersectSets", () => {
+  assertEquals(
+    intersectSets(
+      new Set([1, 2, 3, 4]),
+      new Set([1, 2, 3]),
+      new Set([2, 3, 4]),
+    ),
+    new Set([2, 3]),
+  );
+  assertEquals(intersectSets(new Set([]), new Set([1, 2, 3])), new Set());
+  assertEquals(intersectSets(new Set([1, 2, 3]), new Set([])), new Set());
+  assertEquals(
+    intersectSets([1, 2, 3, 4], new Set([1, 2, 3]), new Set([2, 3, 4])),
+    new Set([2, 3]),
+  );
+});
+
+Deno.test("minusSets", () => {
+  assertEquals(minusSets(new Set([]), new Set([1, 2, 3])), new Set());
+  assertEquals(minusSets(new Set([1, 2, 3]), new Set([])), new Set([1, 2, 3]));
+  assertEquals(
+    minusSets(
+      new Set([1, 2, 3, 4, 5]),
+      new Set([1, 2, 6, 7, 8]),
+    ),
+    new Set([3, 4, 5]),
+  );
+  assertEquals(minusSets([1, 2, 3, 4, 5], new Set([1, 2, 3])), new Set([4, 5]));
 });
