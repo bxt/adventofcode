@@ -99,3 +99,52 @@ const example = parseInput(`
 assertEquals(part1(example), 5);
 
 console.log("Result part 1: " + part1(parsedInput));
+
+const elimintateSingle = (
+  allergenPossibilities: Record<Allergen, Set<Ingredient>>,
+): boolean => {
+  let isAnythingChanged = false;
+
+  Object.entries(allergenPossibilities).forEach(([a1, is1]) => {
+    if (is1.size === 1) {
+      const [i] = is1.values();
+      Object.entries(allergenPossibilities).forEach(([a2, is2]) => {
+        if (a1 !== a2 && is2.has(i)) {
+          allergenPossibilities[a2] = minusSets(is2, is1);
+          isAnythingChanged = true;
+        }
+      });
+    }
+  });
+
+  return isAnythingChanged;
+};
+
+const part2 = (
+  ingredientsAndAllergens: [Ingredient[], Allergen[]][],
+): string => {
+  const allergenPossibilities: Record<Allergen, Set<Ingredient>> =
+    calculateAllergenPossibilities(ingredientsAndAllergens);
+
+  // deno-lint-ignore no-empty
+  while (elimintateSingle(allergenPossibilities)) {
+  }
+
+  const isAllSolved = Object.values(allergenPossibilities).every((is) =>
+    is.size === 1
+  );
+  if (!isAllSolved) throw new Error("Not implmented");
+
+  const sortedAllergenPossibilities = Object.entries(allergenPossibilities)
+    .sort(([a1], [a2]) => a1[0].localeCompare(a2[0]));
+
+  const canonicalDangerousIngredientList = sortedAllergenPossibilities.map((
+    [_, [i]],
+  ) => i).join(",");
+
+  return canonicalDangerousIngredientList;
+};
+
+assertEquals(part2(example), "mxmxvkd,sqjhc,fvjkl");
+
+console.log("Result part 2: " + part2(parsedInput));
