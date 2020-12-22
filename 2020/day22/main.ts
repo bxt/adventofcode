@@ -52,34 +52,8 @@ const copyGame = (game: Game): Game => {
   return { player1: [...game.player1], player2: [...game.player2] };
 };
 
-const part1 = (game: Game): number => {
-  const { player1, player2 } = copyGame(game);
-
-  while (player1.length > 0 && player2.length > 0) {
-    const card1 = player1.shift();
-    const card2 = player2.shift();
-    assert(card1 !== undefined);
-    assert(card2 !== undefined);
-
-    if (card1 > card2) {
-      // console.log("Player 1 wins the round!");
-      player1.push(card1);
-      player1.push(card2);
-    } else {
-      // console.log("Player 2 wins the round!");
-      player2.push(card2);
-      player2.push(card1);
-    }
-
-    // console.log({ player1, player2 });
-  }
-
-  return calculateScore(player1.length === 0 ? player2 : player1);
-};
-
-assertEquals(part1(example), 306);
-
-console.log("Result part 1: " + part1(parsedInput));
+assertEquals(example, copyGame(example));
+assertEquals(parsedInput, copyGame(parsedInput));
 
 const stringifyGame = (game: Game): string =>
   `Player 1:\n${game.player1.join("\n")}\nPlayer 2:\n${
@@ -87,13 +61,15 @@ const stringifyGame = (game: Game): string =>
   }\n`;
 
 assertEquals(example, parseInput(stringifyGame(example)));
+assertEquals(parsedInput, parseInput(stringifyGame(parsedInput)));
 
-const part2 = (
+const runGame = (
   game: Game,
+  recurse: boolean,
 ): { winner: Player; score: number } => {
   const seen: Set<string> = new Set();
 
-  const { player1, player2 } = copyGame(game);
+  const { player1, player2 } = game;
 
   while (player1.length > 0 && player2.length > 0) {
     const stringifiedGame = stringifyGame({ player1, player2 });
@@ -108,11 +84,11 @@ const part2 = (
     assert(card2 !== undefined);
 
     const roundWinner: Player =
-      (player1.length >= card1 && player2.length >= card2)
-        ? part2({
+      (recurse && player1.length >= card1 && player2.length >= card2)
+        ? runGame({
           player1: player1.slice(0, card1),
           player2: player2.slice(0, card2),
-        }).winner
+        }, recurse).winner
         : card1 > card2
         ? 1
         : 2;
@@ -132,6 +108,20 @@ const part2 = (
   return { winner, score };
 };
 
-assertEquals(part2(example).score, 291);
+const part1 = (game: Game): number => {
+  const copy = copyGame(game);
+  return runGame(copy, false).score;
+};
 
-console.log("Result part 2: " + part2(parsedInput).score);
+assertEquals(part1(example), 306);
+
+console.log("Result part 1: " + part1(parsedInput));
+
+const part2 = (game: Game): number => {
+  const copy = copyGame(game);
+  return runGame(copy, true).score;
+};
+
+assertEquals(part2(example), 291);
+
+console.log("Result part 2: " + part2(parsedInput));
