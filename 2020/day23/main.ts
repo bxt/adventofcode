@@ -1,5 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { product, range } from "../utils.ts";
 
 const parseInput = (string: string): number[] => {
   return string.trim().split("").map(Number);
@@ -13,89 +14,139 @@ const input = "137826495";
 
 const parsedInput = parseInput(input);
 
-const stringifyCups = (cups: number[]): string => cups.join("");
+const buildCupMap = (
+  input: number[],
+  length: number,
+): { nextCups: number[]; start: number } => {
+  // Transform to 0-based:
+  const adjustedInput = input.map((n) => n - 1);
 
-const rotateCups = (
-  cups: number[],
-  by: number,
-): number[] => [...cups.slice(by), ...cups.slice(0, by)];
+  // Start with continuous coups, each one goes to next one:
+  const nextCups = range(length).map((n) => n + 1);
 
-assertEquals(rotateCups([1, 2, 3, 4], 1), [2, 3, 4, 1]);
-assertEquals(rotateCups([1, 2, 3, 4, 5], 2), [3, 4, 5, 1, 2]);
-assertEquals(rotateCups([1, 2, 3, 4, 5], 0), [1, 2, 3, 4, 5]);
-
-const buildOutput = (cups: number[]): string => {
-  const [one, ...rest] = rotateCups(cups, cups.indexOf(1));
-  assertEquals(one, 1);
-  return stringifyCups(rest);
-};
-
-assertEquals(buildOutput([5, 8, 3, 7, 4, 1, 9, 2, 6]), "92658374");
-
-const max = (numbers: number[]): number => {
-  let max = -Infinity;
-  for (let i = 0; i < numbers.length; i++) {
-    if (numbers[i] > max) {
-      max = numbers[i];
-    }
+  // Apply our input:
+  for (let i = 0; i < adjustedInput.length - 1; i++) {
+    nextCups[adjustedInput[i]] = adjustedInput[i + 1];
   }
-  return max;
+
+  if (length > adjustedInput.length) {
+    // after input, continue with continuous cups:
+    nextCups[adjustedInput[adjustedInput.length - 1]] = adjustedInput.length;
+    // Last continuous cup goes to first cup input:
+    nextCups[nextCups.length - 1] = adjustedInput[0];
+  } else {
+    // Last input cup goes to first cup input:
+    nextCups[adjustedInput[adjustedInput.length - 1]] = adjustedInput[0];
+  }
+
+  return { nextCups, start: adjustedInput[0] };
 };
 
-const runMoves = (cups: number[], amount: number): number[] => {
-  let arrangement = [...cups];
+assertEquals(buildCupMap([3, 2, 1], 3).start, 2);
+assertEquals(buildCupMap([3, 2, 1], 3).nextCups, [2, 0, 1]);
+assertEquals(buildCupMap([3, 2, 1], 5).nextCups, [3, 0, 1, 4, 2]);
+assertEquals(buildCupMap([3, 2, 1], 5).nextCups, [3, 0, 1, 4, 2]);
+assertEquals(
+  buildCupMap([5, 8, 3, 7, 4, 1, 9, 2, 6], 9).nextCups,
+  [8, 5, 6, 0, 7, 4, 3, 2, 1],
+);
+
+const buildOutput = (nextCups: number[], length: number): number[] => {
+  const output = [];
+  let cup = 0;
+  for (let i = 0; i < length; i++) {
+    cup = nextCups[cup];
+    output.push(cup + 1);
+  }
+  return output;
+};
+
+assertEquals(
+  buildOutput(buildCupMap([3, 2, 1], 5).nextCups, 5),
+  [4, 5, 3, 2, 1],
+);
+assertEquals(
+  buildOutput(buildCupMap([5, 8, 3, 7, 4, 1, 9, 2, 6], 9).nextCups, 9),
+  [9, 2, 6, 5, 8, 3, 7, 4, 1],
+);
+assertEquals(
+  buildOutput(buildCupMap([1], 1).nextCups, 5),
+  [1, 1, 1, 1, 1],
+);
+
+const runMoves = ({ amount, nextCups, start }: {
+  amount: number;
+  nextCups: number[];
+  start: number;
+}): number[] => {
+  let currentCup = start;
+
   for (let i = 0; i < amount; i++) {
-    console.log(`-- move ${i + 1} --`);
-    const iMod = i % arrangement.length;
-    const current = arrangement[iMod];
-    console.log(
-      `cups: ${
-        arrangement.map((c) => c === current ? `(${c})` : ` ${c} `).join("")
-      }`,
-    );
-    let pickUp = arrangement.splice(iMod + 1, 3);
-    const pickUpFromStartLength = 3 - pickUp.length;
-    pickUp = [...pickUp, ...arrangement.splice(0, pickUpFromStartLength)];
-    console.log(`pick up: ${pickUp.join(", ")}`);
-    const lowerCups = arrangement.filter((c) => c < current);
-    const destination = lowerCups.length ? max(lowerCups) : max(arrangement);
-    console.log(`destination: ${destination}\n`);
-    const destinationIndex = arrangement.indexOf(destination) + 1;
-    arrangement = [
-      ...arrangement.slice(0, destinationIndex),
-      ...pickUp,
-      ...arrangement.slice(destinationIndex),
-    ];
-    if (destinationIndex <= iMod) {
-      arrangement = rotateCups(arrangement, 3);
+    // figure ut pickUp:
+    const pickUp = [];
+    let iteratorCup = currentCup;
+    for (let k = 0; k < 3; k++) {
+      iteratorCup = nextCups[iteratorCup];
+      pickUp.push(iteratorCup);
     }
-    arrangement = rotateCups(
-      arrangement,
-      arrangement.length - pickUpFromStartLength,
-    );
+
+    // cup after pickUp will be next current cup:
+    const nextCurrentCup = nextCups[iteratorCup];
+
+    // slice out the pickUps:
+    nextCups[currentCup] = nextCurrentCup;
+
+    // figure destination:
+    let destination = currentCup - 1;
+    while (destination < 0 || pickUp.includes(destination)) {
+      if (destination < 0) {
+        destination = nextCups.length - 1;
+      } else {
+        destination--;
+      }
+    }
+
+    // Slice in the pickUps:
+    const prevDestinationNextCup = nextCups[destination];
+    nextCups[destination] = pickUp[0];
+    nextCups[pickUp[pickUp.length - 1]] = prevDestinationNextCup;
+
+    // Prepare for next iteration:
+    currentCup = nextCurrentCup;
   }
-  return arrangement;
+
+  return nextCups;
 };
 
-assertEquals(runMoves(example, 10), [5, 8, 3, 7, 4, 1, 9, 2, 6]);
-
-const part1 = (cups: number[]): string => {
-  return buildOutput(runMoves(cups, 100));
+const runGame = ({ cups, numberOfCups, amountOfMoves, outputSize }: {
+  cups: number[];
+  numberOfCups: number;
+  amountOfMoves: number;
+  outputSize: number;
+}): number[] => {
+  const { start, nextCups } = buildCupMap(cups, numberOfCups);
+  runMoves({ nextCups, amount: amountOfMoves, start });
+  return buildOutput(nextCups, outputSize);
 };
 
-assertEquals(part1(example), "67384529");
+const part1 = (cups: number[]): string =>
+  runGame({
+    cups,
+    numberOfCups: cups.length,
+    amountOfMoves: 100,
+    outputSize: cups.length - 1,
+  }).join("");
 
 console.log("Result part 1: " + part1(parsedInput));
 
-const part2 = (cups: number[]): string => {
-  return buildOutput(
-    runMoves(
-      Array(1000000 - cups.length).fill(null).map((_, i) =>
-        i + cups.length + 1
-      ),
-      10000000,
-    ),
-  );
-};
+const part2 = (cups: number[]): number =>
+  product(runGame({
+    cups,
+    numberOfCups: 1000000,
+    amountOfMoves: 10000000,
+    outputSize: 2,
+  }));
 
-console.log("Result part 2: " + part2(parsedInput)); // will run ~4 days, I guess, lol
+assertEquals(part2(example), 149245887792);
+
+console.log("Result part 2: " + part2(parsedInput));
