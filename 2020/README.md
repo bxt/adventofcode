@@ -68,6 +68,7 @@ Takeaways
   * From ES2017 `Object.values`, and hey: `String​.pad​Start` replaces the infamous `left-pad`
   * From ES2018 spreads and named capture groups
   * From ES2019 `Array.flat` and `Array.flatMap`
+* Seems like days 22, 18, 15, 12, 5 might be suitable for bf/piet
 
 Other solutions
 ---------------
