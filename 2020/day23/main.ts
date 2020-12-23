@@ -1,9 +1,5 @@
 #!/usr/bin/env deno run --allow-read
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { matchGroups, sum } from "../utils.ts";
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 
 const parseInput = (string: string): number[] => {
   return string.trim().split("").map(Number);
@@ -36,6 +32,16 @@ const buildOutput = (cups: number[]): string => {
 
 assertEquals(buildOutput([5, 8, 3, 7, 4, 1, 9, 2, 6]), "92658374");
 
+const max = (numbers: number[]): number => {
+  let max = -Infinity;
+  for (let i = 0; i < numbers.length; i++) {
+    if (numbers[i] > max) {
+      max = numbers[i];
+    }
+  }
+  return max;
+};
+
 const runMoves = (cups: number[], amount: number): number[] => {
   let arrangement = [...cups];
   for (let i = 0; i < amount; i++) {
@@ -52,9 +58,7 @@ const runMoves = (cups: number[], amount: number): number[] => {
     pickUp = [...pickUp, ...arrangement.splice(0, pickUpFromStartLength)];
     console.log(`pick up: ${pickUp.join(", ")}`);
     const lowerCups = arrangement.filter((c) => c < current);
-    const destination = lowerCups.length
-      ? Math.max(...lowerCups)
-      : Math.max(...arrangement);
+    const destination = lowerCups.length ? max(lowerCups) : max(arrangement);
     console.log(`destination: ${destination}\n`);
     const destinationIndex = arrangement.indexOf(destination) + 1;
     arrangement = [
@@ -82,3 +86,16 @@ const part1 = (cups: number[]): string => {
 assertEquals(part1(example), "67384529");
 
 console.log("Result part 1: " + part1(parsedInput));
+
+const part2 = (cups: number[]): string => {
+  return buildOutput(
+    runMoves(
+      Array(1000000 - cups.length).fill(null).map((_, i) =>
+        i + cups.length + 1
+      ),
+      10000000,
+    ),
+  );
+};
+
+console.log("Result part 2: " + part2(parsedInput)); // will run ~4 days, I guess, lol
