@@ -1,6 +1,12 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { addCoords, Coord, ensureElementOf, rangeCoords } from "../utils.ts";
+import {
+  addCoords,
+  Coord,
+  CoordSet,
+  ensureElementOf,
+  rangeCoords,
+} from "../utils.ts";
 
 const origin = [0, 0] as Coord;
 
@@ -50,91 +56,6 @@ const input = await Deno.readTextFile("input.txt");
 
 const parsedInput = parseInput(input);
 
-abstract class StringifySet<T> implements Set<T> {
-  #set: Set<string>;
-
-  constructor(
-    elements?: Iterable<T>,
-  ) {
-    if (elements) {
-      this.#set = new Set([...elements].map(this.stringify));
-    } else {
-      this.#set = new Set();
-    }
-  }
-
-  *[Symbol.iterator](): IterableIterator<T> {
-    for (const stringItem of this.#set) {
-      yield this.parse(stringItem);
-    }
-  }
-
-  get [Symbol.toStringTag](): string {
-    return `[StringifySet ${this.#set}]`;
-  }
-
-  add(element: T): this {
-    this.#set.add(this.stringify(element));
-    return this;
-  }
-
-  has(element: T): boolean {
-    return this.#set.has(this.stringify(element));
-  }
-
-  delete(element: T): boolean {
-    return this.#set.delete(this.stringify(element));
-  }
-
-  get size(): number {
-    return this.#set.size;
-  }
-
-  forEach(callback: (element: T, element2: T, set: Set<T>) => void) {
-    for (const item of this) {
-      callback(item, item, this);
-    }
-  }
-
-  clear(): void {
-    this.#set.clear();
-  }
-
-  *entries(): IterableIterator<[T, T]> {
-    for (const stringItem of this.#set) {
-      const item = this.parse(stringItem);
-      yield [item, item];
-    }
-  }
-
-  keys(): IterableIterator<T> {
-    return this[Symbol.iterator]();
-  }
-
-  values(): IterableIterator<T> {
-    return this[Symbol.iterator]();
-  }
-
-  protected abstract stringify(element: T): string;
-  protected abstract parse(string: string): T;
-}
-
-class CoordSet extends StringifySet<Coord> {
-  protected stringify(element: Coord): string {
-    return element.join(",");
-  }
-  protected parse(string: string): Coord {
-    const components = string.split(",");
-    assertEquals(components.length, 2);
-    return components.map(Number) as unknown as Coord;
-  }
-}
-
-const aBunchOfCooords = rangeCoords([11, 11]).map((c) =>
-  addCoords(c, [-5, -5])
-);
-assertEquals(aBunchOfCooords, [...new CoordSet(aBunchOfCooords).values()]);
-
 /**
  *     / \/ \      / \/ \
  *    |nw|ne|     |-+|*+|
@@ -168,7 +89,7 @@ const walkAll = (coord: Coord, directions: Direction[]): Coord =>
 assertEquals(origin, walkAll(origin, ["nw", "w", "sw", "e", "e"]));
 assertEquals(walkAll(origin, ["se"]), walkAll(origin, ["e", "se", "w"]));
 
-const loadTiles = (directionsList: Direction[][]): StringifySet<Coord> => {
+const loadTiles = (directionsList: Direction[][]): CoordSet => {
   const blackTiles = new CoordSet();
   directionsList.forEach((directions) => {
     const target = walkAll(origin, directions);
@@ -195,7 +116,7 @@ console.log("Result part 1: " + part1(parsedInput));
 const neighbors = (coord: Coord): Coord[] =>
   directions.map((direction) => walk(coord, direction));
 
-const iterate = (blackTiles: StringifySet<Coord>): StringifySet<Coord> => {
+const iterate = (blackTiles: CoordSet): CoordSet => {
   const tilesToCheck = new CoordSet(blackTiles);
   blackTiles.forEach((coord) => {
     neighbors(coord).forEach((neighbor) => {

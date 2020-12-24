@@ -6,6 +6,8 @@ import {
 import {
   addCoords,
   boundsOfCoords,
+  Coord,
+  CoordSet,
   ensureElementOf,
   indexWithCoord,
   intersectSets,
@@ -159,4 +161,56 @@ Deno.test("minusSets", () => {
     new Set([3, 4, 5]),
   );
   assertEquals(minusSets([1, 2, 3, 4, 5], new Set([1, 2, 3])), new Set([4, 5]));
+});
+
+Deno.test("CoordSet (and StringifySinkSet, StringifySet)", () => {
+  const coordSet = new CoordSet();
+  assertEquals(coordSet.size, 0);
+
+  coordSet.add([5, -3]);
+  coordSet.add([10, 11]);
+  coordSet.add([0, 0]);
+  assertEquals(coordSet.size, 3);
+  assertEquals(coordSet.has([5, -3]), true);
+  assertEquals(coordSet.has([10, 11]), true);
+  assertEquals(coordSet.has([0, 0]), true);
+  assertEquals(coordSet.has([42, 6]), false);
+
+  assertEquals([...coordSet.keys()], [[5, -3], [10, 11], [0, 0]]);
+  assertEquals([...coordSet.values()], [[5, -3], [10, 11], [0, 0]]);
+  assertEquals(
+    [...coordSet.entries()],
+    [[[5, -3], [5, -3]], [[10, 11], [10, 11]], [[0, 0], [0, 0]]],
+  );
+
+  coordSet.add([10, 11]);
+  assertEquals(coordSet.size, 3);
+  assertEquals(coordSet.has([10, 11]), true);
+
+  coordSet.delete([10, 11]);
+  assertEquals(coordSet.size, 2);
+  assertEquals(coordSet.has([10, 11]), false);
+
+  const forEachCalls: [Coord, Coord, Set<Coord>][] = [];
+  coordSet.forEach((...args) => forEachCalls.push(args));
+  assertEquals(forEachCalls, [
+    [[5, -3], [5, -3], coordSet],
+    [[0, 0], [0, 0], coordSet],
+  ]);
+
+  assertEquals(coordSet.toString(), "[object StringifySet]");
+
+  coordSet.clear();
+  assertEquals(coordSet.size, 0);
+  assertEquals(coordSet.has([5, -3]), false);
+  assertEquals(coordSet.has([0, 0]), false);
+
+  const coordSet2 = new CoordSet([[6, 7]]);
+  assertEquals(coordSet2.size, 1);
+  assertEquals(coordSet2.has([6, 7]), true);
+
+  const aBunchOfCooords = rangeCoords([11, 11]).map((c) =>
+    addCoords(c, [-5, -5])
+  );
+  assertEquals(aBunchOfCooords, [...new CoordSet(aBunchOfCooords).values()]);
 });

@@ -1,3 +1,5 @@
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+
 /**
  * 2020 TypeScript Utilities
  *
@@ -183,6 +185,10 @@ export function intersectSets<T>(
   set1: Iterable<T>,
   ...otherSets: Set<T>[]
 ): Set<T>;
+/**
+ * Caluclates the intersection (∩) of a bunch of sets, that is creates a new
+ * set with the elements that are in every one of the input sets.
+ */
 export function intersectSets<T>(
   set1: Iterable<T>,
   ...otherSets: Set<T>[]
@@ -192,6 +198,117 @@ export function intersectSets<T>(
   );
 }
 
+/**
+ * Caluclates the set difference (∖, relative complement) of two sets, that
+ * is creates a new set with the elements of the first set withut those
+ * form the second set.
+ */
 export function minusSets<T>(as: Iterable<T>, bs: Set<T>): Set<T> {
   return new Set([...as].filter((a) => !bs.has(a)));
+}
+
+/**
+ * Allows to build a `Set` of arbitrary objects by converting them to a string
+ * representation. Overwrite the `stringify` method in a subclass to make it
+ * work for your type, e.g. `JSON.stringify` can be used if you know that key
+ * order does not change. The result of `stringify` should not change for an
+ * object, so it works best with `readonly` objects. Implements all the set
+ * objects that do not rely on taking the objects out of the set again, if you
+ * need to read the objects back use `StringifySet` which implements all set
+ * methods.
+ */
+export abstract class StringifySinkSet<T> {
+  protected set: Set<string>;
+
+  constructor(
+    elements?: Iterable<T>,
+  ) {
+    if (elements) {
+      this.set = new Set([...elements].map(this.stringify));
+    } else {
+      this.set = new Set();
+    }
+  }
+
+  get [Symbol.toStringTag](): string {
+    return "StringifySet";
+  }
+
+  add(element: T): this {
+    this.set.add(this.stringify(element));
+    return this;
+  }
+
+  has(element: T): boolean {
+    return this.set.has(this.stringify(element));
+  }
+
+  delete(element: T): boolean {
+    return this.set.delete(this.stringify(element));
+  }
+
+  get size(): number {
+    return this.set.size;
+  }
+
+  clear(): void {
+    this.set.clear();
+  }
+
+  protected abstract stringify(element: T): string;
+}
+
+/**
+ * Allows to build a `Set` of arbitrary objects by converting them to a string
+ * representation and back. Overwrite the `parse` method in a subclass to make it
+ * work for your type, e.g. `JSON.parse` can be used if `stringify` was also
+ * implemented accordingly. This extends `StringifySinkSet` adding the `Set`
+ * methods for reading the elements of the set, so that it implments the whole
+ * `Set` interface.
+ */
+export abstract class StringifySet<T> extends StringifySinkSet<T>
+  implements Set<T> {
+  *[Symbol.iterator](): IterableIterator<T> {
+    for (const stringItem of this.set) {
+      yield this.parse(stringItem);
+    }
+  }
+
+  forEach(callback: (element: T, element2: T, set: Set<T>) => void) {
+    for (const item of this) {
+      callback(item, item, this);
+    }
+  }
+
+  *entries(): IterableIterator<[T, T]> {
+    for (const stringItem of this.set) {
+      const item = this.parse(stringItem);
+      yield [item, item];
+    }
+  }
+
+  keys(): IterableIterator<T> {
+    return this[Symbol.iterator]();
+  }
+
+  values(): IterableIterator<T> {
+    return this[Symbol.iterator]();
+  }
+
+  protected abstract parse(string: string): T;
+}
+
+/**
+ * A set of coordinates. Uses a normal `Set` as a base and converts the
+ * coordinates to and from strings using `StringifySet` to make it work.
+ */
+export class CoordSet extends StringifySet<Coord> {
+  protected stringify(element: Coord): string {
+    return element.join(",");
+  }
+  protected parse(string: string): Coord {
+    const components = string.split(",");
+    assertEquals(components.length, 2);
+    return components.map(Number) as unknown as Coord;
+  }
 }

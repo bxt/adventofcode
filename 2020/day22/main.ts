@@ -3,7 +3,7 @@ import {
   assert,
   assertEquals,
 } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import { matchGroups, sum } from "../utils.ts";
+import { matchGroups, StringifySinkSet, sum } from "../utils.ts";
 
 type Player = 1 | 2;
 type Card = number;
@@ -63,20 +63,25 @@ const stringifyGame = (game: Game): string =>
 assertEquals(example, parseInput(stringifyGame(example)));
 assertEquals(parsedInput, parseInput(stringifyGame(parsedInput)));
 
+class GameSet extends StringifySinkSet<Game> {
+  protected stringify(element: Game): string {
+    return stringifyGame(element);
+  }
+}
+
 const runGame = (
   game: Game,
   recurse: boolean,
 ): { winner: Player; score: number } => {
-  const seen: Set<string> = new Set();
+  const seen = new GameSet();
 
   const { player1, player2 } = game;
 
   while (player1.length > 0 && player2.length > 0) {
-    const stringifiedGame = stringifyGame({ player1, player2 });
-    if (seen.has(stringifiedGame)) {
+    if (seen.has(game)) {
       return { winner: 1, score: -1 }; // Player 1 wins
     }
-    seen.add(stringifiedGame);
+    seen.add(game);
 
     const card1 = player1.shift();
     const card2 = player2.shift();
