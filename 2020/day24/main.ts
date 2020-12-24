@@ -50,20 +50,14 @@ const input = await Deno.readTextFile("input.txt");
 
 const parsedInput = parseInput(input);
 
-class StringifySet<T> implements Set<T> {
-  #stringify: (element: T) => string;
-  #parse: (string: string) => T;
+abstract class StringifySet<T> implements Set<T> {
   #set: Set<string>;
 
   constructor(
-    stringify: (element: T) => string,
-    parse: (string: string) => T,
     elements?: Iterable<T>,
   ) {
-    this.#stringify = stringify;
-    this.#parse = parse;
     if (elements) {
-      this.#set = new Set([...elements].map(stringify));
+      this.#set = new Set([...elements].map(this.stringify));
     } else {
       this.#set = new Set();
     }
@@ -71,7 +65,7 @@ class StringifySet<T> implements Set<T> {
 
   *[Symbol.iterator](): IterableIterator<T> {
     for (const stringItem of this.#set) {
-      yield this.#parse(stringItem);
+      yield this.parse(stringItem);
     }
   }
 
@@ -80,16 +74,16 @@ class StringifySet<T> implements Set<T> {
   }
 
   add(element: T): this {
-    this.#set.add(this.#stringify(element));
+    this.#set.add(this.stringify(element));
     return this;
   }
 
   has(element: T): boolean {
-    return this.#set.has(this.#stringify(element));
+    return this.#set.has(this.stringify(element));
   }
 
   delete(element: T): boolean {
-    return this.#set.delete(this.#stringify(element));
+    return this.#set.delete(this.stringify(element));
   }
 
   get size(): number {
@@ -108,7 +102,7 @@ class StringifySet<T> implements Set<T> {
 
   *entries(): IterableIterator<[T, T]> {
     for (const stringItem of this.#set) {
-      const item = this.#parse(stringItem);
+      const item = this.parse(stringItem);
       yield [item, item];
     }
   }
@@ -120,26 +114,26 @@ class StringifySet<T> implements Set<T> {
   values(): IterableIterator<T> {
     return this[Symbol.iterator]();
   }
+
+  protected abstract stringify(element: T): string;
+  protected abstract parse(string: string): T;
 }
 
-const stringifyCoord = (coord: Coord): string => coord.join(",");
-const parseCoord = (string: string): Coord =>
-  string.split(",").map(Number) as unknown as Coord;
+class CoordSet extends StringifySet<Coord> {
+  protected stringify(element: Coord): string {
+    return element.join(",");
+  }
+  protected parse(string: string): Coord {
+    const components = string.split(",");
+    assertEquals(components.length, 2);
+    return components.map(Number) as unknown as Coord;
+  }
+}
 
-const makeCoordSet = (elements?: Iterable<Coord>) =>
-  new StringifySet(stringifyCoord, parseCoord, elements);
-
-rangeCoords([11, 11]).map((c) => addCoords(c, [-5, -5])).forEach((coord) => {
-  assertEquals(coord, parseCoord(stringifyCoord(coord)));
-  assertEquals(
-    coord,
-    parseCoord(
-      stringifyCoord(
-        parseCoord(stringifyCoord(parseCoord(stringifyCoord(coord)))),
-      ),
-    ),
-  );
-});
+const aBunchOfCooords = rangeCoords([11, 11]).map((c) =>
+  addCoords(c, [-5, -5])
+);
+assertEquals(aBunchOfCooords, [...new CoordSet(aBunchOfCooords).values()]);
 
 /**
  *     / \/ \      / \/ \
@@ -175,7 +169,7 @@ assertEquals(origin, walkAll(origin, ["nw", "w", "sw", "e", "e"]));
 assertEquals(walkAll(origin, ["se"]), walkAll(origin, ["e", "se", "w"]));
 
 const loadTiles = (directionsList: Direction[][]): StringifySet<Coord> => {
-  const blackTiles = makeCoordSet();
+  const blackTiles = new CoordSet();
   directionsList.forEach((directions) => {
     const target = walkAll(origin, directions);
     if (blackTiles.has(target)) {
@@ -202,14 +196,14 @@ const neighbors = (coord: Coord): Coord[] =>
   directions.map((direction) => walk(coord, direction));
 
 const iterate = (blackTiles: StringifySet<Coord>): StringifySet<Coord> => {
-  const tilesToCheck = makeCoordSet(blackTiles);
+  const tilesToCheck = new CoordSet(blackTiles);
   blackTiles.forEach((coord) => {
     neighbors(coord).forEach((neighbor) => {
       tilesToCheck.add(neighbor);
     });
   });
 
-  const newBlackTiles = makeCoordSet();
+  const newBlackTiles = new CoordSet();
 
   tilesToCheck.forEach((coord) => {
     const blackNeighborCount = neighbors(coord).filter((neighbor) =>
