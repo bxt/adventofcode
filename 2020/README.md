@@ -36,7 +36,12 @@ Day | Deno         | Description
 18  | [✓][deno18] | [Child with operator precedence problems, shunting-Yard to the rescue][aoc18]
 19  | [✓][deno19] | [Evles need some parsing help, CYK to the rescue][aoc19]
 20  | [✓][deno20] | [Connecting tiles to find sea monsters][aoc20]
-Σ   |          20 |
+21  | [✓][deno21] | [Ingredients and allergens, basically day 16 lol][aoc21]
+22  | [✓][deno22] | [Playing Top Trumps with a crab][aoc22]
+23  | [✓][deno23] | [Playing cups and balls with a crab][aoc23]
+24  | [✓][deno24] | [Hexagonal game of life hotel lobby tiles][aoc24]
+25  | [✓][deno25] | [tbd][aoc25]
+Σ   |          25 |
 
 Takeaways
 ---------
@@ -68,6 +73,7 @@ Takeaways
   * From ES2017 `Object.values`, and hey: `String​.pad​Start` replaces the infamous `left-pad`
   * From ES2018 spreads and named capture groups
   * From ES2019 `Array.flat` and `Array.flatMap`
+* I did end up writing a small library of things I found missing and would expect in a "JS standard libarary", like basic `sum`, `product` helpers, and some set operations. Implementing those was acutally fun, because I could use some OOP, abstract base class, inheritance, getter methods, generators, iterators etc. which I normally try to avoid, as in high level React code they are usually unjustified complexity.
 * Seems like days 22, 18, 15, 12, 5 might be suitable for bf/piet
 
 Other solutions
@@ -104,6 +110,11 @@ year I follow (A-Z):
  [aoc18]: http://adventofcode.com/2020/day/18
  [aoc19]: http://adventofcode.com/2020/day/19
  [aoc20]: http://adventofcode.com/2020/day/20
+ [aoc21]: http://adventofcode.com/2020/day/21
+ [aoc22]: http://adventofcode.com/2020/day/22
+ [aoc23]: http://adventofcode.com/2020/day/23
+ [aoc24]: http://adventofcode.com/2020/day/24
+ [aoc25]: http://adventofcode.com/2020/day/25
  [deno01]: day01/main.ts
  [deno02]: day02/main.ts
  [deno03]: day03/main.ts
@@ -124,3 +135,8 @@ year I follow (A-Z):
  [deno18]: day18/main.ts
  [deno19]: day18/main.ts
  [deno20]: day20/main.ts
+ [deno21]: day21/main.ts
+ [deno22]: day22/main.ts
+ [deno23]: day23/main.ts
+ [deno24]: day24/main.ts
+ [deno25]: day25/main.ts
