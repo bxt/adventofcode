@@ -19,8 +19,6 @@ const origin = [0, 0] as Coord;
 const directions = ["e", "w", "se", "sw", "ne", "nw"] as const;
 type Direction = typeof directions[number];
 
-type StringifiedCoord = string;
-
 const parseInput = (string: string): Direction[][] => {
   return string.trim().split("\n").map((line) =>
     [...line.trim().matchAll(/[ns]?[we]/g)].map((d) =>
@@ -64,9 +62,84 @@ const input = await Deno.readTextFile("input.txt");
 
 const parsedInput = parseInput(input);
 
-const stringifyCoord = (coord: Coord): StringifiedCoord => coord.join(",");
-const parseCoord = (string: StringifiedCoord): Coord =>
+class StringifySet<T> implements Set<T> {
+  #stringify: (element: T) => string;
+  #parse: (string: string) => T;
+  #set: Set<string>;
+
+  constructor(
+    stringify: (element: T) => string,
+    parse: (string: string) => T,
+    elements?: Iterable<T>,
+  ) {
+    this.#stringify = stringify;
+    this.#parse = parse;
+    if (elements) {
+      this.#set = new Set([...elements].map(stringify));
+    } else {
+      this.#set = new Set();
+    }
+  }
+
+  *[Symbol.iterator](): IterableIterator<T> {
+    for (const stringItem of this.#set) {
+      yield this.#parse(stringItem);
+    }
+  }
+
+  get [Symbol.toStringTag](): string {
+    return `[StringifySet ${this.#set}]`;
+  }
+
+  add(element: T): this {
+    this.#set.add(this.#stringify(element));
+    return this;
+  }
+
+  has(element: T): boolean {
+    return this.#set.has(this.#stringify(element));
+  }
+
+  delete(element: T): boolean {
+    return this.#set.delete(this.#stringify(element));
+  }
+
+  get size(): number {
+    return this.#set.size;
+  }
+
+  forEach(callback: (element: T, element2: T, set: Set<T>) => void) {
+    for (const item of this) {
+      callback(item, item, this);
+    }
+  }
+
+  clear(): void {
+    this.#set.clear();
+  }
+
+  *entries(): IterableIterator<[T, T]> {
+    for (const stringItem of this.#set) {
+      const item = this.#parse(stringItem);
+      yield [item, item];
+    }
+  }
+
+  keys(): IterableIterator<T> {
+    return this[Symbol.iterator]();
+  }
+
+  values(): IterableIterator<T> {
+    return this[Symbol.iterator]();
+  }
+}
+
+const stringifyCoord = (coord: Coord): string => coord.join(",");
+const parseCoord = (string: string): Coord =>
   string.split(",").map(Number) as unknown as Coord;
+
+const makeCoordSet = (elements?: Iterable<Coord>) =>
+  new StringifySet(stringifyCoord, parseCoord, elements);
 
 rangeCoords([11, 11]).map((c) => addCoords(c, [-5, -5])).forEach((coord) => {
   assertEquals(coord, parseCoord(stringifyCoord(coord)));
@@ -113,15 +186,14 @@ const walkAll = (coord: Coord, directions: Direction[]): Coord =>
 assertEquals(origin, walkAll(origin, ["nw", "w", "sw", "e", "e"]));
 assertEquals(walkAll(origin, ["se"]), walkAll(origin, ["e", "se", "w"]));
 
-const loadTiles = (directionsList: Direction[][]): Set<StringifiedCoord> => {
-  const blackTiles = new Set<string>();
+const loadTiles = (directionsList: Direction[][]): StringifySet<Coord> => {
+  const blackTiles = makeCoordSet();
   directionsList.forEach((directions) => {
     const target = walkAll(origin, directions);
-    const targetString = stringifyCoord(target);
-    if (blackTiles.has(targetString)) {
-      blackTiles.delete(targetString);
+    if (blackTiles.has(target)) {
+      blackTiles.delete(target);
     } else {
-      blackTiles.add(targetString);
+      blackTiles.add(target);
     }
   });
   return blackTiles;
@@ -141,29 +213,28 @@ console.log("Result part 1: " + part1(parsedInput));
 const neighbors = (coord: Coord): Coord[] =>
   directions.map((direction) => walk(coord, direction));
 
-const iterate = (blackTiles: Set<StringifiedCoord>): Set<StringifiedCoord> => {
-  const tilesToCheck = new Set(blackTiles);
-  blackTiles.forEach((coordString) => {
-    neighbors(parseCoord(coordString)).forEach((neighbor) => {
-      tilesToCheck.add(stringifyCoord(neighbor));
+const iterate = (blackTiles: StringifySet<Coord>): StringifySet<Coord> => {
+  const tilesToCheck = makeCoordSet(blackTiles);
+  blackTiles.forEach((coord) => {
+    neighbors(coord).forEach((neighbor) => {
+      tilesToCheck.add(neighbor);
     });
   });
 
-  const newBlackTiles = new Set<StringifiedCoord>();
+  const newBlackTiles = makeCoordSet();
 
-  tilesToCheck.forEach((coordString) => {
-    const blackNeighborCount =
-      neighbors(parseCoord(coordString)).filter((neighbor) =>
-        blackTiles.has(stringifyCoord(neighbor)) ? 1 : 0
-      ).length;
+  tilesToCheck.forEach((coord) => {
+    const blackNeighborCount = neighbors(coord).filter((neighbor) =>
+      blackTiles.has(neighbor) ? 1 : 0
+    ).length;
 
-    if (blackTiles.has(coordString)) {
+    if (blackTiles.has(coord)) {
       if (blackNeighborCount === 1 || blackNeighborCount === 2) {
-        newBlackTiles.add(coordString);
+        newBlackTiles.add(coord);
       }
     } else {
       if (blackNeighborCount === 2) {
-        newBlackTiles.add(coordString);
+        newBlackTiles.add(coord);
       }
     }
   });
