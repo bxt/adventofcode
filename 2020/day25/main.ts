@@ -1,17 +1,5 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import {
-  addCoords,
-  Coord,
-  CoordSet,
-  ensureElementOf,
-  rangeCoords,
-} from "../utils.ts";
-
-const origin = [0, 0] as Coord;
-
-const directions = ["e", "w", "se", "sw", "ne", "nw"] as const;
-type Direction = typeof directions[number];
 
 const parseInput = (string: string): [number, number] => {
   const numbers = string.trim().split("\n").map(Number);
