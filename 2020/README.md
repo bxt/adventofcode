@@ -11,8 +11,7 @@ Contents
 --------
 
 The following table lists the available solutions by day and language. I also
-added a short summary for each day. I marked the solutions which I consider
-especially valuable or pretty with a star (☆).
+added a short summary for each day.
 
 Day | Deno         | Description
 ----|-------------|--------------------------------------------------------------
@@ -40,7 +39,7 @@ Day | Deno         | Description
 22  | [✓][deno22] | [Playing Top Trumps with a crab][aoc22]
 23  | [✓][deno23] | [Playing cups and balls with a crab][aoc23]
 24  | [✓][deno24] | [Hexagonal game of life hotel lobby tiles][aoc24]
-25  | [✓][deno25] | [tbd][aoc25]
+25  | [✓][deno25] | [Breaking door card public key encryption][aoc25]
 Σ   |          25 |
 
 Takeaways
@@ -75,6 +74,11 @@ Takeaways
   * From ES2019 `Array.flat` and `Array.flatMap`
 * I did end up writing a small library of things I found missing and would expect in a "JS standard libarary", like basic `sum`, `product` helpers, and some set operations. Implementing those was acutally fun, because I could use some OOP, abstract base class, inheritance, getter methods, generators, iterators etc. which I normally try to avoid, as in high level React code they are usually unjustified complexity.
 * Seems like days 22, 18, 15, 12, 5 might be suitable for bf/piet
+
+Completion
+----------
+
+This is the 3rd year after 2015 and 2016 where I was able to complete all the puzzles in time 🎉🎄 I also started some of the riddles at 6am (MEZ) when they are released, but I could not make it to the leaderboard. To be fair there's around 10x more people competing this year compared to 2016 when I made it to the leaderboard a few times. I also tried to enjoy the process and that usually means not hurring through it. Anyways, I was relatively fast on day 20, with spot 781 for part 1, and spot 743 for part two. And on day 8 I made spot 801 on part 2. Otherwise I was always above 1k.
 
 Other solutions
 ---------------
