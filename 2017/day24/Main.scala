@@ -5,6 +5,11 @@ import scala.collection.mutable.{Map, HashMap}
 object Main {
   case class Component(a: Int, b: Int) {
     def strength: Int = a + b
+    def counterpart(start: Int): Option[Int] = start match {
+      case `a` => Some(b)
+      case `b` => Some(a)
+      case _   => None
+    }
   }
 
   def strongestBridge(start: Int, components: List[Component]): Int = {
@@ -13,19 +18,15 @@ object Main {
     } else {
       components
         .map({ component =>
-          if (component.a == start) {
-            component.strength + strongestBridge(
-              component.b,
-              components.filter { _ != component }
-            )
-          } else if (component.b == start) {
-            component.strength + strongestBridge(
-              component.a,
-              components.filter { _ != component }
-            )
-          } else {
-            0
-          }
+          component
+            .counterpart(start)
+            .map { counterpart =>
+              component.strength + strongestBridge(
+                counterpart,
+                components.filter { _ != component }
+              )
+            }
+            .getOrElse { 0 }
         })
         .max
     }
@@ -37,25 +38,18 @@ object Main {
     } else {
       components
         .map({ component =>
-          if (component.a == start) {
-            longestBridge(
-              component.b,
-              components.filter { _ != component }
-            ) match {
-              case (length, strength) =>
-                (length + 1, strength + component.strength)
+          component
+            .counterpart(start)
+            .map { counterpart =>
+              longestBridge(
+                counterpart,
+                components.filter { _ != component }
+              ) match {
+                case (length, strength) =>
+                  (length + 1, strength + component.strength)
+              }
             }
-          } else if (component.b == start) {
-            longestBridge(
-              component.a,
-              components.filter { _ != component }
-            ) match {
-              case (length, strength) =>
-                (length + 1, strength + component.strength)
-            }
-          } else {
-            (0, 0)
-          }
+            .getOrElse { (0, 0) }
         })
         .max
     }
