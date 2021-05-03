@@ -31,23 +31,34 @@ object Main {
     }
   }
 
- def longestBridges(start: Int, components: List[Component]): List[List[Component]] = {
-  List.concat(List(List()), components
-    .flatMap({ component =>
-      (if (component.a == start) {
-        longestBridges(
-          component.b,
-          components.filter { _ != component }
-        )
-      } else if (component.b == start) {
-        longestBridges(
-          component.a,
-          components.filter { _ != component }
-        )
-      } else {
-        List()
-      }).map{list => List.concat(List(component), list)}
-    }))
+  def longestBridge(start: Int, components: List[Component]): (Int, Int) = {
+    if (components.size == 0) {
+      (0, 0)
+    } else {
+      components
+        .map({ component =>
+          if (component.a == start) {
+            longestBridge(
+              component.b,
+              components.filter { _ != component }
+            ) match {
+              case (length, strength) =>
+                (length + 1, strength + component.strength)
+            }
+          } else if (component.b == start) {
+            longestBridge(
+              component.a,
+              components.filter { _ != component }
+            ) match {
+              case (length, strength) =>
+                (length + 1, strength + component.strength)
+            }
+          } else {
+            (0, 0)
+          }
+        })
+        .max
+    }
   }
 
   def main(args: Array[String]): Unit = {
@@ -62,6 +73,6 @@ object Main {
 
     println(strongestBridge(0, components))
 
-    println(longestBridges(0, components))
+    println(longestBridge(0, components)._2)
   }
 }
