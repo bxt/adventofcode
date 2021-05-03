@@ -18,25 +18,24 @@ object Main {
   }
 
   case class VirusCarrier(
-      grid: Map[Vec2, Boolean],
+      grid: Map[Vec2, Int],
       var position: Vec2,
       var velocity: Vec2
   ) {
     def burst: Boolean = {
-      val isInfected = grid(this.position)
-      val newIsInfected = !isInfected
+      val infectionState = grid(this.position)
+      val newInfectionState = (infectionState + 2) % 4
 
-      grid(this.position) = newIsInfected
+      grid(this.position) = newInfectionState
 
-      if (isInfected) {
-        this.velocity = velocity.turnRight
-      } else {
-        this.velocity = velocity.turnLeft
+      this.velocity = infectionState match {
+        case 0 => velocity.turnLeft
+        case 2 => velocity.turnRight
       }
 
       this.position += this.velocity
 
-      return newIsInfected
+      return newInfectionState == 2
     }
   }
 
@@ -44,13 +43,13 @@ object Main {
     val input = Source.fromResource("day22/input.txt").getLines()
     var start = 0
 
-    var grid = new HashMap[Vec2, Boolean]().withDefault(_ => false)
+    var grid = new HashMap[Vec2, Int]().withDefault(_ => 0)
 
     input.zipWithIndex.foreach {
       case (line, y) => {
         start = line.length / 2
         line.zipWithIndex.foreach { case (letter, x) =>
-          grid(Vec2(x, y)) = letter == '#'
+          grid(Vec2(x, y)) = if (letter == '#') 2 else 0
         }
       }
     }
