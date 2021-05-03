@@ -7,15 +7,9 @@ object Main {
     def +(other: Vec2): Vec2 = {
       Vec2(x + other.x, y + other.y)
     }
-    def turnLeft: Vec2 = {
-      Vec2(y, -x)
-    }
-    def turnRight: Vec2 = {
-      this.turnLeft.turnLeft.turnLeft
-    }
-    def reverse: Vec2 = {
-      this.turnLeft.turnLeft
-    }
+    def turnLeft: Vec2 = Vec2(y, -x)
+    def turnRight: Vec2 = turnLeft.turnLeft.turnLeft
+    def reverse: Vec2 = turnLeft.turnLeft
   }
 
   class VirusCarrier(
@@ -25,32 +19,23 @@ object Main {
   ) {
     def infectionSteps = 2
 
-    def countInfections(iterations: Int): Int = {
-      var count: Int = 0
-
-      1.to(iterations).foreach { _ =>
-        if (burst) {
-          count += 1
-        }
-      }
-
-      return count
-    }
+    def countInfections(iterations: Int): Int =
+      1.to(iterations).map { _ => burst }.count(_ == true)
 
     def burst: Boolean = {
-      val infectionState = grid(this.position)
+      val infectionState = grid(position)
       val newInfectionState = (infectionState + infectionSteps) % 4
 
-      grid(this.position) = newInfectionState
+      grid(position) = newInfectionState
 
-      this.velocity = infectionState match {
+      velocity = infectionState match {
         case 0 => velocity.turnLeft
         case 1 => velocity
         case 2 => velocity.turnRight
         case 3 => velocity.reverse
       }
 
-      this.position += this.velocity
+      position += velocity
 
       return newInfectionState == 2
     }
