@@ -12,7 +12,7 @@ The following table lists the available solutions by day and language. I also
 added a short summary for each day. I marked the solutions which I consider
 especially valuable or pretty with a star (☆).
 
-Day | Scala     | Rust      | Description                             
+Day | Scala     | Rust      | Description
 ----|-----------|-----------|----------------------------------------------------
 01  | [x][sc01] |           | [Sum equal digits][aoc01]
 02  | [x][sc02] |           | [Sum spreadsheet min/max][aoc02]
@@ -31,7 +31,11 @@ Day | Scala     | Rust      | Description
 15  | [x][sc15] |           | [Generating number list with bitmasks][aoc15]
 16  | [x][sc16] |           | [Letter permutation program dance][aoc16]
 17  | [x][sc17] |           | [Cyclic list intertion tracking][aoc17]
-Σ   |        16 |         0 |
+18  |           |           | [Some Intcode stuff?][aoc18]
+19  | [x][sc19] |           | [Walking the line][aoc19]
+20  | [x][sc20] |           | [Particles][aoc20]
+21  | [x][sc21] |           | [Intcode with recover][aoc21]
+Σ   |        20 |         0 |
 
 Takeaways
 ---------
@@ -77,6 +81,10 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc15]: http://adventofcode.com/2017/day/15
  [aoc16]: http://adventofcode.com/2017/day/16
  [aoc17]: http://adventofcode.com/2017/day/17
+ [aoc18]: http://adventofcode.com/2017/day/18
+ [aoc19]: http://adventofcode.com/2017/day/19
+ [aoc20]: http://adventofcode.com/2017/day/20
+ [aoc21]: http://adventofcode.com/2017/day/21
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
@@ -93,3 +101,6 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [sc15]: day15/Main.scala
  [sc16]: day16/Main.scala
  [sc17]: day17/Main.scala
+ [sc19]: day19/Main.scala
+ [sc20]: day20/Main.scala
+ [sc21]: day21/Main.scala
