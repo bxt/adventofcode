@@ -31,6 +31,25 @@ object Main {
     }
   }
 
+ def longestBridges(start: Int, components: List[Component]): List[List[Component]] = {
+  List.concat(List(List()), components
+    .flatMap({ component =>
+      (if (component.a == start) {
+        longestBridges(
+          component.b,
+          components.filter { _ != component }
+        )
+      } else if (component.b == start) {
+        longestBridges(
+          component.a,
+          components.filter { _ != component }
+        )
+      } else {
+        List()
+      }).map{list => List.concat(List(component), list)}
+    }))
+  }
+
   def main(args: Array[String]): Unit = {
     val input = Source.fromResource("day24/input.txt").getLines()
 
@@ -42,5 +61,7 @@ object Main {
       .toList
 
     println(strongestBridge(0, components))
+
+    println(longestBridges(0, components))
   }
 }
