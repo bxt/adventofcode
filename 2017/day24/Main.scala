@@ -12,44 +12,31 @@ object Main {
     }
   }
 
-  def strongestBridge(start: Int, components: List[Component]): Int = {
+  def bestBridgeValue[R: Ordering](
+      start: Int,
+      components: List[Component],
+      default: R,
+      combine: (R, Component) => R
+  ): R = {
     if (components.size == 0) {
-      0
+      default
     } else {
       components
         .map({ component =>
           component
             .counterpart(start)
             .map { counterpart =>
-              component.strength + strongestBridge(
-                counterpart,
-                components.filter { _ != component }
+              combine(
+                bestBridgeValue(
+                  counterpart,
+                  components.filter { _ != component },
+                  default,
+                  combine
+                ),
+                component
               )
             }
-            .getOrElse { 0 }
-        })
-        .max
-    }
-  }
-
-  def longestBridge(start: Int, components: List[Component]): (Int, Int) = {
-    if (components.size == 0) {
-      (0, 0)
-    } else {
-      components
-        .map({ component =>
-          component
-            .counterpart(start)
-            .map { counterpart =>
-              longestBridge(
-                counterpart,
-                components.filter { _ != component }
-              ) match {
-                case (length, strength) =>
-                  (length + 1, strength + component.strength)
-              }
-            }
-            .getOrElse { (0, 0) }
+            .getOrElse { default }
         })
         .max
     }
@@ -65,8 +52,24 @@ object Main {
       })
       .toList
 
-    println(strongestBridge(0, components))
+    println(
+      bestBridgeValue[Int](
+        0,
+        components,
+        0,
+        { (strength, component) => strength + component.strength }
+      )
+    )
 
-    println(longestBridge(0, components)._2)
+    println(
+      bestBridgeValue[(Int, Int)](
+        0,
+        components,
+        (0, 0),
+        { case ((length, strength), component) =>
+          (length + 1, strength + component.strength)
+        }
+      )._2
+    )
   }
 }
