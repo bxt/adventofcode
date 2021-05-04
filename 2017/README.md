@@ -34,8 +34,12 @@ Day | Scala     | Rust      | Description
 18  |           |           | [Some Intcode stuff?][aoc18]
 19  | [x][sc19] |           | [Walking the line][aoc19]
 20  | [x][sc20] |           | [Particles][aoc20]
-21  | [x][sc21] |           | [Intcode with recover][aoc21]
-Σ   |        20 |         0 |
+21  |           |           | [Binary pattern expansion][aoc21]
+22  | [x][sc22] |           | [Virus grid moving][aoc22]
+23  |           |           | [Some Intcode stuff?][aoc23]
+24  | [x][sc24] |           | [Bulding bridges with values and lengths][aoc24]
+25  | [x][sc25] |           | [Turing machine][aoc25]
+Σ   |        21 |         0 |
 
 Takeaways
 ---------
@@ -85,6 +89,10 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [aoc19]: http://adventofcode.com/2017/day/19
  [aoc20]: http://adventofcode.com/2017/day/20
  [aoc21]: http://adventofcode.com/2017/day/21
+ [aoc22]: http://adventofcode.com/2017/day/22
+ [aoc23]: http://adventofcode.com/2017/day/23
+ [aoc24]: http://adventofcode.com/2017/day/24
+ [aoc25]: http://adventofcode.com/2017/day/25
  [sc01]: day01/Main.scala
  [sc02]: day02/Main.scala
  [sc03]: day03/Main.scala
@@ -103,4 +111,6 @@ These coders form last year didn't yet push anything this year, but I'll keep an
  [sc17]: day17/Main.scala
  [sc19]: day19/Main.scala
  [sc20]: day20/Main.scala
- [sc21]: day21/Main.scala
+ [sc22]: day22/Main.scala
+ [sc24]: day24/Main.scala
+ [sc25]: day25/Main.scala
