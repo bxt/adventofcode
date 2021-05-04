@@ -12,34 +12,49 @@ object Main {
     }
   }
 
-  def bestBridgeValue[R: Ordering](
-      start: Int,
-      components: List[Component],
-      default: R,
-      combine: (R, Component) => R
-  ): R = {
-    if (components.size == 0) {
-      default
-    } else {
-      components
-        .map({ component =>
-          component
-            .counterpart(start)
-            .map { counterpart =>
-              combine(
-                bestBridgeValue(
-                  counterpart,
-                  components.filter { _ != component },
-                  default,
-                  combine
-                ),
-                component
-              )
-            }
-            .getOrElse { default }
-        })
-        .max
+  abstract class BestBridgeFinder[R: Ordering] {
+    def zero: R
+    def combine(r: R, component: Component): R
+    def bestBridgeValue(
+        start: Int,
+        components: List[Component]
+    ): R = {
+      if (components.size == 0) {
+        zero
+      } else {
+        components
+          .map({ component =>
+            component
+              .counterpart(start)
+              .map { counterpart =>
+                combine(
+                  bestBridgeValue(
+                    counterpart,
+                    components.filter { _ != component }
+                  ),
+                  component
+                )
+              }
+              .getOrElse { zero }
+          })
+          .max
+      }
     }
+  }
+
+  class StrongestBridgeFinder extends BestBridgeFinder[Int] {
+    override def zero = 0
+    override def combine(r: Int, component: Component): Int =
+      r + component.strength
+  }
+
+  class LongestAndStrongestBridgeFinder extends BestBridgeFinder[(Int, Int)] {
+    override def zero = (0, 0)
+    override def combine(r: (Int, Int), component: Component): (Int, Int) =
+      r match {
+        case (length, strength) =>
+          (length + 1, strength + component.strength)
+      }
   }
 
   def main(args: Array[String]): Unit = {
@@ -53,23 +68,11 @@ object Main {
       .toList
 
     println(
-      bestBridgeValue[Int](
-        0,
-        components,
-        0,
-        { (strength, component) => strength + component.strength }
-      )
+      new StrongestBridgeFinder().bestBridgeValue(0, components)
     )
 
     println(
-      bestBridgeValue[(Int, Int)](
-        0,
-        components,
-        (0, 0),
-        { case ((length, strength), component) =>
-          (length + 1, strength + component.strength)
-        }
-      )._2
+      new LongestAndStrongestBridgeFinder().bestBridgeValue(0, components)._2
     )
   }
 }
