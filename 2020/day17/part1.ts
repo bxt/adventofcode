@@ -1,8 +1,5 @@
 #!/usr/bin/env deno run --allow-read
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 import { ensureElementOf, range, sum } from "../utils.ts";
 
 // SUSI OFFICIALLY ENTERED THE BUILDING! https://www.twitch.tv/veloxxmusic

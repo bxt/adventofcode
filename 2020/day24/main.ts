@@ -1,12 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
-import {
-  addCoords,
-  Coord,
-  CoordSet,
-  ensureElementOf,
-  rangeCoords,
-} from "../utils.ts";
+import { Coord, CoordSet, ensureElementOf } from "../utils.ts";
 
 const origin = [0, 0] as Coord;
 
