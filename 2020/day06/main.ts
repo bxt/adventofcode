@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-read
-import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { intersectSets, sum } from "../utils.ts";
 
 const parseInput = (string: string): string[][][] =>
