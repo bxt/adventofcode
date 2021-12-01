@@ -1,4 +1,9 @@
-#!/usr/bin/env deno test --allow-read --coverage --unstable
+#!/usr/bin/env deno test --allow-read
+
+/*
+ * To check coverage, run: deno test --allow-read --coverage=coverage --unstable utils.test.ts; deno coverage coverage; rm -R coverage/
+ */
+
 import {
   assertEquals,
   assertThrows,
