@@ -1,8 +1,7 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { slidingWindows } from "https://deno.land/std@0.116.0/collections/mod.ts";
 import { sum } from "../../2020/utils.ts";
-
-const TARGET = 2020;
 
 const parseInput = (string: string): number[] =>
   string.trim().split(/\W+/).map(Number);
@@ -12,17 +11,8 @@ const text = await Deno.readTextFile("input.txt");
 const entries = parseInput(text);
 
 const windowIncreases = (numbers: number[], windowSize: number): number => {
-  let count = 0;
-  for (let i = 0; i < numbers.length - windowSize; i++) {
-    if (
-      sum(numbers.slice(i, i + windowSize)) <
-        sum(numbers.slice(i + 1, i + windowSize + 1))
-    ) {
-      count++;
-    }
-  }
-
-  return count;
+  const windows = slidingWindows(numbers, windowSize).map(sum);
+  return slidingWindows(windows, 2).filter(([a, b]) => a < b).length;
 };
 
 const part1 = (numbers: number[]): number => windowIncreases(numbers, 1);
