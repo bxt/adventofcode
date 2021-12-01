@@ -5,7 +5,7 @@ Advent of Code 2020
 
 This directory contains the code I used to solve the challenges from [Advent of Code 2020](http://adventofcode.com/2020).
 
-This year I'm going with TypeScript using [`deno`](https://deno.land/). Solutions can be run with `./main.ts`.
+This year I'm going with TypeScript using [`deno`](https://deno.land/). Solutions can be run with `./main.ts`, or run all days using `for i in $(seq -f '%02g' 1 25); do cd "day$i"; ./main.ts; cd ..; done`.
 
 Contents
 --------
