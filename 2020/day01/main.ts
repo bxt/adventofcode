@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 
 const TARGET = 2020;
 
@@ -30,7 +31,7 @@ const example = parseInput(`
   1456
 `);
 
-if (part1(example) !== 514579) throw new Error("Example is wrong!");
+assertEquals(part1(example), 514579, "Example is wrong!");
 
 console.log("Result part 1: " + part1(entries));
 
@@ -48,6 +49,6 @@ const part2 = (numbers: number[]): number => {
   throw new Error("Not found");
 };
 
-if (part2(example) !== 241861950) throw new Error("Example is wrong!");
+assertEquals(part2(example), 241861950, "Example is wrong!");
 
 console.log("Result part 2: " + part2(entries));

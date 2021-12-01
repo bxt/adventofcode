@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 
 type Passport = Record<string, string>;
 
@@ -35,7 +36,7 @@ const isValid = (passport: Passport) =>
 
 const part1 = (inputs: Passport[]) => inputs.filter(isValid).length;
 
-if (part1(example) !== 2) throw new Error("Example is wrong!");
+assertEquals(part1(example), 2, "Example is wrong!");
 
 console.log("Result part 1: " + part1(inputParsed));
 
@@ -111,7 +112,7 @@ const example3 = parseInput(`
 const part2 = (inputs: Passport[]) =>
   inputs.filter(isValid).filter(isValuesValid).length;
 
-if (part2(example2) !== 0) throw new Error("Example is wrong!");
-if (part2(example3) !== 4) throw new Error("Example is wrong!");
+assertEquals(part2(example2), 0, "Example is wrong!");
+assertEquals(part2(example3), 4, "Example is wrong!");
 
 console.log("Result part 2: " + part2(inputParsed));

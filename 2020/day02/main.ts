@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 import { matchGroups } from "../utils.ts";
 
 type Entry = {
@@ -34,7 +35,7 @@ const example = parseInput(`
   2-9 c: ccccccccc
 `);
 
-if (part1(example) !== 2) throw new Error("Example is wrong!");
+assertEquals(part1(example), 2, "Example is wrong!");
 
 console.log("Result part 1: " + part1(entries));
 
@@ -44,6 +45,6 @@ const part2 = (inputs: Entry[]) =>
       (password[position2 - 1] == letter)
   ).length;
 
-if (part2(example) !== 1) throw new Error("Example is wrong!");
+assertEquals(part2(example), 1, "Example is wrong!");
 
 console.log("Result part 2: " + part2(entries));

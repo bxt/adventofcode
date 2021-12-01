@@ -1,4 +1,5 @@
 #!/usr/bin/env deno run --allow-read
+import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
 import { ensureElementOf } from "../utils.ts";
 
 const TREE = "#";
@@ -61,7 +62,7 @@ const PART_1_SLOPE: Vector = { down: 1, right: 3 };
 
 const part1 = (inputs: Entry[][]) => walk(inputs, PART_1_SLOPE);
 
-if (part1(example) !== 7) throw new Error("Example is wrong!");
+assertEquals(part1(example), 7, "Example is wrong!");
 
 console.log("Result part 1: " + part1(inputParsed));
 
@@ -76,6 +77,6 @@ const PART_2_SLOPES: Vector[] = [
 const part2 = (inputs: Entry[][]) =>
   PART_2_SLOPES.map((slope) => walk(inputs, slope)).reduce((a, b) => a * b, 1);
 
-if (part2(example) !== 336) throw new Error("Example is wrong!");
+assertEquals(part2(example), 336, "Example is wrong!");
 
 console.log("Result part 2: " + part2(inputParsed));
