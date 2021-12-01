@@ -4,7 +4,6 @@ import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
  * 2020 TypeScript Utilities
  *
  * This contains a bunch of utilities I used for solivng the 2020 riddles.
- *
  */
 
 /**
@@ -56,14 +55,14 @@ export type SparseCoordArray<T> = Record<number, Record<number, T>>;
  * Adds together two coords and returns their component-wise sum.
  */
 export function addCoords([x1, y1]: Coord, [x2, y2]: Coord): Coord {
-  return ([x1 + x2, y1 + y2]);
+  return [x1 + x2, y1 + y2];
 }
 
 /**
  * Scales a coord with a scalar (plain number), multiplies each component.
  */
 export function scaleCoord([x, y]: Coord, s: number): Coord {
-  return ([x * s, y * s]);
+  return [x * s, y * s];
 }
 
 /**
