@@ -25,10 +25,14 @@ const entries = parseInput(text);
 
 const part1 = (steps: Step[]): number => {
   const [position, depth] = steps.map(({ direction, amount }): Coord => {
-    if (direction === "forward") return [amount, 0];
-    if (direction === "down") return [0, amount];
-    if (direction === "up") return [0, -amount];
-    throw new Error(`Invalid direction: ${direction}`);
+    switch (direction) {
+      case "forward":
+        return [amount, 0];
+      case "down":
+        return [0, amount];
+      case "up":
+        return [0, -amount];
+    }
   }).reduce(addCoords);
 
   return position * depth;
@@ -53,18 +57,20 @@ const part2 = (steps: Step[]): number => {
   const initialState: State = { aim: 0, position: 0, depth: 0 };
 
   const result = steps.reduce(
-    (prev: State, { direction, amount }) => {
+    (prev: State, { direction, amount }): State => {
       const { aim, position, depth } = prev;
-      if (direction === "forward") {
-        return {
-          ...prev,
-          position: position + amount,
-          depth: depth + aim * amount,
-        };
+      switch (direction) {
+        case "forward":
+          return {
+            ...prev,
+            position: position + amount,
+            depth: depth + aim * amount,
+          };
+        case "down":
+          return { ...prev, aim: aim + amount };
+        case "up":
+          return { ...prev, aim: aim - amount };
       }
-      if (direction === "down") return { ...prev, aim: aim + amount };
-      if (direction === "up") return { ...prev, aim: aim - amount };
-      throw new Error(`Invalid direction: ${direction}`);
     },
     initialState,
   );
