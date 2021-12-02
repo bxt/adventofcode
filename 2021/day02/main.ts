@@ -6,9 +6,11 @@ const directions = ["forward", "down", "up"] as const;
 
 type Direction = typeof directions[number];
 
+type Step = { direction: Direction; amount: number };
+
 const parseInput = (
   string: string,
-): { direction: Direction; amount: number }[] =>
+): Step[] =>
   string.trim().split(/\n\W*/).map((line) => {
     const [directionString, amountString] = line.split(" ");
     return {
@@ -21,14 +23,15 @@ const text = await Deno.readTextFile("input.txt");
 
 const entries = parseInput(text);
 
-const part1 = (steps: { direction: Direction; amount: number }[]): number => {
-  const [positon, depth] = steps.map(({ direction, amount }): Coord => {
+const part1 = (steps: Step[]): number => {
+  const [position, depth] = steps.map(({ direction, amount }): Coord => {
     if (direction === "forward") return [amount, 0];
     if (direction === "down") return [0, amount];
     if (direction === "up") return [0, -amount];
-    return [0, 0];
+    throw new Error(`Invalid direction: ${direction}`);
   }).reduce(addCoords);
-  return positon * depth;
+
+  return position * depth;
 };
 
 const example = parseInput(`
@@ -46,8 +49,9 @@ console.log("Result part 1: " + part1(entries));
 
 type State = { aim: number; position: number; depth: number };
 
-const part2 = (steps: { direction: Direction; amount: number }[]): number => {
+const part2 = (steps: Step[]): number => {
   const initialState: State = { aim: 0, position: 0, depth: 0 };
+
   const result = steps.reduce(
     (prev: State, { direction, amount }) => {
       const { aim, position, depth } = prev;
@@ -60,7 +64,7 @@ const part2 = (steps: { direction: Direction; amount: number }[]): number => {
       }
       if (direction === "down") return { ...prev, aim: aim + amount };
       if (direction === "up") return { ...prev, aim: aim - amount };
-      throw new Error();
+      throw new Error(`Invalid direction: ${direction}`);
     },
     initialState,
   );
