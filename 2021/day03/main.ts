@@ -1,10 +1,9 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import {
-  aggregateGroups,
   groupBy,
-  maxBy,
-  minBy,
+  maxWith,
+  minWith,
 } from "https://deno.land/std@0.116.0/collections/mod.ts";
 
 const parseInput = (
@@ -15,33 +14,58 @@ const text = await Deno.readTextFile("input.txt");
 
 const numbers = parseInput(text);
 
-const part1 = (numbers: string[]): number => {
-  const mostCommonBits = numbers[0].split("").map((_, i) => {
-    const groups = groupBy(numbers.map((line) => line.charAt(i)), (c) => c);
-    const bitCountsAtI = Object.entries(aggregateGroups(
-      groups,
-      (current, _, first, acc) =>
-        first ? current.length : acc as number + current.length,
-    ));
+type Comparator<T> = (t1: T, t2: T) => number;
+type Aggregator<T> = (ts: T[], comparator: Comparator<T>) => T | undefined;
 
-    const [max] = maxBy(
-      bitCountsAtI,
-      ([_, count]) => count as number,
-    ) as unknown as [
-      number,
-    ];
-    const [min] = minBy(
-      bitCountsAtI,
-      ([_, count]) => count as number,
-    ) as unknown as [
-      number,
-    ];
+type Group = [string, string[]];
 
-    return [min, max];
+const compareGroups: Comparator<Group> = (
+  [letter1, elements1],
+  [letter2, elements2],
+) => {
+  const lengthsCompared = elements1.length - elements2.length;
+  if (lengthsCompared !== 0) return lengthsCompared;
+  return letter1 > letter2 ? 1 : -1;
+};
+
+assertEquals(compareGroups(["0", []], ["1", []]), -1);
+assertEquals(compareGroups(["1", []], ["0", []]), 1);
+assertEquals(compareGroups(["0", [""]], ["1", []]), 1);
+assertEquals(compareGroups(["0", []], ["1", [""]]), -1);
+assertEquals(compareGroups(["1", [""]], ["0", []]), 1);
+assertEquals(compareGroups(["1", []], ["0", [""]]), -1);
+
+const getBestGroupBy = (
+  elements: string[],
+  position: number,
+  aggregator: Aggregator<Group>,
+): Group => {
+  const groups: Group[] = Object.entries(
+    groupBy(elements, (element) => element.charAt(position)),
+  );
+
+  const bestGroup = aggregator(groups, compareGroups);
+
+  if (!bestGroup) throw new Error("There were no elements to aggregate");
+
+  return bestGroup;
+};
+
+const findBestBitsBy = (
+  numbers: string[],
+  aggregator: Aggregator<Group>,
+): string => {
+  const bestBits = numbers[0].split("").map((_, i) => {
+    const group = getBestGroupBy(numbers, i, aggregator);
+    return group[0];
   });
 
-  const mins = mostCommonBits.map(([m, _]) => m).join("");
-  const maxs = mostCommonBits.map(([_, m]) => m).join("");
+  return bestBits.join("");
+};
+
+const part1 = (numbers: string[]): number => {
+  const mins = findBestBitsBy(numbers, minWith);
+  const maxs = findBestBitsBy(numbers, maxWith);
 
   const epsilonRate = parseInt(mins, 2);
   const gammaRate = parseInt(maxs, 2);
@@ -68,47 +92,33 @@ assertEquals(part1(example), 198, "Example is wrong!");
 
 console.log("Result part 1: " + part1(numbers));
 
-const part2helper = (numbers: string[], agg: any, tieVal: string): string => {
+const fiilterDownNumbersBy = (
+  numbers: string[],
+  aggregator: Aggregator<Group>,
+): string => {
   let filteredNumbers = [...numbers];
 
   for (let i = 0; i < filteredNumbers[0].length; i++) {
-    const groups = groupBy(
-      filteredNumbers.map((line) => line.charAt(i)),
-      (c) => c,
-    );
-    const bitCountsAtI = Object.entries(aggregateGroups(
-      groups,
-      (current, _, first, acc) =>
-        first ? current.length : acc as number + current.length,
-    ));
+    const group = getBestGroupBy(filteredNumbers, i, aggregator);
 
-    const set = new Set(bitCountsAtI.map(([_, c]) => c));
-
-    const selected = set.size === 1 ? tieVal : (agg(
-      bitCountsAtI,
-      ([_, count]: [any, any]) => count as number,
-    ) as unknown as [
-      string,
-    ])[0];
-
-    filteredNumbers = filteredNumbers.filter((number) =>
-      number.charAt(i) === selected
-    );
+    filteredNumbers = group[1];
 
     if (filteredNumbers.length === 1) return filteredNumbers[0];
   }
 
-  throw new Error();
+  throw new Error(
+    `After filtering by all bits there are ${filteredNumbers.length} numbers left instead of 1.`,
+  );
 };
 
 const part2 = (numbers: string[]): number => {
-  const oxy = part2helper(numbers, maxBy, "1");
-  const co2 = part2helper(numbers, minBy, "0");
+  const oxy = fiilterDownNumbersBy(numbers, maxWith);
+  const co2 = fiilterDownNumbersBy(numbers, minWith);
 
-  const oxyDec = parseInt(oxy, 2);
-  const co2Dec = parseInt(co2, 2);
+  const oxyNumber = parseInt(oxy, 2);
+  const co2Number = parseInt(co2, 2);
 
-  return oxyDec * co2Dec;
+  return oxyNumber * co2Number;
 };
 
 assertEquals(part2(example), 230, "Example is wrong!");
