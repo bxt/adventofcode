@@ -74,3 +74,53 @@ const example = `
 assertEquals(part1(example), 198, "Example is wrong!");
 
 console.log("Result part 1: " + part1(text));
+
+const part2helper = (input: string, agg: any, tieVal: string): string => {
+  const lines = input.trim().split("\n");
+
+  let numbers = lines;
+
+  for (let i = 0; i < lines[0].length; i++) {
+    const groups = groupBy(numbers.map((line) => line.charAt(i)), (c) => c);
+    const bitCountsAtI = Object.entries(aggregateGroups(
+      groups,
+      (current, _, first, acc) =>
+        first ? current.length : acc as number + current.length,
+    ));
+
+    const set = new Set(bitCountsAtI.map(([_, c]) => c));
+
+    const selected = set.size === 1 ? tieVal : (agg(
+      bitCountsAtI,
+      ([_, count]: [any, any]) => count as number,
+    ) as unknown as [
+      string,
+    ])[0];
+
+    numbers = numbers.filter((number) => number.charAt(i) === selected);
+
+    console.log({ i, bitCountsAtI, selected, numbers, set });
+
+    if (numbers.length === 1) return numbers[0];
+  }
+
+  throw new Error();
+};
+
+const part2 = (input: string): number => {
+  const oxy = part2helper(input, maxBy, "1");
+  const co2 = part2helper(input, minBy, "0");
+
+  console.log({ oxy, co2 });
+
+  const oxyDec = parseInt(oxy, 2);
+  const co2Dec = parseInt(co2, 2);
+
+  console.log({ oxyDec, co2Dec });
+
+  return oxyDec * co2Dec;
+};
+
+assertEquals(part2(example), 230, "Example is wrong!");
+
+console.log("Result part 2: " + part2(text));
