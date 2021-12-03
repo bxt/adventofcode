@@ -15,9 +15,9 @@ added a short summary for each day.
 
 Day | Deno         | Description
 ----|-------------|--------------------------------------------------------------
-01  | [?][deno01] | [???][aoc01]
-02  | [?][deno02] | [???][aoc02]
-03  | [?][deno03] | [???][aoc03]
+01  | [✓][deno01] | [Increasing or decreasing submarine depths][aoc01]
+02  | [✓][deno02] | [Diving with a submarine][aoc02]
+03  | [✓][deno03] | [Finding most common binary digits][aoc03]
 04  | [?][deno04] | [???][aoc04]
 05  | [?][deno05] | [???][aoc05]
 06  | [?][deno06] | [???][aoc06]
@@ -40,7 +40,7 @@ Day | Deno         | Description
 23  | [?][deno23] | [???][aoc23]
 24  | [?][deno24] | [???][aoc24]
 25  | [?][deno25] | [???][aoc25]
-Σ   |           0 |
+Σ   |           3 |
 
 Other solutions
 ---------------
