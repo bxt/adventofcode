@@ -33,13 +33,12 @@ const sumUnmarkedFields = (board: Board, boardMarks: BoardMarks): number => {
   );
 };
 
-const hasWonAt = (
-  { boardMarks, row, col }: {
-    boardMarks: BoardMarks;
-    row: number;
-    col: number;
-  },
-): boolean => {
+type HasWonAtParams = {
+  boardMarks: BoardMarks;
+  row: number;
+  col: number;
+};
+const hasWonAt = ({ boardMarks, row, col }: HasWonAtParams): boolean => {
   const rowIsFilled = boardMarks[row].every((b) => b);
   const columnIsFilled = boardMarks.every((_, row) => boardMarks[row][col]);
   return rowIsFilled || columnIsFilled;
