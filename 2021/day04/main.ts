@@ -1,18 +1,13 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import {
-  groupBy,
-  maxWith,
-  minWith,
-} from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { minBy } from "https://deno.land/std@0.116.0/collections/mod.ts";
 
 type Board = number[][];
-
+type BoardMarks = boolean[][];
+type BoardWin = { drawIndex: number; score: number };
 type Input = { boards: Board[]; draws: number[] };
 
-const parseInput = (
-  string: string,
-): Input => {
+const parseInput = (string: string): Input => {
   const [drawsString, ...boardsStrings] = string.trim().split(/\n\W*\n\W*/);
   const draws = drawsString.split(",").map((s) => parseInt(s, 10));
 
@@ -29,42 +24,69 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const part1 = ({ boards, draws }: Input): number => {
-  const boardMarks: boolean[][][] = boards.map((a) =>
-    a.map((b) => b.map(() => false))
+const sumUnmarkedFields = (board: Board, boardMarks: BoardMarks): number => {
+  let sum = 0;
+
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      if (!boardMarks[row][col]) {
+        sum += board[row][col];
+      }
+    }
+  }
+
+  return sum;
+};
+
+const hasWonAt = (
+  { boardMarks, row, col }: {
+    boardMarks: BoardMarks;
+    row: number;
+    col: number;
+  },
+): boolean => {
+  const rowIsFilled = boardMarks[row].every((b) => b);
+  const columnIsFilled = boardMarks.every((_, innerRowIndex) =>
+    boardMarks[innerRowIndex][col]
   );
+  return rowIsFilled || columnIsFilled;
+};
 
-  for (const draw of draws) {
-    for (let i = 0; i < boards.length; i++) {
-      for (let j = 0; j < boards[i].length; j++) {
-        for (let k = 0; k < boards[i][j].length; k++) {
-          if (boards[i][j][k] === draw) {
-            boardMarks[i][j][k] = true;
+const findBoardWin = (board: Board, draws: number[]): BoardWin => {
+  const boardMarks: BoardMarks = board.map((b) => b.map(() => false));
 
-            if (
-              boardMarks[i][j].every((b) => b) ||
-              boardMarks[i].every((_, j2) => boardMarks[i][j2][k])
-            ) {
-              let score = 0;
+  for (let drawIndex = 0; drawIndex < draws.length; drawIndex++) {
+    const draw = draws[drawIndex];
 
-              for (let l = 0; l < boards[i].length; l++) {
-                for (let m = 0; m < boards[i][l].length; m++) {
-                  if (!boardMarks[i][l][m]) score += boards[i][l][m];
-                }
-              }
+    for (let row = 0; row < board.length; row++) {
+      for (let col = 0; col < board[row].length; col++) {
+        if (board[row][col] === draw) {
+          boardMarks[row][col] = true;
 
-              return draw * score;
-            }
+          if (hasWonAt({ boardMarks, row, col })) {
+            const score = sumUnmarkedFields(board, boardMarks);
+            return { drawIndex, score };
           }
         }
       }
     }
-
-    // console.log(boardMarks);
-    // console.log("##########");
   }
 
-  throw new Error();
+  throw new Error("Board does not win");
+};
+
+const getScoreOfMinBoardBy = ({ boards, draws, selector }: Input & {
+  selector: (boardWin: BoardWin) => number;
+}): number => {
+  const boardWins = boards.map((board) => findBoardWin(board, draws));
+
+  const selectedBoardWin = minBy(boardWins, selector);
+
+  if (!selectedBoardWin) throw new Error("No board win selected");
+
+  const { drawIndex, score } = selectedBoardWin;
+
+  return draws[drawIndex] * score;
 };
 
 const example = parseInput(`
@@ -89,64 +111,22 @@ const example = parseInput(`
    2  0 12  3  7
 `);
 
+const part1 = (input: Input): number => {
+  return getScoreOfMinBoardBy({
+    ...input,
+    selector: ({ drawIndex }) => drawIndex,
+  });
+};
+
 assertEquals(part1(example), 4512);
 
 console.log("Result part 1: " + part1(input));
 
-const part2 = ({ boards, draws }: Input): number => {
-  const boardMarks: boolean[][][] = boards.map((a) =>
-    a.map((b) => b.map(() => false))
-  );
-
-  const winners: number[] = [];
-  let lastWinnerDraw = undefined;
-
-  for (const draw of draws) {
-    for (let i = 0; i < boards.length; i++) {
-      if (winners.includes(i)) continue;
-      for (let j = 0; j < boards[i].length; j++) {
-        for (let k = 0; k < boards[i][j].length; k++) {
-          if (boards[i][j][k] === draw) {
-            boardMarks[i][j][k] = true;
-
-            if (
-              boardMarks[i][j].every((b) => b) ||
-              boardMarks[i].every((_, j2) => boardMarks[i][j2][k])
-            ) {
-              console.log({ i, draw });
-              winners.push(i);
-              lastWinnerDraw = draw;
-            }
-          }
-        }
-      }
-    }
-
-    // console.log(boardMarks);
-    // console.log("##########");
-  }
-
-  if (winners.length < 1) {
-    throw new Error();
-  }
-
-  const lastWinner = winners[winners.length - 1];
-
-  if (lastWinnerDraw === undefined) {
-    throw new Error();
-  }
-
-  console.log({ lastWinner, lastWinnerDraw });
-
-  let score = 0;
-
-  for (let l = 0; l < boards[lastWinner].length; l++) {
-    for (let m = 0; m < boards[lastWinner][l].length; m++) {
-      if (!boardMarks[lastWinner][l][m]) score += boards[lastWinner][l][m];
-    }
-  }
-
-  return lastWinnerDraw * score;
+const part2 = (input: Input): number => {
+  return getScoreOfMinBoardBy({
+    ...input,
+    selector: ({ drawIndex }) => -drawIndex,
+  });
 };
 
 assertEquals(part2(example), 1924);
