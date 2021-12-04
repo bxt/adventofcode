@@ -13,8 +13,8 @@ const parseInput = (string: string): Input => {
   const draws = drawsString.split(",").map((s) => parseInt(s, 10));
 
   const boards = boardsStrings.map((boardsString) =>
-    boardsString.split(/\n\W*/).map((s) =>
-      s.trim().split(/ +/).map((s) => parseInt(s, 10))
+    boardsString.split(/\n\W*/).map((lineString) =>
+      lineString.trim().split(/ +/).map((s) => parseInt(s, 10))
     )
   );
 
