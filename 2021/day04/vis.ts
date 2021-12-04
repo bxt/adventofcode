@@ -1,4 +1,8 @@
 #!/usr/bin/env deno run --allow-write --allow-read --allow-net
+
+// Inspired by Jari Komppa:
+// https://twitter.com/Sol_HSA/status/1467033308177514496
+
 import { chunk } from "https://deno.land/std@0.116.0/collections/mod.ts";
 import { Frame, GIF } from "https://deno.land/x/imagescript@1.2.9/mod.ts";
 import { BoardMarks, parseInput, sumUnmarkedFields } from "./main.ts";
