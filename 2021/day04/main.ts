@@ -74,9 +74,7 @@ const getScoreOfMinBoardBy = ({ boards, draws, selector }: Input & {
   const boardWins = boards.map((board) => findBoardWin(board, draws));
 
   const selectedBoardWin = minBy(boardWins, selector);
-
   if (!selectedBoardWin) throw new Error("No board win selected");
-
   const { drawIndex, score } = selectedBoardWin;
 
   return draws[drawIndex] * score;
