@@ -41,9 +41,7 @@ const hasWonAt = (
   },
 ): boolean => {
   const rowIsFilled = boardMarks[row].every((b) => b);
-  const columnIsFilled = boardMarks.every((_, innerRowIndex) =>
-    boardMarks[innerRowIndex][col]
-  );
+  const columnIsFilled = boardMarks.every((_, row) => boardMarks[row][col]);
   return rowIsFilled || columnIsFilled;
 };
 
