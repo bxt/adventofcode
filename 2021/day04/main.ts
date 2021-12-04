@@ -1,6 +1,7 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { minBy } from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { sum } from "../../2020/utils.ts";
 
 type Board = number[][];
 type BoardMarks = boolean[][];
@@ -25,17 +26,11 @@ const text = await Deno.readTextFile("input.txt");
 const input = parseInput(text);
 
 const sumUnmarkedFields = (board: Board, boardMarks: BoardMarks): number => {
-  let sum = 0;
-
-  for (let row = 0; row < board.length; row++) {
-    for (let col = 0; col < board[row].length; col++) {
-      if (!boardMarks[row][col]) {
-        sum += board[row][col];
-      }
-    }
-  }
-
-  return sum;
+  return sum(
+    board.flatMap((rowValues, row) =>
+      rowValues.filter((_, col) => !boardMarks[row][col])
+    ),
+  );
 };
 
 const hasWonAt = (
