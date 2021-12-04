@@ -92,3 +92,63 @@ const example = parseInput(`
 assertEquals(part1(example), 4512);
 
 console.log("Result part 1: " + part1(input));
+
+const part2 = ({ boards, draws }: Input): number => {
+  const boardMarks: boolean[][][] = boards.map((a) =>
+    a.map((b) => b.map(() => false))
+  );
+
+  const winners: number[] = [];
+  let lastWinnerDraw = undefined;
+
+  for (const draw of draws) {
+    for (let i = 0; i < boards.length; i++) {
+      if (winners.includes(i)) continue;
+      for (let j = 0; j < boards[i].length; j++) {
+        for (let k = 0; k < boards[i][j].length; k++) {
+          if (boards[i][j][k] === draw) {
+            boardMarks[i][j][k] = true;
+
+            if (
+              boardMarks[i][j].every((b) => b) ||
+              boardMarks[i].every((_, j2) => boardMarks[i][j2][k])
+            ) {
+              console.log({ i, draw });
+              winners.push(i);
+              lastWinnerDraw = draw;
+            }
+          }
+        }
+      }
+    }
+
+    // console.log(boardMarks);
+    // console.log("##########");
+  }
+
+  if (winners.length < 1) {
+    throw new Error();
+  }
+
+  const lastWinner = winners[winners.length - 1];
+
+  if (lastWinnerDraw === undefined) {
+    throw new Error();
+  }
+
+  console.log({ lastWinner, lastWinnerDraw });
+
+  let score = 0;
+
+  for (let l = 0; l < boards[lastWinner].length; l++) {
+    for (let m = 0; m < boards[lastWinner][l].length; m++) {
+      if (!boardMarks[lastWinner][l][m]) score += boards[lastWinner][l][m];
+    }
+  }
+
+  return lastWinnerDraw * score;
+};
+
+assertEquals(part2(example), 1924);
+
+console.log("Result part 2: " + part2(input));
