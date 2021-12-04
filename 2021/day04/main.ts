@@ -4,11 +4,11 @@ import { minBy } from "https://deno.land/std@0.116.0/collections/mod.ts";
 import { sum } from "../../2020/utils.ts";
 
 type Board = number[][];
-type BoardMarks = boolean[][];
+export type BoardMarks = boolean[][];
 type BoardWin = { drawIndex: number; score: number };
 type Input = { boards: Board[]; draws: number[] };
 
-const parseInput = (string: string): Input => {
+export const parseInput = (string: string): Input => {
   const [drawsString, ...boardsStrings] = string.trim().split(/\n\W*\n\W*/);
   const draws = drawsString.split(",").map((s) => parseInt(s, 10));
 
@@ -25,7 +25,10 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const sumUnmarkedFields = (board: Board, boardMarks: BoardMarks): number => {
+export const sumUnmarkedFields = (
+  board: Board,
+  boardMarks: BoardMarks,
+): number => {
   return sum(
     board.flatMap((rowValues, row) =>
       rowValues.filter((_, col) => !boardMarks[row][col])
