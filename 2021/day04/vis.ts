@@ -3,89 +3,20 @@
 // Inspired by Jari Komppa:
 // https://twitter.com/Sol_HSA/status/1467033308177514496
 
-import { chunk } from "https://deno.land/std@0.116.0/collections/mod.ts";
-import { Frame, GIF } from "https://deno.land/x/imagescript@1.2.9/mod.ts";
+import {
+  COLOR_BLUE_1,
+  COLOR_BLUE_2,
+  COLOR_BLUE_3,
+  COLOR_BLUE_4,
+  COLOR_GREEN_3,
+  COLOR_GREEN_4,
+  fontHeight,
+  Frame,
+  GIF,
+  mixColors,
+  writeText,
+} from "../visualisation_utils/mod.ts";
 import { BoardMarks, parseInput, sumUnmarkedFields } from "./main.ts";
-
-const mixColors = (
-  color1: number,
-  color2: number,
-  color2Percentage: number,
-): number => {
-  const [r1, g1, b1] = Frame.colorToRGB(color1);
-  const [r2, g2, b2] = Frame.colorToRGB(color2);
-  const color1Percentage = 1 - color2Percentage;
-  const r = r1 * color1Percentage + r2 * color2Percentage;
-  const g = g1 * color1Percentage + g2 * color2Percentage;
-  const b = b1 * color1Percentage + b2 * color2Percentage;
-  return Frame.rgbToColor(r, g, b);
-};
-
-const fontHeight = 9;
-const fontWidth = 7;
-const fontTotalWidth = 83;
-const fontString = await Deno.readTextFile("font.pbm");
-const fontStringHeader = `P1\n${fontTotalWidth} ${fontHeight}\n`;
-if (!fontString.startsWith(fontStringHeader)) {
-  throw new Error("Font size not supported");
-}
-
-const font = chunk(
-  fontString.substring(fontStringHeader.length).split("").filter(
-    (c) => c === "0" || c === "1",
-  ).map((c) => parseInt(c, 2)),
-  fontTotalWidth,
-);
-
-const letterPosition = (letter: string) => {
-  if (letter.match(/p/i)) return 0;
-  if (letter.match(/[0-9]/)) return parseInt(letter, 10) + 1;
-  if (letter === "*") return 11;
-  throw new Error(`Letter "${letter}" not supported!`);
-};
-
-const writeLetter = (
-  image: Frame,
-  letter: string,
-  xOffset: number,
-  yOffset: number,
-  color: number,
-) => {
-  const pos = letterPosition(letter);
-  for (let x = 0; x < (fontWidth - 1); x++) {
-    for (let y = 0; y < fontHeight; y++) {
-      if (font[y][x + pos * fontWidth]) {
-        image.setPixelAt(x + xOffset, y + yOffset, color);
-      }
-    }
-  }
-};
-
-const writeText = (
-  image: Frame,
-  text: string,
-  xOffset: number,
-  yOffset: number,
-  color = 0xffffffff,
-) => {
-  let currentYOffset = yOffset;
-  let currentXOffset = xOffset;
-
-  for (let i = 0; i < text.length; i++) {
-    const letter = text.charAt(i);
-
-    if (letter === " ") {
-      currentXOffset += fontWidth;
-    } else if (letter === "\n") {
-      currentXOffset = xOffset;
-      currentYOffset += fontHeight + 2;
-      continue;
-    } else {
-      writeLetter(image, letter, currentXOffset, currentYOffset, color);
-      currentXOffset += fontWidth;
-    }
-  }
-};
 
 console.log("Start...");
 
@@ -95,12 +26,12 @@ const { boards, draws } = parseInput(await Deno.readTextFile("input.txt"));
 
 const OVERDRAW_FRAMES = 40;
 
-const COLOR_BACKGROUND = 0x001122ff;
-const COLOR_BOARD = 0x003366ff;
-const COLOR_CELL = 0x0055AAff;
-const COLOR_CELL_DRAWN = 0x0077EEff;
-const COLOR_CELL_JUST_FOUND = 0x00BB00ff;
-const COLOR_WIN_FOUND = 0x009900ff;
+const COLOR_BACKGROUND = COLOR_BLUE_1;
+const COLOR_BOARD = COLOR_BLUE_2;
+const COLOR_CELL = COLOR_BLUE_3;
+const COLOR_CELL_DRAWN = COLOR_BLUE_4;
+const COLOR_CELL_JUST_FOUND = COLOR_GREEN_4;
+const COLOR_WIN_FOUND = COLOR_GREEN_3;
 const WIN_SCORE_FRAME_GAP = 20;
 const DECAY_PER_FRAME = 0.075;
 const DECAY_PER_FRAME_OVERDRAW = 0.075;
