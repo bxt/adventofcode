@@ -27,35 +27,50 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const part1 = (input: Input): number => {
+const countTwiceCovered = (input: Input, enableDiagonals: boolean): number => {
   console.log({ input });
 
   const lineCoverage: SparseCoordArray<number> = {};
 
-  input.forEach(([from, to]) => {
-    const [fromX, fromY] = from;
-    const [toX, toY] = to;
-    console.log({ fromX, fromY, toX, toY });
-    if (fromX === toX) {
-      console.log("is horiz");
-      const x = fromX;
-      for (let y = Math.min(fromY, toY); y <= Math.max(fromY, toY); y++) {
-        lineCoverage[y] ||= {};
-        lineCoverage[y][x] ??= 0;
-        lineCoverage[y][x]++;
-      }
-    }
-    if (fromY === toY) {
-      console.log("is vert");
+  input.map(([from, to]) => from[0] < to[0] ? [from, to] : [to, from]).forEach(
+    ([from, to]) => {
+      const [fromX, fromY] = from;
+      const [toX, toY] = to;
+      console.log({ fromX, fromY, toX, toY });
+      if (fromX === toX) {
+        console.log("is horiz");
+        const x = fromX;
+        for (let y = Math.min(fromY, toY); y <= Math.max(fromY, toY); y++) {
+          lineCoverage[y] ||= {};
+          lineCoverage[y][x] ??= 0;
+          lineCoverage[y][x]++;
+        }
+      } else if (fromY === toY) {
+        console.log("is vert");
 
-      const y = fromY;
-      for (let x = Math.min(fromX, toX); x <= Math.max(fromX, toX); x++) {
-        lineCoverage[y] ||= {};
-        lineCoverage[y][x] ??= 0;
-        lineCoverage[y][x]++;
+        const y = fromY;
+        for (let x = Math.min(fromX, toX); x <= Math.max(fromX, toX); x++) {
+          lineCoverage[y] ||= {};
+          lineCoverage[y][x] ??= 0;
+          lineCoverage[y][x]++;
+        }
+      } else {
+        console.log("is diag");
+        if (enableDiagonals) {
+          const delta = Math.round((toY - fromY) / Math.abs(toY - fromY));
+
+          for (let x = fromX; x <= toX; x++) {
+            const y = fromY + (x - fromX) * delta;
+
+            console.log({ x, y, delta });
+            lineCoverage[y] ||= {};
+            lineCoverage[y][x] ??= 0;
+            lineCoverage[y][x]++;
+          }
+        }
       }
-    }
-  });
+    },
+  );
 
   console.log({ lineCoverage });
 
@@ -64,6 +79,10 @@ const part1 = (input: Input): number => {
       Object.values(y).filter((n) => n >= 2).length
     ),
   );
+};
+
+const part1 = (input: Input): number => {
+  return countTwiceCovered(input, false);
 };
 
 const example = parseInput(`
@@ -82,3 +101,12 @@ const example = parseInput(`
 assertEquals(part1(example), 5, "Example is wrong!");
 
 console.log("Result part 1: " + part1(input));
+
+const part2 = (input: Input): number => {
+  return countTwiceCovered(input, true);
+};
+
+assertEquals(part2(example), 12, "Example is wrong!");
+
+console.log("Result part 2: " + part2(input));
+// 12808 wrong
