@@ -101,6 +101,7 @@ const COLOR_CELL = 0x0055AAff;
 const COLOR_CELL_DRAWN = 0x0077EEff;
 const COLOR_CELL_JUST_FOUND = 0x00BB00ff;
 const COLOR_WIN_FOUND = 0x009900ff;
+const WIN_SCORE_FRAME_GAP = 20;
 const DECAY_PER_FRAME = 0.075;
 const DECAY_PER_FRAME_OVERDRAW = 0.075;
 
@@ -149,10 +150,7 @@ for (
     const boardWin = boardWins[boardIndex];
 
     const boardWonBefore = boardWin === undefined ? 0 : (drawIndex - boardWin);
-    const darken =
-      (boardIndex === lastBoardToWin || boardIndex === firstBoardToWin)
-        ? 0
-        : Math.min(boardWonBefore * DECAY_PER_FRAME, 1);
+    const darken = Math.min(boardWonBefore * DECAY_PER_FRAME, 1);
     const applyDarken = (color: number) =>
       mixColors(color, COLOR_BACKGROUND, darken);
 
@@ -245,34 +243,46 @@ for (
       }
     }
 
-    if (overdraw > 0) {
-      if (firstBoardToWin === boardIndex || lastBoardToWin === boardIndex) {
+    const winDrawIndex = boardWins[boardIndex];
+    if (winDrawIndex !== undefined) {
+      const afterWin = drawIndex - winDrawIndex;
+      if (afterWin > WIN_SCORE_FRAME_GAP) {
+        const scoreFrames = afterWin - WIN_SCORE_FRAME_GAP;
+
+        const isTarget = firstBoardToWin === boardIndex ||
+          lastBoardToWin === boardIndex;
+
         drawOnTop.push(() => {
           const decayOffsetPerLine = 3;
-          const part = firstBoardToWin === boardIndex ? 1 : 2;
-          const winDrawIndex = boardWins[boardIndex];
-          if (winDrawIndex === undefined) throw new Error("???");
+          const part = firstBoardToWin === boardIndex
+            ? "P1"
+            : lastBoardToWin === boardIndex
+            ? "P2"
+            : "";
           const winDraw = draws[winDrawIndex];
           const score = sumUnmarkedFields(board, boardMarks);
 
           const lines = [
-            [`P${part}`, COLOR_CELL_JUST_FOUND],
+            [part, COLOR_CELL_JUST_FOUND],
             [`${winDrawIndex}`, COLOR_CELL],
-            [`${winDraw} * ${score}`, COLOR_CELL_DRAWN],
-            [`${winDraw * score}`, COLOR_CELL_JUST_FOUND],
+            [`${winDraw} * ${score}`, isTarget ? COLOR_CELL_DRAWN : COLOR_CELL],
+            [
+              `${winDraw * score}`,
+              isTarget ? COLOR_CELL_JUST_FOUND : COLOR_CELL_DRAWN,
+            ],
           ] as const;
 
           const yOffsetBase = boardYOffset +
             Math.round((2 * cellSize + cellPad - fontHeight) / 2);
 
           lines.forEach(([text, color], lineNumber) => {
-            const darken = (overdraw - lineNumber * decayOffsetPerLine) *
+            const darken = (scoreFrames - lineNumber * decayOffsetPerLine) *
               DECAY_PER_FRAME_OVERDRAW;
             const darkenClamped = 1 - Math.max(Math.min(darken, 1), 0);
             writeText(
               frame,
               text,
-              boardXOffset + boardSize + boardPad,
+              boardXOffset,
               yOffsetBase + (cellSize + cellPad) * lineNumber,
               mixColors(color, COLOR_BACKGROUND, darkenClamped),
             );
