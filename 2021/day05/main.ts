@@ -4,14 +4,14 @@ import { Coord, SparseCoordArray, sum } from "../../2020/utils.ts";
 
 type Input = [Coord, Coord][];
 
-const MIN_LINE_COVERAGE = 2;
+export const MIN_LINE_COVERAGE = 2;
 
 const parseCoord = (s: string): Coord => {
   const [s1, s2] = s.split(",");
   return [parseInt(s1, 10), parseInt(s2, 10)];
 };
 
-const parseInput = (string: string): Input => {
+export const parseInput = (string: string): Input => {
   const lines = string.trim().split(/\s*\n\s*/);
 
   return lines.map((line) => {
@@ -27,7 +27,23 @@ const input = parseInput(text);
 const orderPairByX = ([from, to]: [Coord, Coord]) =>
   from[0] < to[0] ? [from, to] : [to, from];
 
-const countTwiceCovered = (input: Input, enableDiagonals: boolean): number => {
+export const countSpotsAboveMiniumLineCoverage = (
+  lineCoverage: SparseCoordArray<number>,
+): number => {
+  return sum(
+    Object.values(lineCoverage).flatMap((row) =>
+      Object.values(row).filter((n) => n >= MIN_LINE_COVERAGE).length
+    ),
+  );
+};
+
+export const countTwiceCovered = (
+  input: Input,
+  enableDiagonals: boolean,
+  callback: (
+    lineCoverage: SparseCoordArray<number>,
+  ) => void = () => {},
+): number => {
   const lineCoverage: SparseCoordArray<number> = {};
 
   const inreaseLineCoverageAt = ([x, y]: Coord) => {
@@ -60,14 +76,11 @@ const countTwiceCovered = (input: Input, enableDiagonals: boolean): number => {
           }
         }
       }
+      callback(lineCoverage);
     },
   );
 
-  return sum(
-    Object.values(lineCoverage).flatMap((row) =>
-      Object.values(row).filter((n) => n >= MIN_LINE_COVERAGE).length
-    ),
-  );
+  return countSpotsAboveMiniumLineCoverage(lineCoverage);
 };
 
 const part1 = (input: Input): number => {
