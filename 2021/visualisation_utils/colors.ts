@@ -7,11 +7,15 @@ export const COLOR_BLUE_4 = 0x0077EEff;
 export const COLOR_GREEN_3 = 0x009900ff;
 export const COLOR_GREEN_4 = 0x00BB00ff;
 
-export const mixColors = (
+/**
+ * Blends two colors together, using a percentage of the second color.
+ * Does not use fancy color models, just mixing the RGB channels.
+ */
+export function mixColors(
   color1: number,
   color2: number,
   color2Percentage: number,
-): number => {
+): number {
   const [r1, g1, b1] = Frame.colorToRGB(color1);
   const [r2, g2, b2] = Frame.colorToRGB(color2);
   const color1Percentage = 1 - color2Percentage;
@@ -19,4 +23,4 @@ export const mixColors = (
   const g = g1 * color1Percentage + g2 * color2Percentage;
   const b = b1 * color1Percentage + b2 * color2Percentage;
   return Frame.rgbToColor(r, g, b);
-};
+}
