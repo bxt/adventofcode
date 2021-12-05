@@ -2,7 +2,8 @@
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { Coord, SparseCoordArray, sum } from "../../2020/utils.ts";
 
-type Input = [Coord, Coord][];
+type Line = [Coord, Coord];
+type Input = Line[];
 export type LineCoverage = SparseCoordArray<number>;
 
 export const MIN_LINE_COVERAGE = 2;
@@ -25,8 +26,8 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const orderPairByX = ([from, to]: [Coord, Coord]) =>
-  from[0] < to[0] ? [from, to] : [to, from];
+const orderPairBy = (index: 0 | 1) =>
+  ([from, to]: Line): Line => from[index] > to[index] ? [to, from] : [from, to];
 
 export const countSpotsAboveMinLineCoverage = (
   lineCoverage: LineCoverage,
@@ -51,13 +52,11 @@ export const calculateCoverage = (
     lineCoverage[y][x]++;
   };
 
-  input.map(orderPairByX).forEach(
-    ([from, to]) => {
-      const [fromX, fromY] = from;
-      const [toX, toY] = to;
+  input.map(orderPairBy(1)).map(orderPairBy(0)).forEach(
+    ([[fromX, fromY], [toX, toY]]) => {
       if (fromX === toX) {
         const x = fromX;
-        for (let y = Math.min(fromY, toY); y <= Math.max(fromY, toY); y++) {
+        for (let y = fromY; y <= toY; y++) {
           inreaseLineCoverageAt([x, y]);
         }
       } else if (fromY === toY) {
@@ -67,10 +66,8 @@ export const calculateCoverage = (
         }
       } else {
         if (enableDiagonals) {
-          const delta = Math.round((toY - fromY) / Math.abs(toY - fromY));
-
           for (let x = fromX; x <= toX; x++) {
-            const y = fromY + (x - fromX) * delta;
+            const y = fromY + (x - fromX) * Math.sign(toY - fromY);
             inreaseLineCoverageAt([x, y]);
           }
         }
