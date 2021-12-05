@@ -1,13 +1,10 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import {
-  groupBy,
-  maxWith,
-  minWith,
-} from "https://deno.land/std@0.116.0/collections/mod.ts";
 import { Coord, SparseCoordArray, sum } from "../../2020/utils.ts";
 
 type Input = [Coord, Coord][];
+
+const MIN_LINE_COVERAGE = 2;
 
 const parseCoord = (s: string): Coord => {
   const [s1, s2] = s.split(",");
@@ -27,56 +24,48 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const countTwiceCovered = (input: Input, enableDiagonals: boolean): number => {
-  console.log({ input });
+const orderPairByX = ([from, to]: [Coord, Coord]) =>
+  from[0] < to[0] ? [from, to] : [to, from];
 
+const countTwiceCovered = (input: Input, enableDiagonals: boolean): number => {
   const lineCoverage: SparseCoordArray<number> = {};
 
-  input.map(([from, to]) => from[0] < to[0] ? [from, to] : [to, from]).forEach(
+  const inreaseLineCoverageAt = ([x, y]: Coord) => {
+    lineCoverage[y] ??= {};
+    lineCoverage[y][x] ??= 0;
+    lineCoverage[y][x]++;
+  };
+
+  input.map(orderPairByX).forEach(
     ([from, to]) => {
       const [fromX, fromY] = from;
       const [toX, toY] = to;
-      console.log({ fromX, fromY, toX, toY });
       if (fromX === toX) {
-        console.log("is horiz");
         const x = fromX;
         for (let y = Math.min(fromY, toY); y <= Math.max(fromY, toY); y++) {
-          lineCoverage[y] ||= {};
-          lineCoverage[y][x] ??= 0;
-          lineCoverage[y][x]++;
+          inreaseLineCoverageAt([x, y]);
         }
       } else if (fromY === toY) {
-        console.log("is vert");
-
         const y = fromY;
-        for (let x = Math.min(fromX, toX); x <= Math.max(fromX, toX); x++) {
-          lineCoverage[y] ||= {};
-          lineCoverage[y][x] ??= 0;
-          lineCoverage[y][x]++;
+        for (let x = fromX; x <= toX; x++) {
+          inreaseLineCoverageAt([x, y]);
         }
       } else {
-        console.log("is diag");
         if (enableDiagonals) {
           const delta = Math.round((toY - fromY) / Math.abs(toY - fromY));
 
           for (let x = fromX; x <= toX; x++) {
             const y = fromY + (x - fromX) * delta;
-
-            console.log({ x, y, delta });
-            lineCoverage[y] ||= {};
-            lineCoverage[y][x] ??= 0;
-            lineCoverage[y][x]++;
+            inreaseLineCoverageAt([x, y]);
           }
         }
       }
     },
   );
 
-  console.log({ lineCoverage });
-
   return sum(
-    Object.values(lineCoverage).flatMap((y) =>
-      Object.values(y).filter((n) => n >= 2).length
+    Object.values(lineCoverage).flatMap((row) =>
+      Object.values(row).filter((n) => n >= MIN_LINE_COVERAGE).length
     ),
   );
 };
@@ -109,4 +98,3 @@ const part2 = (input: Input): number => {
 assertEquals(part2(example), 12, "Example is wrong!");
 
 console.log("Result part 2: " + part2(input));
-// 12808 wrong
