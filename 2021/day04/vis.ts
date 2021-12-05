@@ -112,7 +112,9 @@ const cellSize = 14;
 const boardPad = 20;
 const boardSize = (cellSize + cellPad) * boards[0].length + cellPad;
 const boardOuterSize = boardSize + boardPad;
-const width = BOARDS_PER_ROW * boardOuterSize + boardPad;
+const width =
+  (BOARDS_PER_ROW < boards.length ? BOARDS_PER_ROW : boards.length) *
+    boardOuterSize + boardPad;
 const height = Math.ceil(boards.length / BOARDS_PER_ROW) * boardOuterSize +
   boardPad;
 
