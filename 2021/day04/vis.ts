@@ -58,6 +58,9 @@ const boardWins: (number | undefined)[] = boards.map((_) => undefined);
 let firstBoardToWin: number | undefined = undefined;
 let lastBoardToWin: number | undefined = undefined;
 
+const formatNumber = (number: number): string =>
+  number.toString().padStart(2, "0");
+
 console.log("Drawing...");
 
 for (
@@ -226,9 +229,7 @@ for (
   drawOnTop.forEach((callback) => callback());
 
   if (drawIndex < draws.length) {
-    const text = `${drawIndex < 10 ? "0" : ""}${drawIndex} ${
-      draw < 10 ? "0" : ""
-    }${draw}`;
+    const text = `${formatNumber(drawIndex)} ${formatNumber(draw)}`;
     writeText(
       frame,
       text,
