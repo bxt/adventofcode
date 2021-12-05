@@ -3,6 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { Coord, SparseCoordArray, sum } from "../../2020/utils.ts";
 
 type Input = [Coord, Coord][];
+export type LineCoverage = SparseCoordArray<number>;
 
 export const MIN_LINE_COVERAGE = 2;
 
@@ -27,8 +28,8 @@ const input = parseInput(text);
 const orderPairByX = ([from, to]: [Coord, Coord]) =>
   from[0] < to[0] ? [from, to] : [to, from];
 
-export const countSpotsAboveMiniumLineCoverage = (
-  lineCoverage: SparseCoordArray<number>,
+export const countSpotsAboveMinLineCoverage = (
+  lineCoverage: LineCoverage,
 ): number => {
   return sum(
     Object.values(lineCoverage).flatMap((row) =>
@@ -37,14 +38,12 @@ export const countSpotsAboveMiniumLineCoverage = (
   );
 };
 
-export const countTwiceCovered = (
+export const calculateCoverage = (
   input: Input,
   enableDiagonals: boolean,
-  callback: (
-    lineCoverage: SparseCoordArray<number>,
-  ) => void = () => {},
-): number => {
-  const lineCoverage: SparseCoordArray<number> = {};
+  callback: (lineCoverage: LineCoverage) => void = () => {},
+): LineCoverage => {
+  const lineCoverage: LineCoverage = {};
 
   const inreaseLineCoverageAt = ([x, y]: Coord) => {
     lineCoverage[y] ??= {};
@@ -80,11 +79,11 @@ export const countTwiceCovered = (
     },
   );
 
-  return countSpotsAboveMiniumLineCoverage(lineCoverage);
+  return lineCoverage;
 };
 
 const part1 = (input: Input): number => {
-  return countTwiceCovered(input, false);
+  return countSpotsAboveMinLineCoverage(calculateCoverage(input, false));
 };
 
 const example = parseInput(`
@@ -105,7 +104,7 @@ assertEquals(part1(example), 5, "Example is wrong!");
 console.log("Result part 1: " + part1(input));
 
 const part2 = (input: Input): number => {
-  return countTwiceCovered(input, true);
+  return countSpotsAboveMinLineCoverage(calculateCoverage(input, true));
 };
 
 assertEquals(part2(example), 12, "Example is wrong!");

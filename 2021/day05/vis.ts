@@ -3,20 +3,18 @@ import {
   COLOR_BLUE_1,
   COLOR_BLUE_4,
   COLOR_GREEN_3,
-  COLOR_GREEN_4,
-  fontHeight,
   Frame,
   GIF,
   mixColors,
   writeText,
 } from "../visualisation_utils/mod.ts";
 import {
-  countSpotsAboveMiniumLineCoverage,
-  countTwiceCovered,
+  calculateCoverage,
+  countSpotsAboveMinLineCoverage,
+  LineCoverage,
   MIN_LINE_COVERAGE,
   parseInput,
 } from "./main.ts";
-import { assertMaybe, Maybe, SparseCoordArray } from "../../2020/utils.ts";
 
 console.log("Calculating...");
 
@@ -38,62 +36,50 @@ const input = parseInput(text);
 
 const parts = [1, 2] as const;
 
-parts.forEach((part) => {
-  let finalLineCoverage: Maybe<SparseCoordArray<number>> = null;
+const drawCoverage = (
+  frame: Frame,
+  lineCoverage: LineCoverage,
+  textColor: number,
+  part: 1 | 2,
+  markSufficientlyCoveredPixels: boolean,
+) => {
+  frame.drawBox(1, 1, width, height, COLOR_BACKGROUND);
 
-  countTwiceCovered(input, part === 2, (lineCoverage) => {
-    const frame = new Frame(width, height, 30);
-    frame.drawBox(1, 1, width, height, COLOR_BACKGROUND);
-
-    Object.entries(lineCoverage).forEach(([yString, row]) => {
-      Object.entries(row).forEach(([xString, coverage]) => {
-        const x = parseInt(xString, 10);
-        const y = parseInt(yString, 10);
-        const color = mixColors(
-          COLOR_BACKGROUND,
-          COLOR_LINE,
-          coverage / COVER_CAP,
-        );
-        frame.setPixelAt(x, y, color);
-      });
+  Object.entries(lineCoverage).forEach(([yString, row]) => {
+    Object.entries(row).forEach(([xString, coverage]) => {
+      const x = parseInt(xString, 10);
+      const y = parseInt(yString, 10);
+      const color =
+        markSufficientlyCoveredPixels && coverage >= MIN_LINE_COVERAGE
+          ? COLOR_COVERED
+          : mixColors(
+            COLOR_BACKGROUND,
+            COLOR_LINE,
+            coverage / COVER_CAP,
+          );
+      frame.setPixelAt(x, y, color);
     });
-
-    const currentValue = countSpotsAboveMiniumLineCoverage(lineCoverage);
-
-    writeText(frame, `P${part} ${currentValue}`, 10, 10, COLOR_LINE);
-
-    gif.push(frame);
-
-    finalLineCoverage = lineCoverage;
   });
 
+  const currentValue = countSpotsAboveMinLineCoverage(lineCoverage);
+
+  writeText(frame, `P${part} ${currentValue}`, 16, 16, textColor);
+};
+
+parts.forEach((part) => {
+  const lineCoverage = calculateCoverage(
+    input,
+    part === 2,
+    (lineCoverage) => {
+      const frame = new Frame(width, height, 30);
+      drawCoverage(frame, lineCoverage, COLOR_LINE, part, false);
+      gif.push(frame);
+    },
+  );
+
   {
-    const lineCoverage = assertMaybe(
-      finalLineCoverage,
-    ) as unknown as SparseCoordArray<
-      number
-    >;
-
     const frame = new Frame(width, height, 1400);
-    frame.drawBox(1, 1, width, height, COLOR_BACKGROUND);
-
-    Object.entries(lineCoverage).forEach(([yString, row]) => {
-      Object.entries(row).forEach(([xString, coverage]) => {
-        const x = parseInt(xString, 10);
-        const y = parseInt(yString, 10);
-        const color = coverage >= MIN_LINE_COVERAGE ? COLOR_COVERED : mixColors(
-          COLOR_BACKGROUND,
-          COLOR_LINE,
-          coverage / COVER_CAP,
-        );
-        frame.setPixelAt(x, y, color);
-      });
-    });
-
-    const currentValue = countSpotsAboveMiniumLineCoverage(lineCoverage);
-
-    writeText(frame, `P${part} ${currentValue}`, 10, 10, COLOR_COVERED);
-
+    drawCoverage(frame, lineCoverage, COLOR_COVERED, part, true);
     gif.push(frame);
   }
 });
