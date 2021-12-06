@@ -2,8 +2,10 @@
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { sum } from "../../2020/utils.ts";
 
-const BREED_DAYS = 7;
-const MATURE_DAYS = 8;
+export const DAYS_PART_ONE = 80;
+export const DAYS_PART_TWO = 256;
+export const BREED_DAYS = 7;
+export const MATURE_DAYS = 8;
 
 const parseInput = (string: string): number[] => {
   return string.trim().split(",").map((s) => parseInt(s, 10));
@@ -11,7 +13,7 @@ const parseInput = (string: string): number[] => {
 
 const text = await Deno.readTextFile("input.txt");
 
-const input = parseInput(text);
+export const input = parseInput(text);
 
 const childrenDaysToBreed = (
   daysToBreed: number,
@@ -64,7 +66,7 @@ const unlimitedBreedCount = (
 };
 
 const part1 = (input: number[]): number => {
-  return unlimitedBreedCount(input, 80);
+  return unlimitedBreedCount(input, DAYS_PART_ONE);
 };
 
 const example = parseInput(`3,4,3,1,2`);
@@ -75,7 +77,7 @@ assertEquals(part1(example), 5934);
 console.log("Result part 1: " + part1(input));
 
 const part2 = (input: number[]): number => {
-  return unlimitedBreedCount(input, 256);
+  return unlimitedBreedCount(input, DAYS_PART_TWO);
 };
 
 assertEquals(part2(example), 26984457539);
