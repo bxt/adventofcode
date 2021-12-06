@@ -82,13 +82,15 @@ for (let day = 0; day <= DAYS; day++) {
     const isLastFrame = frameNumber === FRAMES_PER_DAY - 1;
     const dayPercentage = frameNumber / FRAMES_PER_DAY;
 
-    const frameDuration = (isLastDay && isLastFrame) ? 5000 : 30;
+    const frameDuration = (isLastDay && isLastFrame) ? 3000 : 30;
     const frame = new Frame(width, height, frameDuration);
     frame.drawBox(1, 1, width, height, COLOR_BACKGROUND);
 
     fish.forEach(({ x, y, daysToBreed }) => {
       const color = daysToBreed === MATURE_DAYS
         ? mixColors(COLOR_BORN, COLOR_FISH, dayPercentage)
+        : daysToBreed <= 0
+        ? mixColors(COLOR_FISH, COLOR_FISH_BURSTING, dayPercentage)
         : COLOR_FISH;
       const growthFactor = Math.max(BREED_DAYS - daysToBreed, 1) +
         dayPercentage;
