@@ -69,7 +69,7 @@ const part1 = (input: number[]): number => {
   return unlimitedBreedCount(input, DAYS_PART_ONE);
 };
 
-const example = parseInput(`3,4,3,1,2`);
+export const example = parseInput(`3,4,3,1,2`);
 
 assertEquals(unlimitedBreedCount(example, 18), 26);
 assertEquals(part1(example), 5934);
