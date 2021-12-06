@@ -87,20 +87,12 @@ for (let day = 0; day <= DAYS; day++) {
     frame.drawBox(1, 1, width, height, COLOR_BACKGROUND);
 
     fish.forEach(({ x, y, daysToBreed }) => {
-      let color = COLOR_FISH;
-      if (daysToBreed >= BREED_DAYS) {
-        const maturity = ((MATURE_DAYS - daysToBreed + dayPercentage) /
-          (MATURE_DAYS - BREED_DAYS + 1));
-        color = mixColors(COLOR_BORN, COLOR_FISH, maturity);
-      }
-      if (daysToBreed <= 0) {
-        color = mixColors(COLOR_FISH, COLOR_FISH_BURSTING, dayPercentage);
-      }
-
+      const color = daysToBreed === MATURE_DAYS
+        ? mixColors(COLOR_BORN, COLOR_FISH, dayPercentage)
+        : COLOR_FISH;
       const growthFactor = Math.max(BREED_DAYS - daysToBreed, 1) +
         dayPercentage;
       const radius = Math.sqrt(AREA * growthFactor / (BREED_DAYS + 1)) + 1;
-
       drawNeatCircle(frame, x, y, radius, color);
     });
 
