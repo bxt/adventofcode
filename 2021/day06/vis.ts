@@ -39,21 +39,18 @@ const drawNeatCircle = (
   radius: number,
   color: number,
 ) => {
-  for (
-    let currentY = Math.max(1, Math.floor(y - radius));
-    currentY <= Math.min(Math.ceil(y + radius), height);
-    currentY++
-  ) {
-    for (
-      let currentX = Math.max(1, Math.floor(x - radius));
-      currentX <= Math.min(Math.ceil(x + radius), width);
-      currentX++
-    ) {
+  const fromX = Math.max(1, Math.floor(x - radius));
+  const toX = Math.min(Math.ceil(x + radius), width);
+  const fromY = Math.max(1, Math.floor(y - radius));
+  const toY = Math.min(Math.ceil(y + radius), height);
+  for (let currentY = fromY; currentY <= toY; currentY++) {
+    for (let currentX = fromX; currentX <= toX; currentX++) {
       const distance = Math.sqrt((currentX - x) ** 2 + (currentY - y) ** 2);
       const diff = distance - radius + 0.5;
-      if (diff < 0) {
+
+      if (diff < 0) { // inside
         image.setPixelAt(currentX, currentY, color);
-      } else if (diff < 1) {
+      } else if (diff < 1) { // on border
         const mixedColor = mixColors(
           color,
           image.getPixelAt(currentX, currentY),
