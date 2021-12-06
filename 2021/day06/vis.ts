@@ -26,7 +26,7 @@ const COLOR_BORN = COLOR_GREEN_4;
 const DAYS = DAYS_PART_ONE;
 const FRAMES_PER_DAY = 10;
 
-const SPEED = 3;
+const SPEED = 1;
 const AREA = 7;
 
 const size = 1000;
@@ -67,13 +67,22 @@ type Fish = {
   daysToBreed: number;
   x: number;
   y: number;
+  vx: number;
+  vy: number;
 };
 
-let fish: Fish[] = input.map((n) => ({
-  daysToBreed: n,
-  x: Math.random() * width,
-  y: Math.random() * height,
-}));
+let fish: Fish[] = input.map((n) => {
+  const angle = Math.random() * 2 * Math.PI;
+  const diffX = Math.sin(angle);
+  const diffY = Math.cos(angle);
+  return ({
+    daysToBreed: n,
+    x: Math.random() * width,
+    y: Math.random() * height,
+    vx: diffX * SPEED,
+    vy: diffY * SPEED,
+  });
+});
 
 for (let day = 0; day <= DAYS; day++) {
   const isLastDay = day === DAYS;
@@ -103,28 +112,42 @@ for (let day = 0; day <= DAYS; day++) {
 
     gif.push(frame);
 
-    fish = fish.flatMap((lampy) => ({
-      ...lampy,
-      x: lampy.x + (Math.random() - 0.5) * SPEED,
-      y: lampy.y + (Math.random() - 0.5) * SPEED,
-    }));
+    fish = fish.flatMap(({ x, y, vx, vy, ...lampy }) => {
+      const newX = x + vx;
+      const newY = y + vy;
+      return ({
+        ...lampy,
+        x: newX < 1 ? 2 - newX : newX > width ? 2 * width - newX : newX,
+        y: newY < 1 ? 2 - newY : newY > height ? 2 * height - newY : newY,
+        vx: newX < 1 || newX > width ? -vx : vx,
+        vy: newY < 1 || newY > width ? -vy : vy,
+      });
+    });
   }
 
   fish = fish.flatMap((lampy) => {
-    const { x, y } = lampy;
+    const { x, y, vx, vy } = lampy;
     if (lampy.daysToBreed <= 0) {
-      const angle = Math.random() * Math.PI;
-      const diffX = Math.sin(angle);
-      const diffY = Math.cos(angle);
+      const damping = 0.9;
+      const speed = Math.sqrt(vx * vx + vy * vy) * damping;
+      const angle = Math.atan2(vy, vx);
+      const diffX1 = Math.cos(angle + Math.PI / 5);
+      const diffY1 = Math.sin(angle + Math.PI / 5);
+      const diffX2 = Math.cos(angle + 9 * Math.PI / 5);
+      const diffY2 = Math.sin(angle + 9 * Math.PI / 5);
       return [{
         ...lampy,
-        x: x + diffX * SPEED,
-        y: y + diffY * SPEED,
+        x: x + diffX1 * SPEED,
+        y: y + diffY1 * SPEED,
+        vx: diffX1 * speed,
+        vy: diffY1 * speed,
         daysToBreed: BREED_DAYS - 1,
       }, {
         ...lampy,
-        x: x - diffX * SPEED,
-        y: y - diffY * SPEED,
+        x: x + diffX2 * SPEED,
+        y: y + diffY2 * SPEED,
+        vx: diffX2 * speed,
+        vy: diffY2 * speed,
         daysToBreed: MATURE_DAYS,
       }];
     } else {
