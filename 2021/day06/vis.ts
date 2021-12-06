@@ -13,6 +13,7 @@ import {
 import { BREED_DAYS, DAYS_PART_ONE, input, MATURE_DAYS } from "./main.ts";
 
 console.log("Calculating...");
+console.time("calculation");
 
 const gif = new GIF([]);
 
@@ -155,10 +156,13 @@ for (let day = 0; day <= DAYS; day++) {
     }
   });
 }
+console.timeEnd("calculation");
 
 console.log("Encoding...");
 
+console.time("encoding");
 const bytes = await gif.encode();
+console.timeEnd("encoding");
 
 console.log("Writing...");
 
