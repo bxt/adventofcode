@@ -1,0 +1,1 @@
+f=[0]*9;gets.scan(/\d/).map{f[_1.to_i]+=1};256.times{f[(7+_1)%9]+=f[_1%9]};p f.sum
