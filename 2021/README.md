@@ -46,15 +46,13 @@ Other solutions
 ---------------
 
 I enjoy looking at how other coders solved the riddles to learn even more. This
-year I might follow (A-Z):
+year I follow (A-Z):
 
 * [carlastabile](https://github.com/carlastabile/advent-of-code/tree/master/2021) (Python)
+* [Chimney42](https://github.com/Chimney42/aoc-2021) (Python)
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2021) (Python)
-* [etrepum](https://github.com/etrepum) (PureScript & Dhall)
 * [fdlk](https://github.com/fdlk/advent-2021) (Scala)
-* [glguy](https://github.com/glguy/advent2021) (Haskell)
-* [senegalo](https://github.com/senegalo) (Ruby)
-* [sophiebits](https://github.com/sophiebits/adventofcode/tree/main/) (Python)
+* [glguy](https://github.com/glguy/advent2021) (Haskell
 
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
