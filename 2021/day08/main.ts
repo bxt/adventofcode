@@ -13,19 +13,6 @@ const parseSegment = (string: string): Segment[] => {
   return string.split("").map((d) => ensureElementOf(d, segments));
 };
 
-const numbers = [
-  "abcefg",
-  "cf",
-  "acdeg",
-  "acdfg",
-  "bcdf",
-  "abdfg",
-  "abdefg",
-  "acf",
-  "abcdefg",
-  "abcdfg",
-].map(parseSegment);
-
 const parseSegmentsList = (string: string): Segment[][] => {
   return string.split(" ").map(parseSegment);
 };
@@ -77,81 +64,94 @@ assertEquals(part1(example), 26);
 
 console.log("Result part 1: " + part1(input));
 
-const getOutputValue = ({ indicators, result }: Line): number => {
-  const mapping = Object.fromEntries(
-    segments.map((s) => [s, [...segments]]),
-  ) as Record<Segment, Segment[]>;
-  const numbersMapping: Record<string, number> = {};
-  console.log({ mapping });
+const findAndRemove = <T>(array: T[], predicate: (t: T) => boolean): T => {
+  const element = array.find(predicate);
+  if (element === undefined) throw new Error("Not found");
+  array.splice(array.indexOf(element), 1);
+  return element;
+};
 
-  const know = (indicator: Segment[], segments: Segment[]) => {
-    indicator.forEach((segment) => {
-      mapping[segment] = mapping[segment].filter((s) => segments.includes(s));
-    });
-  };
+const getLineValue = ({ indicators, result }: Line): number => {
+  const numbersMapping: Record<string, number> = {};
+  const indicatorsMapping: Record<number, Segment[]> = {};
 
   const knowNumber = (indicator: Segment[], number: number) => {
     numbersMapping[indicator.sort().join("")] = number;
-    know(indicator, numbers[number]);
+    indicatorsMapping[number] = indicator;
   };
 
-  const foundSevenOne = (sevenOneIndicator: Segment[]) => {
-    indicators.forEach((indicator) => {
-      switch (indicator.length) {
-        case 2: // has to be a 1
-        case 4: // has to be a 4
-        case 3: // has to be a 7
-        case 7: // has to be a 8
-          break;
-        case 5: // has to be a 2, 3, 5
-          if (sevenOneIndicator.every((s) => indicator.includes(s))) { // has to be a 3
-            knowNumber(indicator, 3);
-          }
-          break;
-        case 6: { // has to be a 0, 6, 9
-          const notIncluded = sevenOneIndicator.find((s) =>
-            !indicator.includes(s)
-          );
-          if (notIncluded !== undefined) {
-            knowNumber(indicator, 6);
-            know([notIncluded], ["c"]);
-          }
-          break;
-        }
-        default:
-          throw new Error(`Huh? ${indicator.length}`);
-      }
-    });
-  };
+  if (indicators.length !== 10) {
+    throw new Error("Missing indicator for a digit?");
+  }
+
+  const indicatorsLength5: Segment[][] = [];
+  const indicatorsLength6: Segment[][] = [];
 
   indicators.forEach((indicator) => {
     switch (indicator.length) {
       case 2: // has to be a 1
         knowNumber(indicator, 1);
-        foundSevenOne(indicator);
         break;
       case 4: // has to be a 4
         knowNumber(indicator, 4);
         break;
       case 3: // has to be a 7
         knowNumber(indicator, 7);
-        foundSevenOne(indicator);
         break;
       case 7: // has to be a 8
         knowNumber(indicator, 8);
         break;
       case 5: // has to be a 2, 3, 5
+        indicatorsLength5.push(indicator);
         break;
       case 6: // has to be a 0, 6, 9
+        indicatorsLength6.push(indicator);
         break;
       default:
-        throw new Error(`Huh? ${indicator.length}`);
+        throw new Error(`Unexpected indicator length: ${indicator.length}`);
     }
   });
 
-  console.log({ mapping, numbersMapping });
+  if (indicatorsMapping[1] === undefined) throw new Error();
+  if (indicatorsLength5.length !== 3) throw new Error();
+  if (indicatorsLength6.length !== 3) throw new Error();
 
-  console.log({ mapping, numbersMapping });
+  const threeIndicator = findAndRemove(indicatorsLength5, (indicator) => {
+    return indicatorsMapping[1].every((s) => indicator.includes(s));
+  });
+  knowNumber(threeIndicator, 3);
+
+  let mapsToSegmentC: Segment | undefined = undefined;
+  const sixIndicator = findAndRemove(indicatorsLength6, (indicator) => {
+    const notIncluded = indicatorsMapping[1].find((s) =>
+      !indicator.includes(s)
+    );
+    if (notIncluded === undefined) return false;
+    mapsToSegmentC = notIncluded;
+    return true;
+  });
+  knowNumber(sixIndicator, 6);
+
+  if (mapsToSegmentC === undefined) throw new Error();
+
+  const twoIndicator = findAndRemove(indicatorsLength5, (indicator) => {
+    if (mapsToSegmentC === undefined) throw new Error();
+    return indicator.includes(mapsToSegmentC);
+  });
+  knowNumber(twoIndicator, 2);
+
+  const [fiveIndicator] = indicatorsLength5;
+  knowNumber(fiveIndicator, 5);
+
+  const nineIndicator = findAndRemove(indicatorsLength6, (indicator) => {
+    return indicatorsMapping[4].every((s) => indicator.includes(s));
+  });
+  knowNumber(nineIndicator, 9);
+
+  const [zeroIndicator] = indicatorsLength6;
+  knowNumber(zeroIndicator, 0);
+
+  console.log({ numbersMapping });
 
   const decrypt = () => {
     const mapped = result.map((r) =>
@@ -171,11 +171,11 @@ const getOutputValue = ({ indicators, result }: Line): number => {
 
 const part2 = (input: Input): number => {
   return sum(
-    input.map(getOutputValue),
+    input.map(getLineValue),
   );
 };
 
-assertEquals(getOutputValue(exampleLine), 5353);
+assertEquals(getLineValue(exampleLine), 5353);
 assertEquals(part2(example), 61229);
 
 console.log("Result part 2: " + part2(input));
