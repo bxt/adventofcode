@@ -13,16 +13,16 @@ Contents
 The following table lists the available solutions by day and language. I also
 added a short summary for each day.
 
-Day | Deno         | Description
+Day | Deno        | Description
 ----|-------------|--------------------------------------------------------------
 01  | [✓][deno01] | [Increasing or decreasing submarine depths][aoc01]
 02  | [✓][deno02] | [Diving with a submarine][aoc02]
 03  | [✓][deno03] | [Finding most common binary digits][aoc03]
 04  | [✓][deno04] | [Bingo against giant squid][aoc04]
 05  | [✓][deno05] | [Line coverage][aoc05]
-06  | [?][deno06] | [???][aoc06]
-07  | [?][deno07] | [???][aoc07]
-08  | [?][deno08] | [???][aoc08]
+06  | [✓][deno06] | [Exponential Lanternfish breeding and counting][aoc06]
+07  | [✓][deno07] | [Crab fuel alignment][aoc07]
+08  | [✓][deno08] | [Seven-segment display cryptanalysis][aoc08]
 09  | [?][deno09] | [???][aoc09]
 10  | [?][deno10] | [???][aoc10]
 11  | [?][deno11] | [???][aoc11]
@@ -40,7 +40,7 @@ Day | Deno         | Description
 23  | [?][deno23] | [???][aoc23]
 24  | [?][deno24] | [???][aoc24]
 25  | [?][deno25] | [???][aoc25]
-Σ   |           5 |
+Σ   |           8 |
 
 Other solutions
 ---------------
