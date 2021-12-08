@@ -14,7 +14,7 @@ The following table lists the available solutions by day and language. I also
 added a short summary for each day.
 
 Day | Deno        | Visual     | Description
-----|-------------|--------------------------------------------------------------
+----|-------------|------------|-------------------------------------------------
 01  | [✓][deno01] |            | [Increasing or decreasing submarine depths][aoc01]
 02  | [✓][deno02] |            | [Diving with a submarine][aoc02]
 03  | [✓][deno03] |            | [Finding most common binary digits][aoc03]
