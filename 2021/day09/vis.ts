@@ -41,9 +41,8 @@ const COLOR_FRONTIER_POINT = COLOR_GREEN_4;
 const boxSize = 9;
 const boxPad = 1;
 const margin = 20;
-const size = input[0].length * (boxPad + boxSize) + 2 * boxPad + 2 * margin;
-const width = size;
-const height = size;
+const width = input[0].length * (boxPad + boxSize) + 2 * boxPad + 2 * margin;
+const height = input.length * (boxPad + boxSize) + 2 * boxPad + 2 * margin;
 
 const lowPoints = findLowPoints(input);
 
