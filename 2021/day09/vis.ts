@@ -126,21 +126,21 @@ while (currentFrontiers.some((f) => f.size > 0)) {
   for (let i = 0; i < lowPoints.length; i++) {
     if (currentFrontiers[i].size > 0) {
       const basin = currentBasins[i];
-      const toProcess = currentFrontiers[i];
-      const frontier = new CoordSet();
-      currentFrontiers[i] = frontier;
+      const newFrontier = new CoordSet();
 
-      toProcess.forEach((point) => {
+      currentFrontiers[i].forEach((point) => {
         const neighbors = findNeighbors(input, point);
 
         neighbors.forEach((neighbor) => {
           const neighborValue = indexWithCoord(input, neighbor);
           if (neighborValue < 9 && !basin.has(neighbor)) {
             basin.add(neighbor);
-            frontier.add(neighbor);
+            newFrontier.add(neighbor);
           }
         });
       });
+
+      currentFrontiers[i] = newFrontier;
     }
   }
 }
