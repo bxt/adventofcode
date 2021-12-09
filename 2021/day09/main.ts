@@ -1,6 +1,12 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { Coord, CoordSet, indexWithCoord, sum } from "../../2020/utils.ts";
+import {
+  Coord,
+  CoordSet,
+  indexWithCoord,
+  product,
+  sum,
+} from "../../2020/utils.ts";
 
 const parseInput = (string: string): number[][] =>
   string.trim().split("\n").map((line) => {
@@ -9,9 +15,9 @@ const parseInput = (string: string): number[][] =>
 
 const text = await Deno.readTextFile("input.txt");
 
-const input = parseInput(text);
+export const input = parseInput(text);
 
-const findNeighbors = (input: number[][], [x, y]: Coord) => {
+export const findNeighbors = (input: number[][], [x, y]: Coord) => {
   const neighbors: Coord[] = [];
   if (y > 0) neighbors.push([x, y - 1]);
   if (x > 0) neighbors.push([x - 1, y]);
@@ -20,7 +26,7 @@ const findNeighbors = (input: number[][], [x, y]: Coord) => {
   return neighbors;
 };
 
-const findLowPoints = (input: number[][]): Coord[] => {
+export const findLowPoints = (input: number[][]): Coord[] => {
   const lowPoints: Coord[] = [];
   for (let y = 0; y < input.length; y++) {
     for (let x = 0; x < input[y].length; x++) {
@@ -39,12 +45,12 @@ const findLowPoints = (input: number[][]): Coord[] => {
   return lowPoints;
 };
 
+export const lowPointRiskLevel = (input: number[][], lowPoints: Coord[]) =>
+  sum(lowPoints.map((p) => indexWithCoord(input, p) + 1));
+
 const part1 = (input: number[][]): number => {
   const lowPoints = findLowPoints(input);
-
-  const lowPointValues = lowPoints.map((p) => indexWithCoord(input, p) + 1);
-
-  return sum(lowPointValues);
+  return lowPointRiskLevel(input, lowPoints);
 };
 
 const example = parseInput(`
@@ -59,7 +65,11 @@ assertEquals(part1(example), 15);
 
 console.log("Result part 1: " + part1(input));
 
-const product = (numbers: number[]) => numbers.reduce((acc, n) => n * acc, 1);
+export const largestBasinRating = (basins: CoordSet[]) => {
+  const basinSizes = basins.map((b) => b.size).sort((a, b) => b - a);
+  const largestSizes = basinSizes.slice(0, 3);
+  return product(largestSizes);
+};
 
 const part2 = (input: number[][]): number => {
   const lowPoints = findLowPoints(input);
@@ -85,9 +95,7 @@ const part2 = (input: number[][]): number => {
     return basin;
   });
 
-  const basinSizes = basins.map((b) => b.size).sort((a, b) => b - a);
-  const largestSizes = basinSizes.slice(0, 3);
-  return product(largestSizes);
+  return largestBasinRating(basins);
 };
 
 assertEquals(part2(example), 1134);
