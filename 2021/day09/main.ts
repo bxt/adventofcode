@@ -85,16 +85,6 @@ const part2 = (input: number[][]): number => {
     return basin;
   });
 
-  const map = input.map((l, y) =>
-    l.map((v, x) => {
-      const ilp = lowPoints.some(([nx, ny]) => nx === x && ny === y);
-      const ibp = !ilp && basins.some((b) => b.has([x, y]));
-      return ilp ? "_" : ibp ? "-" : v;
-    }).join("")
-  ).join("\n");
-
-  console.log(map);
-
   const basinSizes = basins.map((b) => b.size).sort((a, b) => b - a);
   const largestSizes = basinSizes.slice(0, 3);
   return product(largestSizes);
