@@ -71,19 +71,25 @@ for (let target = 0; target <= to; target++) {
   valuesByPart[1].push(currentValuePart2);
 
   for (const part of [0, 1] as const) {
+    const textY = input.length + margin * 2 + (margin + graphHeight) * part;
+
     const score = valuesByPart[part][valuesByPart[part].length - 1];
     const bestScore = Math.min(...valuesByPart[part]);
     const worstScore = Math.max(...valuesByPart[part]);
+
     const bestScoreTarget = valuesByPart[part].indexOf(bestScore);
+
     const bestScoreString = `P${part + 1} ${bestScore.toString()}`;
-    const scoreString = score.toString();
-    const textY = input.length + margin * 2 + (margin + graphHeight) * part;
-    const bestTextX = bestScoreTarget + margin;
     const bestScoreWidthWithSpace = (bestScoreString.length + 1) * fontWidth;
-    const bestTextXEnd = bestScoreTarget + margin + bestScoreWidthWithSpace;
+    const scoreString = score.toString();
+
+    const bestTextX = bestScoreTarget + margin;
+    const bestTextXEnd = bestTextX + bestScoreWidthWithSpace;
     const currentTextX = Math.max(target + margin, bestTextXEnd);
+
     const maxCurrentTextX = width - margin - scoreString.length * fontWidth;
     const maxBestTextX = maxCurrentTextX - bestScoreWidthWithSpace;
+
     const bextTextXLtd = Math.min(bestTextX, maxBestTextX);
     const scoreTextXLtd = Math.min(currentTextX, maxCurrentTextX);
 
