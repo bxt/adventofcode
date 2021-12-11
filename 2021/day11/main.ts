@@ -28,8 +28,7 @@ const countFlashes = (input: number[][], iterations: number): number => {
   const isInBounds = ([x, y]: Coord) =>
     state[y] !== undefined && state[y][x] !== undefined;
 
-  let totalFlashCount = 0;
-  for (let i = 0; i < iterations; i++) {
+  for (let i = 0; true; i++) {
     const flashed = new CoordSet();
 
     const increase = (c: Coord) => {
@@ -57,10 +56,9 @@ const countFlashes = (input: number[][], iterations: number): number => {
         increase([x, y]);
       }
     }
-    console.log({ i, f: flashed.size });
-    totalFlashCount += flashed.size;
+
+    if (flashed.size === state[0].length * state.length) return i + 1;
   }
-  return totalFlashCount;
 };
 
 const part1 = (input: number[][]): number => {
@@ -80,8 +78,8 @@ const example = parseInput(`
   5283751526
 `);
 
-assertEquals(countFlashes(example, 10), 204);
-assertEquals(part1(example), 1656);
+// assertEquals(countFlashes(example, 10), 204);
+assertEquals(part1(example), 195);
 
 console.log("Result part 1: " + part1(input));
 
