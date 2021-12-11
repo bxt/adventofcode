@@ -98,8 +98,8 @@ console.time("calculation");
 // const dotSize = 1;
 
 const ldSize = 8;
-const dotDistance = 5;
-const dotSize = 2.1;
+const dotDistance = 6;
+const dotSize = 2.7;
 
 // const ldSize = 4;
 // const dotDistance = 50;
@@ -112,8 +112,8 @@ console.log({ ldSize, size, count });
 
 const originalPoints = getCurvePoints(ldSize);
 
-const marginX = 640;
-const marginY = 80;
+const marginX = 512;
+const marginY = 32;
 
 const width = dotDistance * size + 2 * marginX;
 const height = dotDistance * size + 2 * marginY;
