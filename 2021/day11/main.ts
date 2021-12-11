@@ -11,7 +11,7 @@ const parseInput = (string: string): number[][] =>
 
 const text = await Deno.readTextFile("input.txt");
 
-const input = parseInput(text);
+export const input = parseInput(text);
 
 const neighborDirections: Coord[] = [
   [-1, -1],
@@ -24,9 +24,13 @@ const neighborDirections: Coord[] = [
   [+1, +1],
 ];
 
-type RunFlashesCallbackParams = { step: number; flashedCount: number };
+type RunFlashesCallbackParams = {
+  step: number;
+  flashed: CoordSet;
+  state: number[][];
+};
 
-const runFlashesUntil = <R>(
+export const runFlashesUntil = <R>(
   input: number[][],
   callback: (params: RunFlashesCallbackParams) => R | undefined,
 ): R => {
@@ -63,15 +67,15 @@ const runFlashesUntil = <R>(
       }
     }
 
-    const callbackResult = callback({ step, flashedCount: flashed.size });
+    const callbackResult = callback({ step, flashed, state });
     if (callbackResult !== undefined) return callbackResult;
   }
 };
 
 const part1 = (input: number[][]): number => {
   let totalFlashedCount = 0;
-  runFlashesUntil(input, ({ step, flashedCount }) => {
-    totalFlashedCount += flashedCount;
+  runFlashesUntil(input, ({ step, flashed }) => {
+    totalFlashedCount += flashed.size;
     if (step === 100) return true;
   });
   return totalFlashedCount;
@@ -96,8 +100,8 @@ console.log("Result part 1: " + part1(input));
 
 const part2 = (input: number[][]): number => {
   const inputCount = input[0].length * input.length;
-  return runFlashesUntil(input, ({ step, flashedCount }) => {
-    if (flashedCount === inputCount) return step;
+  return runFlashesUntil(input, ({ step, flashed }) => {
+    if (flashed.size === inputCount) return step;
   });
 };
 
