@@ -2,6 +2,8 @@
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { addCoords, Coord, CoordSet } from "../../2020/utils.ts";
 
+const FLASH_AFTER = 9;
+
 const parseInput = (string: string): number[][] =>
   string.trim().split("\n").map((line) => {
     return line.trim().split("").map((n) => parseInt(n, 10));
@@ -22,32 +24,36 @@ const neighborDirections: Coord[] = [
   [+1, +1],
 ];
 
-const countFlashes = (input: number[][], iterations: number): number => {
-  const state = input.map((line) => line.map((n) => n));
+type RunFlashesCallbackParams = { step: number; flashedCount: number };
+
+const runFlashesUntil = <R>(
+  input: number[][],
+  callback: (params: RunFlashesCallbackParams) => R | undefined,
+): R => {
+  const state = input.map((line) => [...line]);
 
   const isInBounds = ([x, y]: Coord) =>
     state[y] !== undefined && state[y][x] !== undefined;
 
-  for (let i = 0; true; i++) {
+  for (let step = 1; true; step++) {
     const flashed = new CoordSet();
 
-    const increase = (c: Coord) => {
-      if (flashed.has(c)) return;
-      const [x, y] = c;
+    const increase = (coord: Coord) => {
+      if (flashed.has(coord)) return;
+      const [x, y] = coord;
       state[y][x]++;
-      if (state[y][x] > 9) flash(c);
+      if (state[y][x] > FLASH_AFTER) flash(coord);
     };
 
-    const flash = (c: Coord) => {
-      if (flashed.has(c)) return;
-      flashed.add(c);
-      const [x, y] = c;
+    const flash = (coord: Coord) => {
+      flashed.add(coord);
+      const [x, y] = coord;
       state[y][x] = 0;
 
-      neighborDirections.forEach((nd) => {
-        const n = addCoords(nd, c);
-        if (!isInBounds(n)) return;
-        increase(n);
+      neighborDirections.forEach((neighborDirection) => {
+        const neighbor = addCoords(neighborDirection, coord);
+        if (!isInBounds(neighbor)) return;
+        increase(neighbor);
       });
     };
 
@@ -57,12 +63,18 @@ const countFlashes = (input: number[][], iterations: number): number => {
       }
     }
 
-    if (flashed.size === state[0].length * state.length) return i + 1;
+    const callbackResult = callback({ step, flashedCount: flashed.size });
+    if (callbackResult !== undefined) return callbackResult;
   }
 };
 
 const part1 = (input: number[][]): number => {
-  return countFlashes(input, 100);
+  let totalFlashedCount = 0;
+  runFlashesUntil(input, ({ step, flashedCount }) => {
+    totalFlashedCount += flashedCount;
+    if (step === 100) return true;
+  });
+  return totalFlashedCount;
 };
 
 const example = parseInput(`
@@ -78,11 +90,17 @@ const example = parseInput(`
   5283751526
 `);
 
-// assertEquals(countFlashes(example, 10), 204);
-assertEquals(part1(example), 195);
+assertEquals(part1(example), 1656);
 
 console.log("Result part 1: " + part1(input));
 
-// assertEquals(part2(example), 288957);
+const part2 = (input: number[][]): number => {
+  const inputCount = input[0].length * input.length;
+  return runFlashesUntil(input, ({ step, flashedCount }) => {
+    if (flashedCount === inputCount) return step;
+  });
+};
 
-// console.log("Result part 2: " + part2(input));
+assertEquals(part2(example), 195);
+
+console.log("Result part 2: " + part2(input));
