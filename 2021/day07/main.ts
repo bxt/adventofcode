@@ -8,7 +8,7 @@ const parseInput = (string: string): number[] => {
 
 const text = await Deno.readTextFile("input.txt");
 
-const input = parseInput(text);
+export const input = parseInput(text);
 
 type FuelConsumption = (distance: number) => number;
 
@@ -35,7 +35,7 @@ assertEquals(part1(example), 37);
 
 console.log("Result part 1: " + part1(input));
 
-const actualFuelConsumption: FuelConsumption = (distance) => {
+export const actualFuelConsumption: FuelConsumption = (distance) => {
   if (distance === 0) return 0;
   return distance * (distance + 1) / 2;
 };

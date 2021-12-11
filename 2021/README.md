@@ -21,10 +21,10 @@ Day | Deno        | Visual     | Description
 04  | [✓][deno04] | [✓][vis04] | [Bingo against giant squid][aoc04]
 05  | [✓][deno05] | [✓][vis05] | [Line coverage][aoc05]
 06  | [✓][deno06] | [✓][vis06] | [Exponential Lanternfish breeding and counting][aoc06]
-07  | [✓][deno07] | [?][vis07] | [Crab fuel alignment][aoc07]
-08  | [✓][deno08] | [?][vis08] | [Seven-segment display cryptanalysis][aoc08]
+07  | [✓][deno07] | [✓][vis07] | [Crab fuel alignment][aoc07]
+08  | [✓][deno08] |            | [Seven-segment display cryptanalysis][aoc08]
 09  | [✓][deno09] | [✓][vis09] | [Low points and smoke basins][aoc09]
-10  | [✓][deno10] | [?][vis10] | [Advanced bracket mathing][aoc10]
+10  | [✓][deno10] |            | [Advanced bracket mathing][aoc10]
 11  | [✓][deno11] | [✓][vis11] | [Flashing energy fields][aoc11]
 12  | [?][deno12] | [?][vis12] | [???][aoc12]
 13  | [?][deno13] | [?][vis13] | [???][aoc13]
@@ -40,7 +40,7 @@ Day | Deno        | Visual     | Description
 23  | [?][deno23] | [?][vis23] | [???][aoc23]
 24  | [?][deno24] | [?][vis24] | [???][aoc24]
 25  | [?][deno25] | [?][vis25] | [???][aoc25]
-Σ   |          11 |          5 |
+Σ   |          11 |          6 |
 
 Other solutions
 ---------------
