@@ -84,35 +84,25 @@ for (let target = 0; target <= to; target++) {
     const currentTextX = Math.max(target + margin, bestTextXEnd);
     const maxCurrentTextX = width - margin - scoreString.length * fontWidth;
     const maxBestTextX = maxCurrentTextX - bestScoreWidthWithSpace;
-    writeText(
-      frame,
-      bestScoreString,
-      Math.min(bestTextX, maxBestTextX),
-      textY,
-      COLOR_BEST_SCORE,
-    );
+    const bextTextXLtd = Math.min(bestTextX, maxBestTextX);
+    const scoreTextXLtd = Math.min(currentTextX, maxCurrentTextX);
+
+    writeText(frame, bestScoreString, bextTextXLtd, textY, COLOR_BEST_SCORE);
     if (!isLastTarget) {
-      writeText(
-        frame,
-        scoreString,
-        Math.min(currentTextX, maxCurrentTextX),
-        textY,
-        COLOR_SCORE,
-      );
+      writeText(frame, scoreString, scoreTextXLtd, textY, COLOR_SCORE);
     }
 
     const graphYFrom = textY + fontHeight + graphMargin;
     const graphYTo = textY + graphHeight;
     for (let graphTarget = 0; graphTarget <= target; graphTarget++) {
-      const height = valuesByPart[part][graphTarget] / worstScore *
-        (graphYTo - graphYFrom);
-      frame.drawBox(
-        graphTarget + margin,
-        graphYTo - height,
-        1,
-        Math.ceil(height),
-        bestScoreTarget === graphTarget ? COLOR_BEST_BAR : COLOR_BAR,
+      const height = Math.ceil(
+        valuesByPart[part][graphTarget] / worstScore *
+          (graphYTo - graphYFrom),
       );
+      const color = bestScoreTarget === graphTarget
+        ? COLOR_BEST_BAR
+        : COLOR_BAR;
+      frame.drawBox(graphTarget + margin, graphYTo - height, 1, height, color);
     }
   }
 
