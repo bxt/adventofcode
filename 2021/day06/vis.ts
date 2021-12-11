@@ -5,6 +5,7 @@ import {
   COLOR_BLUE_4,
   COLOR_GREEN_3,
   COLOR_GREEN_4,
+  drawNeatCircle,
   Frame,
   GIF,
   mixColors,
@@ -33,36 +34,6 @@ const AREA = 7;
 const size = 1000;
 const width = size;
 const height = size;
-
-const drawNeatCircle = (
-  image: Frame,
-  x: number,
-  y: number,
-  radius: number,
-  color: number,
-) => {
-  const fromX = Math.max(1, Math.floor(x - radius));
-  const toX = Math.min(Math.ceil(x + radius), width);
-  const fromY = Math.max(1, Math.floor(y - radius));
-  const toY = Math.min(Math.ceil(y + radius), height);
-  for (let currentY = fromY; currentY <= toY; currentY++) {
-    for (let currentX = fromX; currentX <= toX; currentX++) {
-      const distance = Math.sqrt((currentX - x) ** 2 + (currentY - y) ** 2);
-      const diff = distance - radius + 0.5;
-
-      if (diff < 0) { // inside
-        image.setPixelAt(currentX, currentY, color);
-      } else if (diff < 1) { // on border
-        const mixedColor = mixColors(
-          color,
-          image.getPixelAt(currentX, currentY),
-          diff,
-        );
-        image.setPixelAt(currentX, currentY, mixedColor);
-      }
-    }
-  }
-};
 
 type Fish = {
   daysToBreed: number;
