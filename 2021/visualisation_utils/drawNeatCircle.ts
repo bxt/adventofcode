@@ -9,13 +9,13 @@ import { Frame } from "./deps.ts";
  * to make a smooth transition between the circle and what is already in the
  * image. It's not super fast, but acceptable.
  */
-export const drawNeatCircle = (
+export function drawNeatCircle(
   image: Frame,
   x: number,
   y: number,
   radius: number,
   color: number,
-) => {
+) {
   const fromX = Math.max(1, Math.floor(x - radius));
   const toX = Math.min(Math.ceil(x + radius), image.width);
   const fromY = Math.max(1, Math.floor(y - radius));
@@ -38,4 +38,4 @@ export const drawNeatCircle = (
       }
     }
   }
-};
+}
