@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { addCoords, Coord, CoordSet, sum } from "../../2020/utils.ts";
+import { sum } from "../../2020/utils.ts";
 
 type Edge = [string, string];
 
@@ -104,13 +104,62 @@ assertEquals(part1(example3), 226);
 
 console.log("Result part 1: " + part1(input));
 
-// const part2 = (input: number[][]): number => {
-//   const inputCount = input[0].length * input.length;
-//   return runFlashesUntil(input, ({ step, flashed }) => {
-//     if (flashed.size === inputCount) return step;
-//   });
-// };
+const countPathsStartingAtPart2 = (
+  cave: string,
+  input: Edge[],
+  visitedSmallCaves: Set<string>,
+  extraVisitedSmallCave: string | undefined,
+): number => {
+  if (cave === "end") return 1;
 
-// assertEquals(part2(example), 195);
+  const reachable = [
+    ...input.filter(([a, _]) => a === cave).map(([_, b]) => b),
+    ...input.filter(([_, b]) => b === cave).map(([a, _]) => a),
+  ];
 
-// console.log("Result part 2: " + part2(input));
+  if (!isBigCave(cave)) {
+    visitedSmallCaves = new Set([...visitedSmallCaves, cave]);
+  }
+
+  return sum(reachable.map((otherCave) => {
+    if (visitedSmallCaves.has(otherCave)) {
+      if (
+        !["start", "end"].includes(otherCave) &&
+        extraVisitedSmallCave === undefined
+      ) {
+        return countPathsStartingAtPart2(
+          otherCave,
+          input,
+          visitedSmallCaves,
+          otherCave,
+        );
+      } else {
+        return 0;
+      }
+    } else {
+      return countPathsStartingAtPart2(
+        otherCave,
+        input,
+        visitedSmallCaves,
+        extraVisitedSmallCave,
+      );
+    }
+  }));
+};
+
+const part2 = (input: Edge[]): number => {
+  const visitedSmallCaves: Set<string> = new Set(["start"]);
+
+  return countPathsStartingAtPart2(
+    "start",
+    input,
+    visitedSmallCaves,
+    undefined,
+  );
+};
+
+assertEquals(part2(example1), 36);
+assertEquals(part2(example2), 103);
+assertEquals(part2(example3), 3509);
+
+console.log("Result part 2: " + part2(input));
