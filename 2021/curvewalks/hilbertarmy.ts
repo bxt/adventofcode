@@ -187,7 +187,7 @@ console.timeEnd("encoding");
 
 console.log("Writing...");
 
-Deno.writeFile("output.gif", bytes);
+Deno.writeFile("hilbertarmy.gif", bytes);
 
 console.log("Done!");
 
