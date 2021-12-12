@@ -25,10 +25,11 @@ const countPathsStartingAt = (
   cave: string,
   input: Edge[],
   visitedSmallCaves: Set<string>,
+  canStillVisitExtraSmallCave: boolean,
 ): number => {
   if (cave === "end") return 1;
 
-  const reachable = [
+  const neighbors = [
     ...input.filter(([a, _]) => a === cave).map(([_, b]) => b),
     ...input.filter(([_, b]) => b === cave).map(([a, _]) => a),
   ];
@@ -37,19 +38,39 @@ const countPathsStartingAt = (
     visitedSmallCaves = new Set([...visitedSmallCaves, cave]);
   }
 
-  return sum(reachable.map((otherCave) => {
-    if (visitedSmallCaves.has(otherCave)) {
-      return 0;
+  return sum(neighbors.map((nextCave) => {
+    if (visitedSmallCaves.has(nextCave)) {
+      if (
+        canStillVisitExtraSmallCave && !["start", "end"].includes(nextCave)
+      ) {
+        return countPathsStartingAt(nextCave, input, visitedSmallCaves, false);
+      } else {
+        return 0;
+      }
     } else {
-      return countPathsStartingAt(otherCave, input, visitedSmallCaves);
+      return countPathsStartingAt(
+        nextCave,
+        input,
+        visitedSmallCaves,
+        canStillVisitExtraSmallCave,
+      );
     }
   }));
 };
 
-const part1 = (input: Edge[]): number => {
+const countPaths = (input: Edge[], canVisitExtraSmallCave: boolean): number => {
   const visitedSmallCaves: Set<string> = new Set(["start"]);
 
-  return countPathsStartingAt("start", input, visitedSmallCaves);
+  return countPathsStartingAt(
+    "start",
+    input,
+    visitedSmallCaves,
+    canVisitExtraSmallCave,
+  );
+};
+
+const part1 = (input: Edge[]): number => {
+  return countPaths(input, false);
 };
 
 const example1 = parseInput(`
@@ -104,58 +125,8 @@ assertEquals(part1(example3), 226);
 
 console.log("Result part 1: " + part1(input));
 
-const countPathsStartingAtPart2 = (
-  cave: string,
-  input: Edge[],
-  visitedSmallCaves: Set<string>,
-  extraVisitedSmallCave: string | undefined,
-): number => {
-  if (cave === "end") return 1;
-
-  const reachable = [
-    ...input.filter(([a, _]) => a === cave).map(([_, b]) => b),
-    ...input.filter(([_, b]) => b === cave).map(([a, _]) => a),
-  ];
-
-  if (!isBigCave(cave)) {
-    visitedSmallCaves = new Set([...visitedSmallCaves, cave]);
-  }
-
-  return sum(reachable.map((otherCave) => {
-    if (visitedSmallCaves.has(otherCave)) {
-      if (
-        !["start", "end"].includes(otherCave) &&
-        extraVisitedSmallCave === undefined
-      ) {
-        return countPathsStartingAtPart2(
-          otherCave,
-          input,
-          visitedSmallCaves,
-          otherCave,
-        );
-      } else {
-        return 0;
-      }
-    } else {
-      return countPathsStartingAtPart2(
-        otherCave,
-        input,
-        visitedSmallCaves,
-        extraVisitedSmallCave,
-      );
-    }
-  }));
-};
-
 const part2 = (input: Edge[]): number => {
-  const visitedSmallCaves: Set<string> = new Set(["start"]);
-
-  return countPathsStartingAtPart2(
-    "start",
-    input,
-    visitedSmallCaves,
-    undefined,
-  );
+  return countPaths(input, true);
 };
 
 assertEquals(part2(example1), 36);
