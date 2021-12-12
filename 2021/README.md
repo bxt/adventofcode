@@ -26,7 +26,7 @@ Day | Deno        | Visual     | Description
 09  | [✓][deno09] | [✓][vis09] | [Low points and smoke basins][aoc09]
 10  | [✓][deno10] |            | [Advanced bracket mathing][aoc10]
 11  | [✓][deno11] | [✓][vis11] | [Flashing energy fields][aoc11]
-12  | [?][deno12] | [?][vis12] | [???][aoc12]
+12  | [✓][deno12] | [?][vis12] | [Finding longest paths in a graph][aoc12]
 13  | [?][deno13] | [?][vis13] | [???][aoc13]
 14  | [?][deno14] | [?][vis14] | [???][aoc14]
 15  | [?][deno15] | [?][vis15] | [???][aoc15]
