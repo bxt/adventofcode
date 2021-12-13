@@ -1,7 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import {
-  boundsOfCoords,
   Coord,
   CoordSet,
   ensureElementOf,
