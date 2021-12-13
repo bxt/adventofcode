@@ -1,6 +1,12 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { Coord, CoordSet, ensureElementOf, sum } from "../../2020/utils.ts";
+import {
+  Coord,
+  CoordSet,
+  ensureElementOf,
+  minMax,
+  range,
+} from "../../2020/utils.ts";
 
 const axises = ["x", "y"] as const;
 
@@ -37,8 +43,6 @@ const text = await Deno.readTextFile("input.txt");
 export const input = parseInput(text);
 
 const part1 = (input: Input): number => {
-  console.log({ input });
-
   const fold = input.folds[0];
 
   const pointsSet = new CoordSet();
@@ -90,3 +94,45 @@ const example = parseInput(`
 assertEquals(part1(example), 17);
 
 console.log("Result part 1: " + part1(input));
+
+const part2 = (input: Input): number => {
+  let pointsSet = new CoordSet(input.points);
+
+  for (const fold of input.folds) {
+    const nextPointSet = new CoordSet();
+    if (fold.axis === "y") {
+      for (const [x, y] of pointsSet) {
+        if (y > fold.position) {
+          nextPointSet.add([x, fold.position - (y - fold.position)]);
+        } else {
+          nextPointSet.add([x, y]);
+        }
+      }
+    } else if (fold.axis === "x") {
+      for (const [x, y] of pointsSet) {
+        if (x > fold.position) {
+          nextPointSet.add([fold.position - (x - fold.position), y]);
+        } else {
+          nextPointSet.add([x, y]);
+        }
+      }
+    }
+    pointsSet = nextPointSet;
+  }
+
+  const [minX, maxX] = minMax([...pointsSet].map((p) => p[0]));
+  const [minY, maxY] = minMax([...pointsSet].map((p) => p[1]));
+
+  console.log(
+    range(maxY - minY + 1).map((yOff) =>
+      range(maxX - minX + 1).map((xOff) =>
+        pointsSet.has([xOff + minX, yOff + minY]) ? "#" : " "
+      ).join("")
+    ).join("\n"),
+  );
+
+  return pointsSet.size;
+};
+
+part2(example);
+console.log("Result part 2: " + part2(input));
