@@ -1,6 +1,7 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import {
+  boundsOfCoords,
   Coord,
   CoordSet,
   ensureElementOf,
@@ -38,32 +39,37 @@ const parseInput = (string: string): Input => {
   return { points, folds };
 };
 
+const doFold = (pointsSet: CoordSet, { axis, position }: Fold) => {
+  const nextPointSet = new CoordSet();
+
+  if (axis === "y") {
+    for (const [x, y] of pointsSet) {
+      if (y > position) {
+        nextPointSet.add([x, position - (y - position)]);
+      } else {
+        nextPointSet.add([x, y]);
+      }
+    }
+  } else if (axis === "x") {
+    for (const [x, y] of pointsSet) {
+      if (x > position) {
+        nextPointSet.add([position - (x - position), y]);
+      } else {
+        nextPointSet.add([x, y]);
+      }
+    }
+  }
+
+  return nextPointSet;
+};
+
 const text = await Deno.readTextFile("input.txt");
 
 export const input = parseInput(text);
 
 const part1 = (input: Input): number => {
   const fold = input.folds[0];
-
-  const pointsSet = new CoordSet();
-  if (fold.axis === "y") {
-    for (const [x, y] of input.points) {
-      if (y > fold.position) {
-        pointsSet.add([x, fold.position - (y - fold.position)]);
-      } else {
-        pointsSet.add([x, y]);
-      }
-    }
-  } else if (fold.axis === "x") {
-    for (const [x, y] of input.points) {
-      if (x > fold.position) {
-        pointsSet.add([fold.position - (x - fold.position), y]);
-      } else {
-        pointsSet.add([x, y]);
-      }
-    }
-  }
-
+  const pointsSet = doFold(new CoordSet(input.points), fold);
   return pointsSet.size;
 };
 
@@ -95,44 +101,21 @@ assertEquals(part1(example), 17);
 
 console.log("Result part 1: " + part1(input));
 
-const part2 = (input: Input): number => {
-  let pointsSet = new CoordSet(input.points);
+const part2 = (input: Input): string => {
+  const pointsSet = input.folds.reduce(doFold, new CoordSet(input.points));
 
-  for (const fold of input.folds) {
-    const nextPointSet = new CoordSet();
-    if (fold.axis === "y") {
-      for (const [x, y] of pointsSet) {
-        if (y > fold.position) {
-          nextPointSet.add([x, fold.position - (y - fold.position)]);
-        } else {
-          nextPointSet.add([x, y]);
-        }
-      }
-    } else if (fold.axis === "x") {
-      for (const [x, y] of pointsSet) {
-        if (x > fold.position) {
-          nextPointSet.add([fold.position - (x - fold.position), y]);
-        } else {
-          nextPointSet.add([x, y]);
-        }
-      }
-    }
-    pointsSet = nextPointSet;
-  }
-
-  const [minX, maxX] = minMax([...pointsSet].map((p) => p[0]));
-  const [minY, maxY] = minMax([...pointsSet].map((p) => p[1]));
-
-  console.log(
-    range(maxY - minY + 1).map((yOff) =>
-      range(maxX - minX + 1).map((xOff) =>
-        pointsSet.has([xOff + minX, yOff + minY]) ? "#" : " "
-      ).join("")
-    ).join("\n"),
+  const [[minX, maxX], [minY, maxY]] = range(2).map((i) =>
+    minMax([...pointsSet].map((p) => p[i]))
   );
 
-  return pointsSet.size;
+  return range(maxY - minY + 1).map((yOffset) =>
+    range(maxX - minX + 1).map((xOffset) => {
+      const point: Coord = [xOffset + minX, yOffset + minY];
+      return pointsSet.has(point) ? "#" : " ";
+    }).join("")
+  ).join("\n");
 };
 
-part2(example);
-console.log("Result part 2: " + part2(input));
+console.log("Example part 2:\n" + part2(example));
+
+console.log("Result part 2:\n" + part2(input));
