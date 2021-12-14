@@ -1,13 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { minBy } from "https://deno.land/std@0.116.0/collections/mod.ts";
-import {
-  Coord,
-  CoordSet,
-  ensureElementOf,
-  minMax,
-  range,
-} from "../../2020/utils.ts";
+import { minMax } from "../../2020/utils.ts";
 
 type Input = {
   template: string;
