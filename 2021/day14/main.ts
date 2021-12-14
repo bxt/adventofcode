@@ -9,58 +9,6 @@ type Input = {
 
 type Counts = Record<string, number>;
 
-const addCounts = (
-  into: Counts,
-  counts: Counts,
-) => {
-  Object.entries(counts).forEach(([key, count]) => {
-    into[key] ??= 0;
-    into[key] += count;
-  });
-};
-
-const getMinMaxCountDiffAfter = (input: Input, afterStep: number): number => {
-  const elementCounts: Record<number, Record<string, Counts>> = {};
-
-  const result = input.template;
-  const counts: Counts = {};
-
-  const getCounts = (pair: string, iterationsLeft: number): Counts => {
-    const counts: Counts = {};
-    if (elementCounts[iterationsLeft]?.[pair]) {
-      return elementCounts[iterationsLeft][pair];
-    }
-    const [left, right] = pair.split("");
-    const insertion = input.rules[`${left}${right}`];
-    if (insertion) {
-      addCounts(counts, { [insertion]: 1 });
-      if (iterationsLeft > 0) {
-        addCounts(counts, getCounts(`${left}${insertion}`, iterationsLeft - 1));
-        addCounts(
-          counts,
-          getCounts(`${insertion}${right}`, iterationsLeft - 1),
-        );
-      }
-    }
-    elementCounts[iterationsLeft] ??= {};
-    elementCounts[iterationsLeft][pair] = counts;
-    return counts;
-  };
-
-  for (let j = 0; j < result.length; j++) {
-    const left = result.charAt(j);
-    addCounts(counts, { [left]: 1 });
-    if (j < result.length - 1) {
-      const right = result.charAt(j + 1);
-      addCounts(counts, getCounts(`${left}${right}`, afterStep - 1));
-    }
-  }
-
-  const [min, max] = minMax(Object.entries(counts).map(([, count]) => count));
-
-  return max - min;
-};
-
 const parseInput = (string: string): Input => {
   const [templateString, rulesString] = string.trim().split("\n\n");
 
@@ -68,7 +16,7 @@ const parseInput = (string: string): Input => {
 
   const rules = Object.fromEntries(
     rulesString.trim().split("\n").map((line) => {
-      const matches = line.match(/([A-Z][A-Z]) -> ([A-Z])/);
+      const matches = line.match(/([A-Z]{2}) -> ([A-Z])/);
       if (!matches) throw new Error(`Does not match: "${line}"`);
       const [, from, insertion] = matches;
       return [from, insertion];
@@ -76,6 +24,64 @@ const parseInput = (string: string): Input => {
   );
 
   return { template, rules };
+};
+
+const addCounts = (into: Counts, counts: Counts) => {
+  Object.entries(counts).forEach(([key, count]) => {
+    into[key] ??= 0;
+    into[key] += count;
+  });
+};
+
+const getMinMaxCountDiffAfter = (
+  { template, rules }: Input,
+  afterStep: number,
+): number => {
+  const elementCounts: Record<number, Record<string, Counts>> = {};
+
+  const getCounts = (
+    left: string,
+    right: string,
+    iterationsLeft: number,
+  ): Counts => {
+    const pair = `${left}${right}`;
+
+    if (elementCounts[iterationsLeft]?.[pair]) {
+      return elementCounts[iterationsLeft][pair];
+    }
+
+    const counts: Counts = {};
+    const insertion = rules[pair];
+
+    if (insertion) {
+      addCounts(counts, { [insertion]: 1 });
+
+      if (iterationsLeft > 0) {
+        addCounts(counts, getCounts(left, insertion, iterationsLeft - 1));
+        addCounts(counts, getCounts(insertion, right, iterationsLeft - 1));
+      }
+    }
+
+    elementCounts[iterationsLeft] ??= {};
+    elementCounts[iterationsLeft][pair] = counts;
+    return counts;
+  };
+
+  const counts: Counts = {};
+
+  for (let position = 0; position < template.length; position++) {
+    const left = template.charAt(position);
+    addCounts(counts, { [left]: 1 });
+
+    if (position < template.length - 1) {
+      const right = template.charAt(position + 1);
+      addCounts(counts, getCounts(left, right, afterStep - 1));
+    }
+  }
+
+  const [min, max] = minMax(Object.entries(counts).map(([, count]) => count));
+
+  return max - min;
 };
 
 const text = await Deno.readTextFile("input.txt");
