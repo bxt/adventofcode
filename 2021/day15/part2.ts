@@ -19,132 +19,6 @@ const text = await Deno.readTextFile("input.txt");
 
 export const input = parseInput(text);
 
-class Heap<T> {
-  array: T[] = [];
-  compareBy: (t: T) => number;
-
-  constructor(compareBy: (t: T) => number) {
-    this.compareBy = compareBy;
-  }
-
-  pop() {
-    if (this.array.length <= 0) throw new Error("Nothing left");
-    const max = this.array.shift();
-    if (this.array.length > 0) {
-      this.heapyfy(0);
-    }
-    return max;
-  }
-
-  push(element: T) {
-    this.array.push(element);
-    this.decreased(this.array.length - 1);
-  }
-
-  updates(element: T, transaction: () => void) {
-    const index = this.searchIndex(element);
-    // console.log({ a: this.array, index, element });
-    transaction();
-    if (index !== undefined) {
-      this.heapyfy(index);
-      this.decreased(index);
-    } else {
-      this.push(element);
-    }
-  }
-
-  get size() {
-    return this.array.length;
-  }
-
-  swap(i1: number, i2: number) {
-    const tmp = this.array[i1];
-    this.array[i1] = this.array[i2];
-    this.array[i2] = tmp;
-  }
-
-  compare(i1: number, i2: number) {
-    return this.compareBy(this.array[i1]) - this.compareBy(this.array[i2]);
-  }
-
-  parent_index(i: number) {
-    return Math.floor((i - 1) / 2);
-  }
-
-  leftIndex(i: number) {
-    return i * 2 + 1;
-  }
-
-  rightIndex(i: number) {
-    return i * 2 + 2;
-  }
-
-  heapyfy(i: number) {
-    const smallest = minBy(
-      [i, this.leftIndex(i), this.rightIndex(i)].filter((i) =>
-        i < this.array.length
-      ),
-      (i) => this.compareBy(this.array[i]),
-    );
-    if (smallest === undefined) throw new Error();
-    if (smallest !== i) {
-      this.swap(i, smallest);
-      this.heapyfy(smallest);
-    }
-  }
-
-  decreased(i: number) {
-    while (
-      i > 0 &&
-      this.compareBy(this.array[i]) <
-        this.compareBy(this.array[this.parent_index(i)])
-    ) {
-      this.swap(i, this.parent_index(i));
-      i = this.parent_index(i);
-    }
-  }
-
-  searchIndex(element: T, i = 0): number | undefined {
-    // console.log("searchIndex", { element, i });
-    if (i >= this.array.length) return;
-    if (this.array[i] === element) return i;
-    if (
-      this.compareBy(element) < this.compareBy(this.array[i])
-    ) {
-      return;
-    }
-    return this.searchIndex(element, this.leftIndex(i)) ??
-      this.searchIndex(element, this.rightIndex(i));
-  }
-}
-
-{
-  const heap = new Heap<{ value: number }>((n) => n.value);
-  heap.push({ value: 23 });
-  heap.push({ value: 11 });
-  heap.push({ value: 56 });
-  heap.push({ value: 2 });
-  assertEquals(heap.pop(), { value: 2 });
-  assertEquals(heap.pop(), { value: 11 });
-  assertEquals(heap.pop(), { value: 23 });
-  assertEquals(heap.pop(), { value: 56 });
-}
-{
-  const heap = new Heap<{ value: number }>((n) => n.value);
-  const e = { value: 23 };
-  heap.push(e);
-  heap.push({ value: 11 });
-  heap.push({ value: 56 });
-  heap.push({ value: 2 });
-  heap.updates(e, () => {
-    e.value = 6;
-  });
-  assertEquals(heap.pop(), { value: 2 });
-  assertEquals(heap.pop(), { value: 6 });
-  assertEquals(heap.pop(), { value: 11 });
-  assertEquals(heap.pop(), { value: 56 });
-}
-
 const parseCoord = (s: string): Coord => {
   const [a, b] = s.split(",");
   return [parseInt(a, 10), parseInt(b, 10)];
@@ -163,9 +37,7 @@ const aStar = (field: number[][]) => {
   const bestDistances: Record<string, number> = {}; // Hash.new { Float::INFINITY }
   bestDistances[start] = 0;
 
-  const queue = new Heap<string>((element) =>
-    bestDistances[element] + manhattanNormCoord(parseCoord(element))
-  );
+  const queue: string[] = [];
   queue.push(start);
 
   const handleChildren = (current: string) => {
@@ -188,17 +60,22 @@ const aStar = (field: number[][]) => {
         const bestDistance = bestDistances[neighbour] ?? Infinity;
         if (possibleDistance < bestDistance) {
           predecessors[neighbour] = current;
-          queue.updates(neighbour, () => {
-            bestDistances[neighbour] = possibleDistance;
-          });
+          bestDistances[neighbour] = possibleDistance;
+          if (!queue.includes(neighbour)) {
+            queue.push(neighbour);
+          }
         }
       }
     }
   };
 
-  while (queue.size > 0) {
-    const current = queue.pop();
+  while (queue.length > 0) {
+    const current = minBy(
+      queue,
+      (element) => bestDistances[element] ?? Infinity,
+    );
     if (current === undefined) throw new Error();
+    queue.splice(queue.indexOf(current), 1);
     const currentDistance = bestDistances[current];
     knownDistances[current] = currentDistance;
     handleChildren(current);
@@ -206,13 +83,33 @@ const aStar = (field: number[][]) => {
 
   const target = `${width * 5 - 1},${height * 5 - 1}`;
 
-  console.log({ knownDistances, target });
+  const path = [];
+  let currentTarget = target;
+  while (currentTarget) {
+    path.push(currentTarget);
+    currentTarget = predecessors[currentTarget];
+  }
+
+  for (let y = 0; y < height * 5; y++) {
+    let line = "";
+    for (let x = 0; x < width * 5; x++) {
+      const originalValue = field[y % height][x % width];
+      const adjustedValue =
+        (originalValue + Math.floor(y / height) + Math.floor(x / width) - 1) %
+          9 + 1;
+      line += path.includes(`${x},${y}`) ? ">" : " ";
+      line += adjustedValue.toString();
+    }
+    console.log(line);
+  }
+
+  // console.log({ knownDistances, target });
 
   return knownDistances[target];
 };
 
 const part1 = (input: number[][]): number => {
-  console.log({ input });
+  // console.log({ input });
   return aStar(input);
 };
 
@@ -233,3 +130,5 @@ assertEquals(part1(example), 315);
 
 console.log("Result part 1: " + part1(input));
 // 2927 too high
+// 2929 without heurisitc too high as well
+// 2925!
