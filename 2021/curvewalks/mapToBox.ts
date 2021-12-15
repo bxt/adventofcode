@@ -1,4 +1,4 @@
-import { Coord, minMax } from "../../2020/utils.ts";
+import { Coord, minMax } from "./deps.ts";
 
 export const mapToBox = (
   points: Coord[],

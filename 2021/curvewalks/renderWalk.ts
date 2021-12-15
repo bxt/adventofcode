@@ -1,12 +1,13 @@
 #!/usr/bin/env deno run --allow-write --allow-read --allow-net
-import { slidingWindows } from "https://deno.land/std@0.116.0/collections/mod.ts";
 import {
+  Coord,
   drawNeatCircle,
   drawNeatLine,
   Frame,
   GIF,
-} from "../visualisation_utils/mod.ts";
-import { Coord, range } from "../../2020/utils.ts";
+  range,
+  slidingWindows,
+} from "./deps.ts";
 
 export const renderWalk = ({
   backgroundColor,

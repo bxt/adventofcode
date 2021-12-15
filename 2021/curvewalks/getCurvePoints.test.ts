@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  AssertionError,
-} from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { assertEquals, AssertionError } from "./dev_deps.ts";
 import { gosper as gosperSystem, kochSnowflake } from "./lindenmayerSystems.ts";
 import { getSymbols, mapSymbols, walkInstructions } from "./getCurvePoints.ts";
 

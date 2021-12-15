@@ -1,4 +1,4 @@
-import { addCoords, Coord, range, scaleCoord } from "../../2020/utils.ts";
+import { addCoords, Coord, range, scaleCoord } from "./deps.ts";
 import { LSystem } from "./lindenmayerSystems.ts";
 
 export const getSymbols = (

@@ -1,6 +1,6 @@
 #!/usr/bin/env deno test --allow-read
 
-import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { assertEquals } from "./dev_deps.ts";
 import { mapToBox } from "./mapToBox.ts";
 
 Deno.test("mapToBox", () => {

@@ -6,8 +6,8 @@ import {
   COLOR_GREEN_3,
   COLOR_GREEN_4,
   mixColors,
-} from "../visualisation_utils/mod.ts";
-import { range } from "../../2020/utils.ts";
+  range,
+} from "./deps.ts";
 
 type ColorScheme = (dotColorCount: number) => {
   dotColors: number[];

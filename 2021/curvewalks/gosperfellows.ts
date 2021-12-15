@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-write --allow-read --allow-net
-import { Coord } from "../../2020/utils.ts";
+import { Coord } from "./deps.ts";
 
 import { getCurvePoints } from "./getCurvePoints.ts";
 import { mapToBox } from "./mapToBox.ts";
