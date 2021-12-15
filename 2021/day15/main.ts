@@ -52,15 +52,15 @@ const dijkstra = (
   return knownDistances;
 };
 
-const parseCoord = (s: string): Coord => {
+export const parseCoord = (s: string): Coord => {
   const [a, b] = s.split(",");
   return [parseInt(a, 10), parseInt(b, 10)];
 };
-const stringifyCoord = ([x, y]: Coord): string => {
+export const stringifyCoord = ([x, y]: Coord): string => {
   return `${x},${y}`;
 };
 
-const neighborCoords: Coord[] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+export const neighborCoords: Coord[] = [[1, 0], [0, 1], [-1, 0], [0, -1]];
 
 const part1 = (input: number[][]): number => {
   const width = input[0].length;
@@ -99,11 +99,19 @@ assertEquals(part1(example), 40);
 
 console.log("Result part 1: " + part1(input));
 
-const part2 = (input: number[][]): number => {
+export const setupPart2 = (input: number[][]) => {
   const width = input[0].length;
   const height = input.length;
   const start = stringifyCoord([0, 0]);
   const target = stringifyCoord([width * 5 - 1, height * 5 - 1]);
+
+  const getValue = ([x, y]: Coord): number => {
+    const originalValue = input[y % height][x % width];
+    const adjustedValue =
+      (originalValue + Math.floor(y / height) + Math.floor(x / width) - 1) %
+        9 + 1;
+    return adjustedValue;
+  };
 
   const getNeighbors = (current: string) => {
     const currentCoord = parseCoord(current);
@@ -111,14 +119,16 @@ const part2 = (input: number[][]): number => {
       return addCoords(nc, currentCoord);
     }).filter(([x, y]) => (
       x < width * 5 && y < height * 5 && x >= 0 && y >= 0
-    )).map(([x, y]) => {
-      const originalValue = input[y % height][x % width];
-      const adjustedValue =
-        (originalValue + Math.floor(y / height) + Math.floor(x / width) - 1) %
-          9 + 1;
-      return [stringifyCoord([x, y]), adjustedValue] as [string, number];
-    });
+    )).map((coord) =>
+      [stringifyCoord(coord), getValue(coord)] as [string, number]
+    );
   };
+
+  return { width, height, start, target, getNeighbors, getValue };
+};
+
+const part2 = (input: number[][]): number => {
+  const { start, getNeighbors, target } = setupPart2(input);
 
   return dijkstra(start, getNeighbors)[target];
 };
