@@ -9,7 +9,7 @@ import {
   slidingWindows,
 } from "./deps.ts";
 
-export const renderWalk = ({
+export function renderWalk({
   backgroundColor,
   dotColors,
   dotSize,
@@ -27,7 +27,7 @@ export const renderWalk = ({
   lineColor: number | undefined;
   points: Coord[];
   width: number;
-}): GIF => {
+}): GIF {
   const gif = new GIF([]);
 
   for (let colorIndex = 0; colorIndex < dotColors.length; colorIndex++) {
@@ -46,16 +46,19 @@ export const renderWalk = ({
 
       for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
         const half = Math.round(framePercentage);
-        if ((half + lineNumber) % 2 == 0) continue;
+        if ((half + lineNumber) % 2 == 0) {
+          continue;
+        }
         const linePercentage = framePercentage * 2 - half;
 
         const [[x1, y1], [x2, y2]] = lines[lineNumber];
         const x = linePercentage * x1 + (1 - linePercentage) * x2;
         const y = linePercentage * y1 + (1 - linePercentage) * y2;
 
-        const color = dotColors[
-          (colorIndex + Math.floor(lineNumber / 2)) % dotColors.length
-        ];
+        const color =
+          dotColors[
+            (colorIndex + Math.floor(lineNumber / 2)) % dotColors.length
+          ];
 
         drawNeatCircle(frame, x, y, dotSize, color);
       }
@@ -65,4 +68,4 @@ export const renderWalk = ({
   }
 
   return gif;
-};
+}

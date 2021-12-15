@@ -22,8 +22,9 @@ const frames = 10;
 
 const colors = adventOfCodeColors(9);
 
-const getSegmentLength = ([[x1, y1], [x2, y2]]: Coord[]) =>
-  Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+function getSegmentLength([[x1, y1], [x2, y2]]: Coord[]) {
+  return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}
 
 const dotSize = getSegmentLength(points) / 3;
 

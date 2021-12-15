@@ -1,11 +1,11 @@
 import { Coord, minMax } from "./deps.ts";
 
-export const mapToBox = (
+export function mapToBox(
   points: Coord[],
   margin: number,
   width: number,
   height: number,
-): Coord[] => {
+): Coord[] {
   const usableWidth = (width - 2 * margin);
   const usableHeight = (height - 2 * margin);
   const [minX, maxX] = minMax(points.map(([x, _]) => x));
@@ -16,9 +16,11 @@ export const mapToBox = (
     usableWidth / diffX,
     usableHeight / diffY,
   );
-  if (factor === undefined) throw new Error();
+  if (factor === undefined) {
+    throw new Error();
+  }
   return points.map(([x, y]) => [
     (x - minX - diffX / 2) * factor + margin + usableWidth / 2,
     (y - minY - diffY / 2) * factor + margin + usableHeight / 2,
   ]);
-};
+}
