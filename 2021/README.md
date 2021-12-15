@@ -27,9 +27,9 @@ Day | Deno        | Visual     | Description
 10  | [✓][deno10] |            | [Advanced bracket mathing][aoc10]
 11  | [✓][deno11] | [✓][vis11] | [Flashing energy fields][aoc11]
 12  | [✓][deno12] | [?][vis12] | [Finding longest paths in a graph][aoc12]
-13  | [?][deno13] | [?][vis13] | [???][aoc13]
-14  | [?][deno14] | [?][vis14] | [???][aoc14]
-15  | [?][deno15] | [?][vis15] | [???][aoc15]
+13  | [✓][deno13] | [?][vis13] | [Folding overlapping points on a plane][aoc13]
+14  | [✓][deno14] |            | [Polymer counting][aoc14]
+15  | [✓][deno15] | [✓][vis15] | [Pathfinding][aoc15]
 16  | [?][deno16] | [?][vis16] | [???][aoc16]
 17  | [?][deno17] | [?][vis17] | [???][aoc17]
 18  | [?][deno18] | [?][vis18] | [???][aoc18]
@@ -40,7 +40,7 @@ Day | Deno        | Visual     | Description
 23  | [?][deno23] | [?][vis23] | [???][aoc23]
 24  | [?][deno24] | [?][vis24] | [???][aoc24]
 25  | [?][deno25] | [?][vis25] | [???][aoc25]
-Σ   |          11 |          6 |
+Σ   |          15 |          7 |
 
 Other solutions
 ---------------
