@@ -33,6 +33,11 @@ const {
   width,
 } = processFlags(handleFlags(Deno.args));
 
+const fileName =
+  `out/${curve}${recursion}-d${dotFraction}-${width}x${height}-m${margin}${
+    drawLine ? "-l" : ""
+  }.gif`;
+
 console.log("Calculating...");
 console.time("calculation");
 
@@ -68,8 +73,8 @@ console.time("encoding");
 const bytes = await gif.encode();
 console.timeEnd("encoding");
 
-console.log("Writing...");
+console.log(`Writing "${fileName}"...`);
 
-Deno.writeFile("gosperfellows.gif", bytes);
+Deno.writeFile(fileName, bytes);
 
 console.log("Done!");
