@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { ensureElementOf, range, sum } from "../../2020/utils.ts";
+import { ensureElementOf, product, range, sum } from "../../2020/utils.ts";
 
 const binaryDigits = ["0", "1"] as const;
 type BinaryDigit = typeof binaryDigits[number];
@@ -61,7 +61,7 @@ class Lexer {
 type Package =
   & { version: number }
   & (
-    | { type: "literal"; number: bigint }
+    | { type: "literal"; number: number }
     | { type: "operator"; typeId: number; packages: Package[] }
   );
 
@@ -71,13 +71,13 @@ function parsePakage(lexer: Lexer): Package {
 
   switch (type) {
     case LITERAL_VALUE_TYPE: {
-      let number = 0n;
+      let number = 0;
 
       const readBit = (): void => {
         lexer.getOne();
-        number <<= 4n;
+        number *= 2 ** 4;
         const numberByte = lexer.get(4);
-        number += BigInt(numberByte);
+        number += numberByte;
       };
 
       while (lexer.peekOne() === 1) readBit();
@@ -152,7 +152,7 @@ assertEquals(example.get(5), 5);
 
 assertEquals(parsePakage(new Lexer("D2FE28")), {
   type: "literal",
-  number: 2021n,
+  number: 2021,
   version: 6,
 });
 
@@ -162,11 +162,11 @@ assertEquals(parsePakage(new Lexer("38006F45291200")), {
   version: 1,
   packages: [{
     type: "literal",
-    number: 10n,
+    number: 10,
     version: 6,
   }, {
     type: "literal",
-    number: 20n,
+    number: 20,
     version: 2,
   }],
 });
@@ -177,15 +177,15 @@ assertEquals(parsePakage(new Lexer("EE00D40C823060")), {
   version: 7,
   packages: [{
     type: "literal",
-    number: 1n,
+    number: 1,
     version: 2,
   }, {
     type: "literal",
-    number: 2n,
+    number: 2,
     version: 4,
   }, {
     type: "literal",
-    number: 3n,
+    number: 3,
     version: 1,
   }],
 });
@@ -204,23 +204,7 @@ assertEquals(part1("A0016C880162017C3686B18A3D4780"), 31);
 
 console.log("Result part 1: " + part1(input));
 
-function sumBigInt(numbers: bigint[]): bigint {
-  return numbers.reduce((acc, number) => acc + number);
-}
-
-function productBigInt(numbers: bigint[]): bigint {
-  return numbers.reduce((acc, number) => acc * number);
-}
-
-function max(numbers: bigint[]): bigint {
-  return numbers.reduce((acc, number) => number > acc ? number : acc);
-}
-
-function min(numbers: bigint[]): bigint {
-  return numbers.reduce((acc, number) => number < acc ? number : acc);
-}
-
-function evaluatePackage(pdk: Package): bigint {
+function evaluatePackage(pdk: Package): number {
   switch (pdk.type) {
     case "literal":
       return pdk.number;
@@ -239,31 +223,31 @@ function evaluatePackage(pdk: Package): bigint {
 
       switch (pdk.typeId) {
         case SUM_TYPE: {
-          return sumBigInt(packagesEvaluated);
+          return sum(packagesEvaluated);
         }
         case PRODUCT_TYPE: {
-          return productBigInt(packagesEvaluated);
+          return product(packagesEvaluated);
         }
         case MINIMUM_TYPE: {
-          return min(packagesEvaluated);
+          return Math.min(...packagesEvaluated);
         }
         case MAXIMUM_TYPE: {
-          return max(packagesEvaluated);
+          return Math.max(...packagesEvaluated);
         }
         case GREATER_THAN_TYPE: {
           expectTwoOperands();
           const [a, b] = packagesEvaluated;
-          return a > b ? 1n : 0n;
+          return a > b ? 1 : 0;
         }
         case LESS_THAN_TYPE: {
           expectTwoOperands();
           const [a, b] = packagesEvaluated;
-          return a < b ? 1n : 0n;
+          return a < b ? 1 : 0;
         }
         case EQUAL_TO_TYPE: {
           expectTwoOperands();
           const [a, b] = packagesEvaluated;
-          return a === b ? 1n : 0n;
+          return a === b ? 1 : 0;
         }
         default:
           throw new Error(`Unknown type id: ${pdk.typeId}`);
@@ -272,19 +256,19 @@ function evaluatePackage(pdk: Package): bigint {
   }
 }
 
-function part2(string: string): bigint {
+function part2(string: string): number {
   const lexer = new Lexer(string);
   const pkg = parsePakage(lexer);
   return evaluatePackage(pkg);
 }
 
-assertEquals(part2("C200B40A82"), 3n);
-assertEquals(part2("04005AC33890"), 54n);
-assertEquals(part2("880086C3E88112"), 7n);
-assertEquals(part2("CE00C43D881120"), 9n);
-assertEquals(part2("D8005AC2A8F0"), 1n);
-assertEquals(part2("F600BC2D8F"), 0n);
-assertEquals(part2("9C005AC2F8F0"), 0n);
-assertEquals(part2("9C0141080250320F1802104A08"), 1n);
+assertEquals(part2("C200B40A82"), 3);
+assertEquals(part2("04005AC33890"), 54);
+assertEquals(part2("880086C3E88112"), 7);
+assertEquals(part2("CE00C43D881120"), 9);
+assertEquals(part2("D8005AC2A8F0"), 1);
+assertEquals(part2("F600BC2D8F"), 0);
+assertEquals(part2("9C005AC2F8F0"), 0);
+assertEquals(part2("9C0141080250320F1802104A08"), 1);
 
 console.log("Result part 2: " + part2(input));
