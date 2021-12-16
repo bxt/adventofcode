@@ -16,7 +16,14 @@ const parseInput = (string: string): number[] => {
   return string.trim().split("").map((s) => parseInt(s, 16));
 };
 
+const SUM_TYPE = 0;
+const PRODUCT_TYPE = 1;
+const MINIMUM_TYPE = 2;
+const MAXIMUM_TYPE = 3;
 const LITERAL_VALUE_TYPE = 4;
+const GREATER_THAN_TYPE = 5;
+const LESS_THAN_TYPE = 6;
+const EQUAL_TO_TYPE = 7;
 
 class Lexer {
   bytes: number[];
@@ -49,12 +56,16 @@ class Lexer {
     const byte = this.bytes[byteIndex];
     return (byte >> 4 - (bitIndex + 1)) & 1;
   }
+
+  hasEnded(): boolean {
+    return (this.positon > this.bytes.length * 4);
+  }
 }
 
 type Package =
   & { version: number }
   & (
-    | { type: "literal"; number: number }
+    | { type: "literal"; number: bigint }
     | { type: "operator"; typeId: number; packages: Package[] }
   );
 
@@ -67,20 +78,20 @@ function parsePakage(lexer: Lexer): Package {
 
   switch (type) {
     case LITERAL_VALUE_TYPE: {
-      let number = 0;
+      let number = 0n;
       while (lexer.peekOne() === 1) {
         lexer.getOne();
-        number <<= 4;
+        number <<= 4n;
         const numberByte = lexer.get(4);
         console.log({ numberByte });
-        number += numberByte;
+        number += BigInt(numberByte);
       }
       {
         lexer.getOne();
-        number <<= 4;
+        number <<= 4n;
         const numberByte = lexer.get(4);
         console.log({ numberByte });
-        number += numberByte;
+        number += BigInt(numberByte);
       }
       console.log({ number });
       return { type: "literal", number, version };
@@ -135,6 +146,11 @@ const part1 = (string: string): number => {
   const lexer = new Lexer(string);
   const pkg = parsePakage(lexer);
   if (pkg === undefined) throw new Error("Did not find a package");
+  while (!lexer.hasEnded()) {
+    if (lexer.getOne() !== 0) {
+      throw new Error(`Expeted only one package`);
+    }
+  }
   return sumVersions(pkg);
 };
 
@@ -148,7 +164,7 @@ assertEquals(example1.get(5), 5);
 const example2 = new Lexer(`D2FE28`);
 assertEquals(parsePakage(example2), {
   type: "literal",
-  number: 2021,
+  number: 2021n,
   version: 6,
 });
 
@@ -159,11 +175,11 @@ assertEquals(parsePakage(example3), {
   version: 1,
   packages: [{
     type: "literal",
-    number: 10,
+    number: 10n,
     version: 6,
   }, {
     type: "literal",
-    number: 20,
+    number: 20n,
     version: 2,
   }],
 });
@@ -175,15 +191,15 @@ assertEquals(parsePakage(example4), {
   version: 7,
   packages: [{
     type: "literal",
-    number: 1,
+    number: 1n,
     version: 2,
   }, {
     type: "literal",
-    number: 2,
+    number: 2n,
     version: 4,
   }, {
     type: "literal",
-    number: 3,
+    number: 3n,
     version: 1,
   }],
 });
@@ -206,3 +222,100 @@ assertEquals(part1("A0016C880162017C3686B18A3D4780"), 31);
 
 console.log("#### P1");
 console.log("Result part 1: " + part1(input));
+
+function sumBigInt(numbers: bigint[]): bigint {
+  let sum = 0n;
+  for (const number of numbers) {
+    sum = sum + number;
+  }
+  return sum;
+}
+
+function productBigInt(numbers: bigint[]): bigint {
+  let product = 1n;
+  for (const number of numbers) {
+    product = product * number;
+  }
+  return product;
+}
+
+function max(numbers: bigint[]): bigint {
+  return numbers.reduce(
+    (acc: bigint, number: bigint) => number > acc ? number : acc,
+  );
+}
+
+function min(numbers: bigint[]): bigint {
+  return numbers.reduce(
+    (acc: bigint, number: bigint) => number < acc ? number : acc,
+  );
+}
+
+const evaluatePackages = (pdk: Package): bigint => {
+  switch (pdk.type) {
+    case "literal":
+      return pdk.number;
+    default: {
+      const packagesEvaluated = pdk.packages.map(evaluatePackages);
+      if (packagesEvaluated.length === 0) throw new Error("No operands found");
+
+      switch (pdk.typeId) {
+        case SUM_TYPE: {
+          return sumBigInt(packagesEvaluated);
+        }
+        case PRODUCT_TYPE: {
+          return productBigInt(packagesEvaluated);
+        }
+        case MINIMUM_TYPE: {
+          return min(packagesEvaluated);
+        }
+        case MAXIMUM_TYPE: {
+          return max(packagesEvaluated);
+        }
+        case GREATER_THAN_TYPE: {
+          if (packagesEvaluated.length !== 2) {
+            throw new Error("Expected exactly 2 operands");
+          }
+          const [a, b] = packagesEvaluated;
+          return a > b ? 1n : 0n;
+        }
+        case LESS_THAN_TYPE: {
+          if (packagesEvaluated.length !== 2) {
+            throw new Error("Expected exactly 2 operands");
+          }
+          const [a, b] = packagesEvaluated;
+          return a < b ? 1n : 0n;
+        }
+        case EQUAL_TO_TYPE: {
+          if (packagesEvaluated.length !== 2) {
+            throw new Error("Expected exactly 2 operands");
+          }
+          const [a, b] = packagesEvaluated;
+          return a === b ? 1n : 0n;
+        }
+        default:
+          throw new Error(`Unknown type id: ${pdk.typeId}`);
+      }
+    }
+  }
+};
+
+const part2 = (string: string): bigint => {
+  const lexer = new Lexer(string);
+  const pkg = parsePakage(lexer);
+  console.log({ pkg });
+  if (pkg === undefined) throw new Error("Did not find a package");
+  return evaluatePackages(pkg);
+};
+
+assertEquals(part2("C200B40A82"), 3n);
+assertEquals(part2("04005AC33890"), 54n);
+assertEquals(part2("880086C3E88112"), 7n);
+assertEquals(part2("CE00C43D881120"), 9n);
+assertEquals(part2("D8005AC2A8F0"), 1n);
+assertEquals(part2("F600BC2D8F"), 0n);
+assertEquals(part2("9C005AC2F8F0"), 0n);
+assertEquals(part2("9C0141080250320F1802104A08"), 1n);
+
+console.log("Result part 2: " + part2(input));
+// 947311380 too low
