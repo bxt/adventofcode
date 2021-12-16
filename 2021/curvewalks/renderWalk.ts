@@ -13,6 +13,7 @@ export function renderWalk({
   backgroundColor,
   dotColors,
   dotSize,
+  drawLine,
   frames,
   height,
   lineColor,
@@ -22,9 +23,10 @@ export function renderWalk({
   backgroundColor: number;
   dotColors: number[];
   dotSize: number;
+  drawLine: boolean;
   frames: number;
   height: number;
-  lineColor: number | undefined;
+  lineColor: number;
   points: Coord[];
   width: number;
 }): GIF {
@@ -38,7 +40,7 @@ export function renderWalk({
 
       const lines = slidingWindows(points, 2);
 
-      if (lineColor !== undefined) {
+      if (drawLine) {
         lines.forEach(([[x1, y1], [x2, y2]]) =>
           drawNeatLine(frame, x1, y1, x2, y2, lineColor)
         );
@@ -55,10 +57,9 @@ export function renderWalk({
         const x = linePercentage * x1 + (1 - linePercentage) * x2;
         const y = linePercentage * y1 + (1 - linePercentage) * y2;
 
-        const color =
-          dotColors[
-            (colorIndex + Math.floor(lineNumber / 2)) % dotColors.length
-          ];
+        const color = dotColors[
+          (colorIndex + Math.floor(lineNumber / 2)) % dotColors.length
+        ];
 
         drawNeatCircle(frame, x, y, dotSize, color);
       }

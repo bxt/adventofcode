@@ -1,4 +1,5 @@
 export { slidingWindows } from "https://deno.land/std@0.116.0/collections/mod.ts";
+export { parse as parseFlags } from "https://deno.land/std@0.116.0/flags/mod.ts";
 export {
   COLOR_BLUE_1,
   COLOR_BLUE_2,
