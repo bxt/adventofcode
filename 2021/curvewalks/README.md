@@ -18,6 +18,39 @@ Since I was on Wikipedia anyways to look up the formula for the Hilbert curve, I
 
 Once my code was adjusted to work with these L-Systems, it was super easy to not only have the dots walk along a Gosper curve, but also some other ones which I found on [Paul Bourke's L-System User Notes](http://paulbourke.net/fractals/lsys/). Coincidentially, the Hilbert curve can also be described with an L-System, so I could actually throw away my carefully crafted formulas again.
 
+Usage
+-----
+
+The code is supposed to run by calling the `bin.ts` file, the only required argument is `--curve`, e.g.:
+
+```sh
+deno run bin.ts --curve=hilbert
+```
+
+To show a list of available options, run:
+
+```sh
+deno run bin.ts --help
+```
+
+There are multiple options available for kind and complexity of the curve, size of various elements and if to draw the line along the curve as well.
+
+Development
+-----------
+
+When developing it is probably best to keep the tests running in the background:
+
+```sh
+deno test --watch --allow-net ----allow-read
+```
+
+Other than that just make sure the following commands still work:
+
+```sh
+./bin --curve hilbert
+./generateAll.sh # generates a bunch of examples in ./out
+```
+
 Spicing it up in the Browser
 ----------------------------
 
