@@ -3,17 +3,11 @@ import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 
 type SnailfishNumber = number | [SnailfishNumber, SnailfishNumber];
 
-const parseInput = (string: string): SnailfishNumber[] => {
-  return string.trim().split("\n").map((line) => JSON.parse(line.trim()));
+const parseInput = (string: string): string[] => {
+  return string.trim().split("\n").map((line) => line.trim());
 };
 
-const addSnailfishNumbers = (
-  a: SnailfishNumber,
-  b: SnailfishNumber,
-): SnailfishNumber => [a, b];
-
-const explode = (n: SnailfishNumber) => {
-  const string = JSON.stringify(n);
+const explode = (string: string) => {
   let depth = 0;
   let maxDepth = 0;
   let start: number | undefined;
@@ -54,57 +48,52 @@ const explode = (n: SnailfishNumber) => {
     );
 
     const resultString = `${beforeNew}${selfNew}${afterNew}`;
-    return JSON.parse(resultString);
+    return resultString;
   }
 
-  return n;
+  return string;
 };
 
-assertEquals(explode([[[[[9, 8], 1], 2], 3], 4]), [[[[0, 9], 2], 3], 4]);
-assertEquals(explode([7, [6, [5, [4, [3, 2]]]]]), [7, [6, [5, [7, 0]]]]);
-assertEquals(explode([[6, [5, [4, [3, 2]]]], 1]), [[6, [5, [7, 0]]], 3]);
-assertEquals(explode([[3, [2, [1, [7, 3]]]], [6, [5, [4, [3, 2]]]]]), [[3, [2, [
-  8,
-  0,
-]]], [9, [5, [4, [3, 2]]]]]);
-assertEquals(explode([[3, [2, [8, 0]]], [9, [5, [4, [3, 2]]]]]), [[3, [2, [
-  8,
-  0,
-]]], [9, [5, [7, 0]]]]);
+assertEquals(explode("[[[[[9,8],1],2],3],4]"), "[[[[0,9],2],3],4]");
+assertEquals(explode("[7,[6,[5,[4,[3,2]]]]]"), "[7,[6,[5,[7,0]]]]");
+assertEquals(explode("[[6,[5,[4,[3,2]]]],1]"), "[[6,[5,[7,0]]],3]");
+assertEquals(
+  explode("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"),
+  "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]",
+);
+assertEquals(
+  explode("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"),
+  "[[3,[2,[8,0]]],[9,[5,[7,0]]]]",
+);
 
-assertEquals(explode([[[[[4, 3], 4], 4], [7, [[8, 4], 9]]], [1, 1]]), [[[
-  [0, 7],
-  4,
-], [7, [[8, 4], 9]]], [1, 1]]);
+assertEquals(
+  explode("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]"),
+  "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]",
+);
 
-const split = (n: SnailfishNumber) => {
-  return JSON.parse(
-    JSON.stringify(n).replace(/\d\d+/, (m) => {
-      const half = parseInt(m, 10) / 2;
-      return JSON.stringify([Math.floor(half), Math.ceil(half)]);
-    }),
-  );
+const split = (string: string) => {
+  return string.replace(/\d\d+/, (m) => {
+    const half = parseInt(m, 10) / 2;
+    return JSON.stringify([Math.floor(half), Math.ceil(half)]);
+  });
 };
-assertEquals(split([[[[0, 7], 4], [15, [0, 13]]], [1, 1]]), [[[[0, 7], 4], [[
-  7,
-  8,
-], [0, 13]]], [1, 1]]);
-assertEquals(split([[[[0, 7], 4], [[7, 8], [0, 13]]], [1, 1]]), [[[[0, 7], 4], [
-  [7, 8],
-  [0, [6, 7]],
-]], [1, 1]]);
+assertEquals(
+  split("[[[[0,7],4],[15,[0,13]]],[1,1]]"),
+  "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]",
+);
+assertEquals(
+  split("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
+  "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]",
+);
 
-const addAndReduce = (
-  a: SnailfishNumber,
-  b: SnailfishNumber,
-): SnailfishNumber => {
-  let current = addSnailfishNumbers(a, b);
+const addAndReduce = (a: string, b: string): string => {
+  let current = `[${a},${b}]`;
   while (true) {
     const exploded = explode(current);
-    if (JSON.stringify(exploded) === JSON.stringify(current)) {
+    if (exploded === current) {
       const splitted = split(exploded);
 
-      if (JSON.stringify(splitted) === JSON.stringify(current)) {
+      if (splitted === current) {
         break;
       } else {
         current = splitted;
@@ -116,10 +105,10 @@ const addAndReduce = (
   return current;
 };
 
-assertEquals(addAndReduce([[[[4, 3], 4], 4], [7, [[8, 4], 9]]], [1, 1]), [[[[
-  0,
-  7,
-], 4], [[7, 8], [6, 0]]], [8, 1]]);
+assertEquals(
+  addAndReduce("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]"),
+  "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]",
+);
 
 const magnitude = (
   n: SnailfishNumber,
@@ -170,8 +159,8 @@ const text = await Deno.readTextFile("input.txt");
 
 export const input = parseInput(text);
 
-const part1 = (input: SnailfishNumber[]): number => {
-  return magnitude(input.reduce(addAndReduce));
+const part1 = (input: string[]): number => {
+  return magnitude(JSON.parse(input.reduce(addAndReduce)));
 };
 
 const example = parseInput(`
@@ -206,12 +195,12 @@ assertEquals(part1(example2), 4140);
 
 console.log("Result part 1: " + part1(input));
 
-const part2 = (input: SnailfishNumber[]): number => {
+const part2 = (input: string[]): number => {
   let maxMagnitude = -1;
 
   for (const a of input) {
     for (const b of input) {
-      const m = magnitude(addAndReduce(a, b));
+      const m = magnitude(JSON.parse(addAndReduce(a, b)));
       if (m > maxMagnitude) maxMagnitude = m;
     }
   }
