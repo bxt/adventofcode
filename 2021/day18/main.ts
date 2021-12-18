@@ -9,49 +9,43 @@ const parseInput = (string: string): string[] => {
 
 const explode = (string: string) => {
   let depth = 0;
-  let maxDepth = 0;
   let start: number | undefined;
   let end: number | undefined;
   for (let i = 0; i < string.length; i++) {
     if (string.charAt(i) === "[") {
       depth++;
-      if (depth > maxDepth && depth >= 5) {
-        if (depth >= 6) throw new Error("Nested too deep");
+      if (depth === 5) {
         start = i;
-        end = undefined;
-        maxDepth = depth;
       }
     }
     if (string.charAt(i) === "]") {
-      if (depth === maxDepth && end === undefined) {
+      if (depth === 5) {
         end = i + 1;
         break;
       }
       depth--;
     }
   }
-  if (start !== undefined && end !== undefined) {
-    const before = string.substring(0, start);
-    const self = string.substring(start, end);
-    const after = string.substring(end);
 
-    const [a, b] = JSON.parse(self);
+  if (start === undefined || end === undefined) return string;
 
-    const beforeNew = before.replace(
-      /(\d+)([^0-9]*)$/,
-      (_, number, rest) => `${parseInt(number, 10) + a}${rest}`,
-    );
-    const selfNew = "0";
-    const afterNew = after.replace(
-      /^([^0-9]*)(\d+)/,
-      (_, rest, number) => `${rest}${parseInt(number, 10) + b}`,
-    );
+  const before = string.substring(0, start);
+  const self = string.substring(start, end);
+  const after = string.substring(end);
 
-    const resultString = `${beforeNew}${selfNew}${afterNew}`;
-    return resultString;
-  }
+  const [a, b] = JSON.parse(self);
 
-  return string;
+  const beforeNew = before.replace(
+    /(\d+)([^0-9]*)$/,
+    (_, number, rest) => `${parseInt(number, 10) + a}${rest}`,
+  );
+  const selfNew = "0";
+  const afterNew = after.replace(
+    /^([^0-9]*)(\d+)/,
+    (_, rest, number) => `${rest}${parseInt(number, 10) + b}`,
+  );
+
+  return `${beforeNew}${selfNew}${afterNew}`;
 };
 
 assertEquals(explode("[[[[[9,8],1],2],3],4]"), "[[[[0,9],2],3],4]");
@@ -88,20 +82,16 @@ assertEquals(
 
 const addAndReduce = (a: string, b: string): string => {
   let current = `[${a},${b}]`;
-  while (true) {
-    const exploded = explode(current);
-    if (exploded === current) {
-      const splitted = split(exploded);
 
-      if (splitted === current) {
-        break;
-      } else {
-        current = splitted;
-      }
-    } else {
-      current = exploded;
-    }
-  }
+  const runAndReturnIfChanged = (f: ((s: string) => string)): boolean => {
+    const after = f(current);
+    if (current === after) return false;
+    current = after;
+    return true;
+  };
+
+  while (runAndReturnIfChanged(explode) || runAndReturnIfChanged(split));
+
   return current;
 };
 
