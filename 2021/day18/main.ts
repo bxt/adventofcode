@@ -54,20 +54,6 @@ const explode = (n: SnailfishNumber) => {
     );
 
     const resultString = `${beforeNew}${selfNew}${afterNew}`;
-    console.log({
-      string,
-      start,
-      end,
-      before,
-      self,
-      after,
-      a,
-      b,
-      beforeNew,
-      selfNew,
-      afterNew,
-      resultString,
-    });
     return JSON.parse(resultString);
   }
 
@@ -127,9 +113,6 @@ const addAndReduce = (
       current = exploded;
     }
   }
-  console.log("#############");
-  console.log(JSON.stringify(current));
-  console.log("#############");
   return current;
 };
 
@@ -222,3 +205,20 @@ const example2 = parseInput(`
 assertEquals(part1(example2), 4140);
 
 console.log("Result part 1: " + part1(input));
+
+const part2 = (input: SnailfishNumber[]): number => {
+  let maxMagnitude = -1;
+
+  for (const a of input) {
+    for (const b of input) {
+      const m = magnitude(addAndReduce(a, b));
+      if (m > maxMagnitude) maxMagnitude = m;
+    }
+  }
+
+  return maxMagnitude;
+};
+
+assertEquals(part2(example2), 3993);
+
+console.log("Result part 2: " + part2(input));
