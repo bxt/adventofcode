@@ -30,17 +30,17 @@ Day | Deno        | Visual     | Description
 13  | [✓][deno13] | [?][vis13] | [Folding overlapping points on a plane][aoc13]
 14  | [✓][deno14] |            | [Polymer counting][aoc14]
 15  | [✓][deno15] | [✓][vis15] | [Pathfinding][aoc15]
-16  | [?][deno16] | [?][vis16] | [???][aoc16]
-17  | [?][deno17] | [?][vis17] | [???][aoc17]
-18  | [?][deno18] | [?][vis18] | [???][aoc18]
-19  | [?][deno19] | [?][vis19] | [???][aoc19]
+16  | [✓][deno16] | [?][vis16] | [Binary numbers packet decoder/parser][aoc16]
+17  | [?][deno17] |            | [Trick shot caluclating trajectories][aoc17]
+18  | [?][deno18] |            | [Snailfish math number list exploding][aoc18]
+19  | [?][deno19] | [?][vis19] | [3D point cloud matching][aoc19]
 20  | [?][deno20] | [?][vis20] | [???][aoc20]
 21  | [?][deno21] | [?][vis21] | [???][aoc21]
 22  | [?][deno22] | [?][vis22] | [???][aoc22]
 23  | [?][deno23] | [?][vis23] | [???][aoc23]
 24  | [?][deno24] | [?][vis24] | [???][aoc24]
 25  | [?][deno25] | [?][vis25] | [???][aoc25]
-Σ   |          15 |          7 |
+Σ   |          18 |          7 |
 
 Other solutions
 ---------------
