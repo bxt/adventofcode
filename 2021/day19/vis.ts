@@ -54,21 +54,6 @@ const CAM_DISTANCE = 8000;
 
 const focalLength = CAM_DISTANCE / 16;
 
-const CACHE_PATH = "alignments.json";
-
-let alignments: [number, number][];
-try {
-  alignments = JSON.parse(await Deno.readTextFile(CACHE_PATH));
-} catch (error) {
-  if (error instanceof Deno.errors.NotFound) {
-    console.log("Recalculating assignments...");
-    ({ alignments } = findAlignments(input));
-    await Deno.writeTextFile(CACHE_PATH, JSON.stringify(alignments));
-  } else {
-    throw error;
-  }
-}
-
 const scannerPositions: Coord3[] = [[0, 0, 0]];
 const allPoints: Set<string> = setify(input[0]);
 
@@ -212,6 +197,8 @@ const drawFrame = (
 
   gif.push(frame);
 };
+
+const { alignments } = findAlignments(input);
 
 const noopTransform = compose();
 
