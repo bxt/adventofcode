@@ -221,25 +221,26 @@ const findAlignments = (
 ): { allPointsSize: number; scannerPositons: Coord[] } => {
   const scannerPositons: Coord[] = [];
   const allPoints: Set<string> = setify(input[0]);
-  const alignedIndices: number[] = [];
+
+  const alignedIndices: Set<number> = new Set();
 
   const alignWith = (index: number, transformSoFar: Transform) => {
     const start = input[index];
-    alignedIndices.push(index);
+    alignedIndices.add(index);
     scannerPositons.push(transformSoFar([0, 0, 0]));
 
-    for (let i = 0; i < input.length; i++) {
-      if (alignedIndices.includes(i)) continue;
+    for (let nextIndex = 0; nextIndex < input.length; nextIndex++) {
+      if (alignedIndices.has(nextIndex)) continue;
 
-      const next = input[i];
-
+      const next = input[nextIndex];
       const alignment = findAlignment(start, next);
+
       if (alignment !== undefined) {
         setify(alignment.aligned.map(transformSoFar)).forEach((p) =>
           allPoints.add(p)
         );
         const nextTransform = compose(transformSoFar, alignment.transform);
-        alignWith(i, nextTransform);
+        alignWith(nextIndex, nextTransform);
       }
     }
   };
@@ -247,10 +248,9 @@ const findAlignments = (
   const noopTransform = compose();
   alignWith(0, noopTransform);
 
-  if (alignedIndices.length < input.length) {
-    throw new Error(
-      `Left with ${input.length - alignedIndices.length} unaligned`,
-    );
+  const unalignedCount = input.length - alignedIndices.size;
+  if (unalignedCount > 0) {
+    throw new Error(`Left with ${unalignedCount} unaligned`);
   }
 
   return { allPointsSize: allPoints.size, scannerPositons };
@@ -267,16 +267,14 @@ console.log("Result part 1: " + part1(input));
 const part2 = (input: Scanner[]): number => {
   const { scannerPositons } = findAlignments(input);
 
-  let maxDistance = -Infinity;
+  const distances = [];
   for (const [x1, y1, z1] of scannerPositons) {
     for (const [x2, y2, z2] of scannerPositons) {
-      const distance = Math.abs(x1 - x2) + Math.abs(y1 - y2) +
-        Math.abs(z1 - z2);
-      if (distance > maxDistance) maxDistance = distance;
+      distances.push(Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2));
     }
   }
 
-  return maxDistance;
+  return Math.max(...distances);
 };
 
 assertEquals(part2(example), 3621);
