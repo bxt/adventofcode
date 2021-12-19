@@ -186,8 +186,11 @@ function compose(...ts: Transform[]): Transform {
   return (c: Coord) => ts.reduceRight((acc, t) => t(acc), c);
 }
 
+const setify = (coords: Coord[]): Set<string> =>
+  new Set(coords.map((p) => JSON.stringify(p)));
+
 function findAlignment(a: Scanner, b: Scanner) {
-  const aStrings = a.map((p) => JSON.stringify(p));
+  const aStrings = setify(a);
   for (const t2 of facings) {
     for (const t3 of upwards) {
       for (const p1 of a) {
@@ -197,7 +200,7 @@ function findAlignment(a: Scanner, b: Scanner) {
           const transform = compose(t4, t3, t2, t1);
           const aligned = b.map(transform);
           const matchCount = aligned.filter((p) =>
-            aStrings.includes(JSON.stringify(p))
+            aStrings.has(JSON.stringify(p))
           ).length;
           if (matchCount >= 12) {
             return { aligned, transform };
@@ -212,9 +215,6 @@ function findAlignment(a: Scanner, b: Scanner) {
 assertEquals(findAlignment(example[0], example[1])?.aligned?.length, 25);
 assertEquals(findAlignment(example[1], example[3])?.aligned?.length, 25);
 assertEquals(findAlignment(example[1], example[4])?.aligned?.length, 26);
-
-const setify = (coords: Coord[]): Set<string> =>
-  new Set(coords.map((p) => JSON.stringify(p)));
 
 const findAlignments = (
   input: Scanner[],
