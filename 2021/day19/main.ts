@@ -1,8 +1,8 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 
-type Coord = [number, number, number];
-type Scanner = Coord[];
+export type Coord3 = [number, number, number];
+type Scanner = Coord3[];
 
 const parseInput = (string: string): Scanner[] => {
   return string.trim().split(/\n\s*\n/).map((scannerString) => {
@@ -156,7 +156,7 @@ const example = parseInput(`
   30,-46,-14
 `);
 
-type Transform = (c: Coord) => Coord;
+export type Transform = (c: Coord3) => Coord3;
 
 const facings: Transform[] = [
   ([x, y, z]) => [+x, +y, +z],
@@ -174,22 +174,26 @@ const upwards: Transform[] = [
   ([x, y, z]) => [+x, -z, +y],
 ];
 
-function makeSubtractor([x1, y1, z1]: Coord): Transform {
+export function mainhattanDistance([x1, y1, z1]: Coord3, [x2, y2, z2]: Coord3) {
+  return Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2);
+}
+
+function makeSubtractor([x1, y1, z1]: Coord3): Transform {
   return ([x2, y2, z2]) => [x2 - x1, y2 - y1, z2 - z1];
 }
 
-function makeAdder([x1, y1, z1]: Coord): Transform {
+function makeAdder([x1, y1, z1]: Coord3): Transform {
   return ([x2, y2, z2]) => [x2 + x1, y2 + y1, z2 + z1];
 }
 
-function compose(...ts: Transform[]): Transform {
-  return (c: Coord) => ts.reduceRight((acc, t) => t(acc), c);
+export function compose(...ts: Transform[]): Transform {
+  return (c: Coord3) => ts.reduceRight((acc, t) => t(acc), c);
 }
 
-const setify = (coords: Coord[]): Set<string> =>
+export const setify = (coords: Coord3[]): Set<string> =>
   new Set(coords.map((p) => JSON.stringify(p)));
 
-function findAlignment(a: Scanner, b: Scanner) {
+export function findAlignment(a: Scanner, b: Scanner) {
   const aStrings = setify(a);
   for (const t2 of facings) {
     for (const t3 of upwards) {
@@ -216,11 +220,16 @@ assertEquals(findAlignment(example[0], example[1])?.aligned?.length, 25);
 assertEquals(findAlignment(example[1], example[3])?.aligned?.length, 25);
 assertEquals(findAlignment(example[1], example[4])?.aligned?.length, 26);
 
-const findAlignments = (
+export const findAlignments = (
   input: Scanner[],
-): { allPointsSize: number; scannerPositons: Coord[] } => {
-  const scannerPositons: Coord[] = [];
+): {
+  allPointsSize: number;
+  scannerPositons: Coord3[];
+  alignments: [number, number][];
+} => {
+  const scannerPositons: Coord3[] = [];
   const allPoints: Set<string> = setify(input[0]);
+  const alignments: [number, number][] = [];
 
   const alignedIndices: Set<number> = new Set();
 
@@ -239,6 +248,7 @@ const findAlignments = (
         setify(alignment.aligned.map(transformSoFar)).forEach((p) =>
           allPoints.add(p)
         );
+        alignments.push([index, nextIndex]);
         const nextTransform = compose(transformSoFar, alignment.transform);
         alignWith(nextIndex, nextTransform);
       }
@@ -253,7 +263,7 @@ const findAlignments = (
     throw new Error(`Left with ${unalignedCount} unaligned`);
   }
 
-  return { allPointsSize: allPoints.size, scannerPositons };
+  return { allPointsSize: allPoints.size, scannerPositons, alignments };
 };
 
 const part1 = (input: Scanner[]): number => {
@@ -262,15 +272,15 @@ const part1 = (input: Scanner[]): number => {
 
 assertEquals(part1(example), 79);
 
-console.log("Result part 1: " + part1(input));
+if (import.meta.main) console.log("Result part 1: " + part1(input));
 
 const part2 = (input: Scanner[]): number => {
   const { scannerPositons } = findAlignments(input);
 
   const distances = [];
-  for (const [x1, y1, z1] of scannerPositons) {
-    for (const [x2, y2, z2] of scannerPositons) {
-      distances.push(Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2));
+  for (const a of scannerPositons) {
+    for (const b of scannerPositons) {
+      distances.push(mainhattanDistance(a, b));
     }
   }
 
@@ -279,4 +289,4 @@ const part2 = (input: Scanner[]): number => {
 
 assertEquals(part2(example), 3621);
 
-console.log("Result part 2: " + part2(input));
+if (import.meta.main) console.log("Result part 2: " + part2(input));
