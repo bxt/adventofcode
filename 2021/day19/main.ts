@@ -1,6 +1,5 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { sum } from "../../2020/utils.ts";
 
 type Coord = [number, number, number];
 type Scanner = Coord[];
@@ -201,7 +200,6 @@ function findAlignment(a: Scanner, b: Scanner) {
             aStrings.includes(JSON.stringify(p))
           ).length;
           if (matchCount >= 12) {
-            console.log({ matchCount });
             return { aligned, transform };
           }
         }
@@ -218,13 +216,17 @@ assertEquals(findAlignment(example[1], example[4])?.aligned?.length, 26);
 const setify = (coords: Coord[]): Set<string> =>
   new Set(coords.map((p) => JSON.stringify(p)));
 
-const part1 = (input: Scanner[]): number => {
+const findAlignments = (
+  input: Scanner[],
+): { allPointsSize: number; scannerPositons: Coord[] } => {
+  const scannerPositons: Coord[] = [];
   const allPoints: Set<string> = setify(input[0]);
   const alignedIndices: number[] = [];
 
   const alignWith = (index: number, transformSoFar: Transform) => {
     const start = input[index];
     alignedIndices.push(index);
+    scannerPositons.push(transformSoFar([0, 0, 0]));
 
     for (let i = 0; i < input.length; i++) {
       if (alignedIndices.includes(i)) continue;
@@ -233,20 +235,10 @@ const part1 = (input: Scanner[]): number => {
 
       const alignment = findAlignment(start, next);
       if (alignment !== undefined) {
-        const sizeBefore = allPoints.size;
         setify(alignment.aligned.map(transformSoFar)).forEach((p) =>
           allPoints.add(p)
         );
-        const sizeAfter = allPoints.size;
         const nextTransform = compose(transformSoFar, alignment.transform);
-        console.log({
-          aligned: true,
-          from: index,
-          to: i,
-          sizeBefore,
-          sizeAfter,
-          added: sizeAfter - sizeBefore,
-        });
         alignWith(i, nextTransform);
       }
     }
@@ -261,16 +253,32 @@ const part1 = (input: Scanner[]): number => {
     );
   }
 
-  console.log(input.map((i) => i.length));
+  return { allPointsSize: allPoints.size, scannerPositons };
+};
 
-  console.log({ allPoints, size: allPoints.size });
-
-  // return sum(input.map((i) => i.length)) - input.length * 12 + 12;
-  return allPoints.size;
+const part1 = (input: Scanner[]): number => {
+  return findAlignments(input).allPointsSize;
 };
 
 assertEquals(part1(example), 79);
 
 console.log("Result part 1: " + part1(input));
-// 371 wrong
-// 590 too high
+
+const part2 = (input: Scanner[]): number => {
+  const { scannerPositons } = findAlignments(input);
+
+  let maxDistance = -Infinity;
+  for (const [x1, y1, z1] of scannerPositons) {
+    for (const [x2, y2, z2] of scannerPositons) {
+      const distance = Math.abs(x1 - x2) + Math.abs(y1 - y2) +
+        Math.abs(z1 - z2);
+      if (distance > maxDistance) maxDistance = distance;
+    }
+  }
+
+  return maxDistance;
+};
+
+assertEquals(part2(example), 3621);
+
+console.log("Result part 2: " + part2(input));
