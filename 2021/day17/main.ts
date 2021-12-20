@@ -5,11 +5,14 @@ import { Coord, matchGroups, range } from "../../2020/utils.ts";
 
 type Input = { x1: number; x2: number; y1: number; y2: number };
 
+const SAFETY_PAD_JUST_IN_CASE = 3;
+const ARBITRARY_FACTOR_I_MADE_UP = 4;
+
 const matchInput = matchGroups(
   /target area: x=(?<x1>-?\d+)..(?<x2>-?\d+), y=(?<y1>-?\d+)..(?<y2>-?\d+)/,
 );
 
-const parseInput = (string: string): Input => {
+function parseInput(string: string): Input {
   const { x1, x2, y1, y2 } = mapValues(
     matchInput(string),
     (s) => parseInt(s, 10),
@@ -20,7 +23,7 @@ const parseInput = (string: string): Input => {
     y1: Math.min(y1, y2),
     y2: Math.max(y1, y2),
   };
-};
+}
 
 const text = await Deno.readTextFile("input.txt");
 
@@ -31,7 +34,6 @@ type Probe = { position: Coord; velocity: Coord };
 function step({ position: [x, y], velocity: [vx, vy] }: Probe): Probe {
   const position: Coord = [x + vx, y + vy];
   const velocity: Coord = [vx === 0 ? 0 : vx < 0 ? vx + 1 : vx - 1, vy - 1];
-
   return { position, velocity };
 }
 
@@ -55,33 +57,36 @@ function findHighestPoint(
   while (true) {
     probe = step(probe);
     const { position: [x, y] } = probe;
-    // console.log([x, y]);
     yPositions.push(y);
     if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
       return Math.max(...yPositions);
     }
-    if (x > x2 || y < y1) return undefined;
+    if (x > x2 || y < y1) return undefined; // miss
   }
 }
 
-function part1(input: Input): number {
-  // console.log({ input });
-
-  const possibleX = range(input.x2);
-  const possibleY = range(input.x2 * 40);
-
-  const highPoints = possibleX.flatMap((x) =>
-    possibleY.map((y) => findHighestPoint([x, y], input))
+function findHighPonts(input: Input): number[] {
+  const possibleX = range(input.x2 + SAFETY_PAD_JUST_IN_CASE);
+  const possibleY = range(input.x2 * ARBITRARY_FACTOR_I_MADE_UP).map((y) =>
+    y + input.y1 - SAFETY_PAD_JUST_IN_CASE
+  );
+  const possibleVelocities: Coord[] = possibleX.flatMap((x) =>
+    possibleY.map((y) => [x, y])
   );
 
-  return Math.max(...highPoints.filter((n) => n !== undefined) as number[]);
+  const highPoints = possibleVelocities.map((c) => findHighestPoint(c, input))
+    .filter((n) => n !== undefined) as number[];
+
+  return highPoints;
+}
+
+function part1(input: Input): number {
+  return Math.max(...findHighPonts(input));
 }
 
 const example = parseInput(`
   target area: x=20..30, y=-10..-5
 `);
-
-// console.log({ example });
 
 assertEquals(findHighestPoint([7, 2], example), 3);
 assertEquals(findHighestPoint([6, 3], example), 6);
@@ -96,21 +101,7 @@ assertEquals(part1(example), 45);
 console.log("Result part 1: " + part1(input));
 
 function part2(input: Input): number {
-  console.log({ input });
-
-  const possibleX = range(input.x2 + 3);
-  const possibleY = range(input.x2 * 40).map((y) => y + input.y1 - 3);
-
-  const possibleVelocities: Coord[] = possibleX.flatMap((x) =>
-    possibleY.map((y) => [x, y])
-  );
-  const hittingVelocities = possibleVelocities.filter((c) =>
-    findHighestPoint(c, input) !== undefined
-  );
-
-  // console.log(hittingVelocities.map(([x, y]) => `${x},${y}`).join("\n"));
-
-  return hittingVelocities.length;
+  return findHighPonts(input).length;
 }
 
 assertEquals(part2(example), 112);
