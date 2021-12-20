@@ -72,10 +72,7 @@ function enhance({ rule, image, infinity }: Input) {
 }
 
 const counterActiveAfter = (input: Input, interations: number): number => {
-  let output = input;
-  range(interations).forEach(() => {
-    output = enhance(output);
-  });
+  const output = range(interations).reduce(enhance, input);
   return countActive(output);
 };
 
