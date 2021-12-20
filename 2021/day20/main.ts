@@ -1,13 +1,26 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { addCoords, Coord, range, sum } from "../../2020/utils.ts";
+import {
+  addCoords,
+  Coord,
+  ensureElementOf,
+  range,
+  sum,
+} from "../../2020/utils.ts";
 
-type Input = { rule: string; image: string[][]; infinity: string };
+const letters = [".", "#"] as const;
+type Letter = typeof letters[number];
+
+type Input = { rule: Letter[]; image: Letter[][]; infinity: Letter };
+
+const parseLine = (line: string): Letter[] => {
+  return line.trim().split("").map((l) => ensureElementOf(l, letters));
+};
 
 const parseInput = (string: string): Input => {
   const [ruleString, imageString] = string.trim().split("\n\n");
-  const rule = ruleString.replaceAll(/\s/g, "");
-  const image = imageString.split("\n").map((line) => line.trim().split(""));
+  const rule = parseLine(ruleString.replaceAll(/\s/g, ""));
+  const image = imageString.split("\n").map(parseLine);
   return { rule, image, infinity: "." };
 };
 
@@ -37,7 +50,7 @@ const binaryDigitDirections: Coord[] = [
 function enhance({ rule, image, infinity }: Input) {
   return {
     rule,
-    infinity: rule.charAt(infinity === "." ? 0 : 0b111_111_111),
+    infinity: rule[infinity === "." ? 0 : 0b111_111_111],
     image: range(image.length + 2).map((lineNumber) =>
       range(image[0].length + 2).map((colNumber) => {
         const centerCoord: Coord = [colNumber - 1, lineNumber - 1];
@@ -46,12 +59,12 @@ function enhance({ rule, image, infinity }: Input) {
         );
         const binaryShapes = binaryCoords.map((c) =>
           image?.[c[1]]?.[c[0]] ?? infinity
-        ).join("");
-        const binaryNumber = binaryShapes
+        );
+        const binaryNumber = binaryShapes.join("")
           .replaceAll(".", "0")
           .replaceAll("#", "1");
         const number = parseInt(binaryNumber, 2);
-        const replacement = rule.charAt(number);
+        const replacement = rule[number];
         return replacement;
       })
     ),
