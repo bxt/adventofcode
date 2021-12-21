@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { matchGroups, range, sum } from "../../2020/utils.ts";
+import { matchGroups, sum } from "../../2020/utils.ts";
 
 const matchInput = matchGroups(
   /Player \d+ starting position: (?<pos>\d+)/,
@@ -16,7 +16,6 @@ const text = await Deno.readTextFile("input.txt");
 export const input = parseInput(text);
 
 function part1(input: number[]): number {
-  console.log({ input });
   const positions = [...input];
   const scores = input.map(() => 0);
   let dice = 1;
@@ -61,16 +60,8 @@ for (let roll1 = 1; roll1 <= 3; roll1++) {
     }
   }
 }
-// for (let roll1 = 1; roll1 <= 3; roll1++) {
-//   const sum = roll1;
-//   threeRollsProbabilities[sum] ??= 0;
-//   threeRollsProbabilities[sum]++;
-// }
-
-console.log({ threeRollsProbabilities });
 
 function numbersOfWins(positions: number[]): number[] {
-  // roll/*/state
   const statesAfterRolls: State[][] = [
     [{ scores: [0, 0], positions: positions, amount: 1 }],
   ];
@@ -87,11 +78,15 @@ function numbersOfWins(positions: number[]): number[] {
       )
     ) {
       const nextRoll = parseInt(nextRollString, 10);
-      for (
-        const { scores: oldScores, positions: oldPositions, amount: oldAmount }
-          of prevStates
-      ) {
+      for (const prevState of prevStates) {
+        const {
+          scores: oldScores,
+          positions: oldPositions,
+          amount: oldAmount,
+        } = prevState;
+
         if (oldScores[otherPlayer] >= 21) continue;
+
         const newPositions = [...oldPositions];
         const newScores = [...oldScores];
         newPositions[currentPlayer] =
@@ -99,6 +94,7 @@ function numbersOfWins(positions: number[]): number[] {
           1;
         newScores[currentPlayer] = oldScores[currentPlayer] +
           newPositions[currentPlayer];
+
         let state = nextStates.find(({ scores, positions }) =>
           scores[0] === newScores[0] && positions[0] === newPositions[0] &&
           scores[1] === newScores[1] && positions[1] === newPositions[1]
@@ -107,6 +103,7 @@ function numbersOfWins(positions: number[]): number[] {
           state = { scores: newScores, positions: newPositions, amount: 0 };
           nextStates.push(state);
         }
+
         state.amount += oldAmount * nextRollAmount;
       }
     }
@@ -114,24 +111,16 @@ function numbersOfWins(positions: number[]): number[] {
     statesAfterRolls[roll] = nextStates;
   }
 
-  statesAfterRolls.forEach((s, i) => {
-    console.log(`##### Roll ${i} ######`);
-    console.log(s);
-  });
-
   return positions.map((_, i) =>
     sum(
-      statesAfterRolls.map((s) =>
-        sum(
-          s.filter(({ scores }) => scores[i] >= 21).map(({ amount }) => amount),
-        )
+      statesAfterRolls.flatMap((s) =>
+        s.filter(({ scores }) => scores[i] >= 21).map(({ amount }) => amount)
       ),
     )
   );
 }
 
 function part2(input: number[]): number {
-  console.log({ input });
   const positions = [...input];
   return Math.max(...numbersOfWins(positions));
 }
