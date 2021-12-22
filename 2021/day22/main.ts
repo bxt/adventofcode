@@ -194,15 +194,8 @@ assertEquals(overlap([8, 9], [5, 9]), {
 
 function cutOutCuboids(cuboid: Cuboid, otherCuboid: Cuboid): Cuboid[] {
   const { x1, x2, y1, y2, z1, z2 } = cuboid;
-  const {
-    state,
-    x1: ox1,
-    x2: ox2,
-    y1: oy1,
-    y2: oy2,
-    z1: oz1,
-    z2: oz2,
-  } = otherCuboid;
+  const { state, x1: ox1, x2: ox2, y1: oy1, y2: oy2, z1: oz1, z2: oz2 } =
+    otherCuboid;
 
   const overlapX = overlap([x1, x2], [ox1, ox2]);
   const overlapY = overlap([y1, y2], [oy1, oy2]);
