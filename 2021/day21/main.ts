@@ -48,6 +48,8 @@ assertEquals(part1(example), 739785);
 
 console.log("Result part 1: " + part1(input));
 
+const WIN_SCORE_PART_2 = 21;
+
 type State = {
   scores: number[];
   positions: number[];
@@ -70,7 +72,7 @@ function numbersOfWins(positions: number[]): number[] {
     [{ scores: [0, 0], positions: positions, amount: 1 }],
   ];
 
-  for (let roll = 1; roll <= 21 * 2; roll++) {
+  for (let roll = 1; roll <= WIN_SCORE_PART_2 * 2; roll++) {
     const currentPlayer = (roll - 1) % 2;
     const otherPlayer = roll % 2;
     const prevStates = statesAfterRolls[roll - 1];
@@ -89,7 +91,7 @@ function numbersOfWins(positions: number[]): number[] {
           amount: oldAmount,
         } = prevState;
 
-        if (oldScores[otherPlayer] >= 21) continue;
+        if (oldScores[otherPlayer] >= WIN_SCORE_PART_2) continue;
 
         const newPositions = [...oldPositions];
         const newScores = [...oldScores];
@@ -118,7 +120,9 @@ function numbersOfWins(positions: number[]): number[] {
   return positions.map((_, i) =>
     sum(
       statesAfterRolls.flatMap((s) =>
-        s.filter(({ scores }) => scores[i] >= 21).map(({ amount }) => amount)
+        s.filter(({ scores }) => scores[i] >= WIN_SCORE_PART_2).map((
+          { amount },
+        ) => amount)
       ),
     )
   );
