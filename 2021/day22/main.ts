@@ -85,11 +85,10 @@ function equals(
   return from === otherFrom && to === otherTo;
 }
 
-function overlap(
-  [from, to]: Interval,
-  [otherFrom, otherTo]: Interval,
-): Overlap {
-  if (from < otherFrom) {
+function overlap(me: Interval, other: Interval): Overlap {
+  const [from, to] = me;
+  const [otherFrom, otherTo] = other;
+  if (from <= otherFrom) {
     if (to < otherFrom) {
       // me:    |-----|
       // other:         |------|
@@ -118,36 +117,12 @@ function overlap(
       }
     }
   } else {
-    if (from > otherTo) {
-      // me:              |-----|
-      // other: |------|
-      return {
-        me: [[from, to]],
-        other: [[otherFrom, otherTo]],
-        both: [],
-      };
-    } else {
-      if (to > otherTo) {
-        // me:        |-----|
-        // other: |------|
-        return {
-          me: filterEmptyIntervals([[otherTo + 1, to]]),
-          other: filterEmptyIntervals([[otherFrom, from - 1]]),
-          both: filterEmptyIntervals([[from, otherTo]]),
-        };
-      } else {
-        // me:       |---|
-        // other:  |--------|
-        return {
-          me: [],
-          other: filterEmptyIntervals([[otherFrom, from - 1], [
-            to + 1,
-            otherTo,
-          ]]),
-          both: [[from, to]],
-        };
-      }
-    }
+    const overlapMirrored = overlap(other, me);
+    return {
+      me: overlapMirrored.other,
+      both: overlapMirrored.both,
+      other: overlapMirrored.me,
+    };
   }
 }
 
