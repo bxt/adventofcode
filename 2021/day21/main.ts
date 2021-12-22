@@ -72,7 +72,7 @@ function numbersOfWins(positions: number[]): number[] {
     [{ scores: [0, 0], positions: positions, amount: 1 }],
   ];
 
-  for (let roll = 1; roll <= WIN_SCORE_PART_2 * 2; roll++) {
+  for (let roll = 1; roll <= WIN_SCORE_PART_2; roll++) {
     const currentPlayer = (roll - 1) % 2;
     const otherPlayer = roll % 2;
     const prevStates = statesAfterRolls[roll - 1];
