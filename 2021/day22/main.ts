@@ -257,15 +257,10 @@ assertEquals(
 );
 
 function part2(input: Cuboid[]): number {
-  const [firstCuboid, ...inputCuboids] = input;
-  let cuboids: Cuboid[] = [firstCuboid];
-
-  for (const cuboid of inputCuboids) {
-    cuboids = [
-      cuboid,
-      ...cuboids.flatMap((otherCuboid) => cutOutCuboids(cuboid, otherCuboid)),
-    ];
-  }
+  const cuboids = input.reduce((acc, cuboid) => [
+    cuboid,
+    ...acc.flatMap((otherCuboid) => cutOutCuboids(cuboid, otherCuboid)),
+  ], [] as Cuboid[]);
 
   return sum(
     Object.values(cuboids).filter(({ state }) => state).map(cuboidSize),
