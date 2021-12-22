@@ -56,16 +56,17 @@ type State = {
   amount: number;
 };
 
-const threeRollsProbabilities: Record<number, number> = {};
+const threeRollsCounts: Record<number, number> = {};
 for (let roll1 = 1; roll1 <= 3; roll1++) {
   for (let roll2 = 1; roll2 <= 3; roll2++) {
     for (let roll3 = 1; roll3 <= 3; roll3++) {
       const sum = roll1 + roll2 + roll3;
-      threeRollsProbabilities[sum] ??= 0;
-      threeRollsProbabilities[sum]++;
+      threeRollsCounts[sum] ??= 0;
+      threeRollsCounts[sum]++;
     }
   }
 }
+const threeRollsCountsArray = Object.entries(threeRollsCounts);
 
 function numbersOfWins(positions: number[]): number[] {
   const statesAfterRolls: State[][] = [
@@ -78,11 +79,7 @@ function numbersOfWins(positions: number[]): number[] {
     const prevStates = statesAfterRolls[roll - 1];
 
     const nextStates: State[] = [];
-    for (
-      const [nextRollString, nextRollAmount] of Object.entries(
-        threeRollsProbabilities,
-      )
-    ) {
+    for (const [nextRollString, nextRollAmount] of threeRollsCountsArray) {
       const nextRoll = parseInt(nextRollString, 10);
       for (const prevState of prevStates) {
         const {
@@ -117,15 +114,14 @@ function numbersOfWins(positions: number[]): number[] {
     statesAfterRolls[roll] = nextStates;
   }
 
-  return positions.map((_, i) =>
-    sum(
-      statesAfterRolls.flatMap((s) =>
-        s.filter(({ scores }) => scores[i] >= WIN_SCORE_PART_2).map((
-          { amount },
-        ) => amount)
-      ),
-    )
-  );
+  return positions.map((_, i) => {
+    const winAmounts = statesAfterRolls.flatMap((state) =>
+      state
+        .filter(({ scores }) => scores[i] >= WIN_SCORE_PART_2)
+        .map(({ amount }) => amount)
+    );
+    return sum(winAmounts);
+  });
 }
 
 function part2(input: number[]): number {
