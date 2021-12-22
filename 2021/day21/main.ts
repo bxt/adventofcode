@@ -15,6 +15,10 @@ const text = await Deno.readTextFile("input.txt");
 
 export const input = parseInput(text);
 
+function wrapAtTen(n: number) {
+  return (n - 1) % 10 + 1;
+}
+
 function part1(input: number[]): number {
   const positions = [...input];
   const scores = input.map(() => 0);
@@ -24,7 +28,7 @@ function part1(input: number[]): number {
   while (true) {
     for (let i = 0; i < positions.length; i++) {
       const forward = roll() + roll() + roll();
-      positions[i] = (positions[i] + forward - 1) % 10 + 1;
+      positions[i] = wrapAtTen(positions[i] + forward);
       scores[i] += positions[i];
       if (scores[i] >= 1000) {
         const rolls = dice - 1;
@@ -89,9 +93,9 @@ function numbersOfWins(positions: number[]): number[] {
 
         const newPositions = [...oldPositions];
         const newScores = [...oldScores];
-        newPositions[currentPlayer] =
-          (oldPositions[currentPlayer] + nextRoll - 1) % 10 +
-          1;
+        newPositions[currentPlayer] = wrapAtTen(
+          oldPositions[currentPlayer] + nextRoll,
+        );
         newScores[currentPlayer] = oldScores[currentPlayer] +
           newPositions[currentPlayer];
 
