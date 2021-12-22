@@ -210,11 +210,17 @@ drawABunchOfFrames({
   scannerPosition: [0, 0, 0],
 });
 
-while (alignmentQueue.length > 0) {
-  const firstInQueue = alignmentQueue.shift();
-  if (firstInQueue === undefined) throw new Error("Queue magically got empty");
-  const [index, transformSoFar] = firstInQueue;
+function* shiftAll<T>(queue: T[]): Generator<T, void, unknown> {
+  while (queue.length > 0) {
+    const firstInQueue = queue.shift();
+    if (firstInQueue === undefined) {
+      throw new Error("Queue got empty between length check and shift");
+    }
+    yield firstInQueue;
+  }
+}
 
+for (const [index, transformSoFar] of shiftAll(alignmentQueue)) {
   const start = input[index];
 
   for (const [fromIndex, nextIndex] of alignments) {
