@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { ensureElementOf, matchGroups, range, sum } from "../../2020/utils.ts";
+import { ensureElementOf, matchGroups, range } from "../../2020/utils.ts";
 
 const amphipods = ["A", "B", "C", "D"] as const;
 type Amphipod = typeof amphipods[number];
@@ -68,19 +68,19 @@ export const input = parseInput(text);
 
 function isPathFree(
   { hallwaySpot, sideRoom, burrow: { hallwaySpots } }: {
-    hallwaySpot: number; // 3
-    sideRoom: number; // 0
+    hallwaySpot: number;
+    sideRoom: number;
     burrow: Burrow;
   },
 ): boolean {
-  const leftHallway = sideRoom + 1; // 1
-  const rightHallway = sideRoom + 2; // 2
+  const leftHallway = sideRoom + 1;
+  const rightHallway = sideRoom + 2;
   if (hallwaySpot < leftHallway) {
     for (let i = hallwaySpot + 1; i <= leftHallway; i++) {
       if (hallwaySpots[i] !== undefined) return false;
     }
     return true;
-  } else if (hallwaySpot > rightHallway) { // yep
+  } else if (hallwaySpot > rightHallway) {
     for (let i = rightHallway; i < hallwaySpot; i++) {
       if (hallwaySpots[i] !== undefined) return false;
     }
@@ -308,7 +308,6 @@ function cloneBurrow(burrow: Burrow): Burrow {
 }
 
 function executeMove(burrow: Burrow, move: Move): Burrow {
-  // console.log(move);
   const newBurrow = cloneBurrow(burrow);
   if (move.type === "toHallway") {
     const { fromSideRoom, toHallwaySpot } = move;
@@ -334,20 +333,13 @@ assertEquals(amphipodCostFactor("B"), 10);
 assertEquals(amphipodCostFactor("C"), 100);
 assertEquals(amphipodCostFactor("D"), 1000);
 
-// #############
-// #01.2.3.4.56#
-// ###0#1#2#3###
-//   #.#.#.#.#
-//   #########
-// sideRoom: 3, hallwaySpot: 5, leftHallway: 4, rightHallway: 5 }
-
 function stepsBetweenTopOfSideRoomToHallway(
   { sideRoom, hallwaySpot }: { sideRoom: number; hallwaySpot: number },
 ): number {
   const toClosestHallway = 1;
 
-  const leftHallway = sideRoom + 1; // 1
-  const rightHallway = sideRoom + 2; // 2
+  const leftHallway = sideRoom + 1;
+  const rightHallway = sideRoom + 2;
   let horizontal;
   if (hallwaySpot < leftHallway) {
     horizontal = (leftHallway - hallwaySpot) * 2;
@@ -445,66 +437,20 @@ function isFinished(burrow: Burrow): boolean {
   );
 }
 
-function getFinishingMovesFrom(burrow: Burrow): Move[][] {
-  // console.log({ burrow });
-  const possibleMoves = getPossibleMoves(burrow);
-  if (possibleMoves.length === 0) {
-    return isFinished(burrow) ? [[]] : [];
-  }
-  return possibleMoves.flatMap((move) => {
-    const newBurrow = executeMove(burrow, move);
-    const newMoves = getFinishingMovesFrom(newBurrow);
-    return newMoves.map((nm) => [move, ...nm]);
-  });
-}
-
-function getFinishingMovesFromNonRec(burrow: Burrow): Move[][] {
-  const results: Move[][] = [];
-  let x: [Move[], Burrow][] = [[[], burrow]];
-  while (x.length > 0) {
-    console.log(x.length, results.length);
-    const newX: [Move[], Burrow][] = [[[], burrow]];
-    for (const [moves, burrow] of x) {
-      const possibleMoves = getPossibleMoves(burrow);
-      if (possibleMoves.length === 0) {
-        if (isFinished(burrow)) {
-          results.push(moves);
-        }
-      } else {
-        possibleMoves.forEach((move) => {
-          const newBurrow = executeMove(burrow, move);
-          const newMoves = [...moves, move];
-          newX.push([newMoves, newBurrow]);
-        });
-      }
-    }
-    x = newX;
-  }
-  return results;
-}
-
-function getFinishingMovesFromNonRecDFS(
+function getBestFinishingMoves(
   burrow: Burrow,
 ): [number, Move[] | undefined] {
   let bestMoves = undefined;
   let bestResult = Infinity;
-  const x: [Move[], Burrow, number][] = [[[], burrow, 0]];
-  while (x.length > 0) {
-    const p = x.pop();
-    if (p === undefined) throw new Error("???");
-    const [moves, burrow, result] = p;
-    if (moves.length < 4) {
-      console.log(
-        "".padStart(moves.length * 2),
-        moves.length,
-        x.length,
-        bestResult,
-      );
-    }
+  const stack: [Move[], Burrow, number][] = [[[], burrow, 0]];
+  while (stack.length > 0) {
+    const top = stack.pop();
+    if (top === undefined) throw new Error("Stack somehow got empty!?");
+    const [moves, burrow, result] = top;
+
     if (result > bestResult) continue;
 
     const possibleMoves = getPossibleMoves(burrow);
-    // console.log({ possibleMoves, burrow, iF: isFinished(burrow) });
     if (possibleMoves.length === 0) {
       if (isFinished(burrow)) {
         if (result < bestResult) {
@@ -514,10 +460,10 @@ function getFinishingMovesFromNonRecDFS(
       }
     } else {
       possibleMoves.forEach((move) => {
-        const newBurrow = executeMove(burrow, move);
-        const additionalCost = calculateMoveCost(burrow, move);
         const newMoves = [...moves, move];
-        x.push([newMoves, newBurrow, result + additionalCost]);
+        const newBurrow = executeMove(burrow, move);
+        const newResult = result + calculateMoveCost(burrow, move);
+        stack.push([newMoves, newBurrow, newResult]);
       });
     }
   }
@@ -525,7 +471,7 @@ function getFinishingMovesFromNonRecDFS(
 }
 
 assertEquals(
-  getFinishingMovesFromNonRecDFS({
+  getBestFinishingMoves({
     sideRooms: [
       ["A", "A", "A", "A"],
       ["B", "B", "B", "B"],
@@ -547,9 +493,9 @@ assertEquals(
   ],
 );
 
-assertEquals(getFinishingMovesFromNonRecDFS(example)[0], 44169);
+assertEquals(getBestFinishingMoves(example)[0], 44169);
 
-function printBurrow(burrow: Burrow) {
+function stringifyBurrow(burrow: Burrow) {
   const hs = burrow.hallwaySpots.map((h) => h ?? ".");
   const sr = burrow.sideRooms.map((s) => s.join("").padStart(4, ".").split(""));
   return "" +
@@ -563,25 +509,21 @@ function printBurrow(burrow: Burrow) {
 }
 
 function part2(input: Burrow): number {
-  // console.log({ input });
-
-  const [result, moves] = getFinishingMovesFromNonRecDFS(input);
+  const [result, moves] = getBestFinishingMoves(input);
   if (moves === undefined) throw new Error();
 
   console.log(result);
 
   let burrow = input;
   for (const move of moves) {
-    console.log(printBurrow(burrow));
+    console.log(stringifyBurrow(burrow));
     console.log(move);
     console.log(`+ ${calculateMoveCost(burrow, move)} cost`);
     burrow = executeMove(burrow, move);
   }
-  console.log(printBurrow(burrow));
+  console.log(stringifyBurrow(burrow));
 
   return result;
 }
-
-// console.log(getFinishingMovesFromNonRecDFS(example));
 
 console.log("Result part 2: " + part2(input));
