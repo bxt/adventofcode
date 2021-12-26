@@ -37,10 +37,10 @@ Day | Deno        | Visual     | Description
 20  | [✓][deno20] | [?][vis20] | [Special Rule Game Of Life][aoc20]
 21  | [✓][deno21] |            | [Universe split dice roll game][aoc21]
 22  | [✓][deno22] | [?][vis22] | [Reactor cube intersections][aoc22]
-23  | [?][deno23] | [?][vis23] | [???][aoc23]
-24  | [?][deno24] | [?][vis24] | [???][aoc24]
-25  | [?][deno25] | [?][vis25] | [???][aoc25]
-Σ   |          22 |          8 |
+23  | [✓][deno23] | [?][vis23] | [Amphipod Burrow movements][aoc23]
+24  | [?][deno24] |            | [Reverse engineering assembler code][aoc24]
+25  | [✓][deno25] | [?][vis25] | [Sea cucumber vertical/horizontal gridlock][aoc25]
+Σ   |          24 |          8 |
 
 Other solutions
 ---------------
