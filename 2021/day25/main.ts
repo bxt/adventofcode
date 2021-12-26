@@ -1,12 +1,12 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
-import { ensureElementOf, matchGroups, sum } from "../../2020/utils.ts";
+import { ensureElementOf } from "../../2020/utils.ts";
 
-const cucumbers = [">", "v"] as const;
-type Cucumber = typeof cucumbers[number];
+const horizontal = ">";
+const vertical = "v";
 const empty = ".";
-type Element = Cucumber | typeof empty;
-const elements: Element[] = [empty, ...cucumbers];
+const elements = [horizontal, vertical, empty] as const;
+type Element = typeof elements[number];
 
 function parseInput(string: string): Element[][] {
   const lines = string.trim().split("\n");
@@ -24,26 +24,20 @@ function part1(input: Element[][]): number {
   let steps = 0;
   let state = input;
 
-  while (hasAnyMoved && steps < 1000) {
-    console.log(steps, ":");
-    console.log(state.map((l) => l.join("")).join("\n"));
-    console.log("-------");
-
+  while (hasAnyMoved) {
     steps++;
     hasAnyMoved = false;
     {
       const nextState: Element[][] = state.map((l) => [...l]);
 
-      for (let y = state.length - 1; y >= 0; y--) {
-        for (let x = state[y].length; x >= 0; x--) {
+      for (let y = 0; y < state.length; y++) {
+        for (let x = 0; x < state[y].length; x++) {
           const nextX = (x + 1) % state[y].length;
-          if (state[y][x] === ">") {
+          if (state[y][x] === horizontal) {
             if (state[y][nextX] === empty) {
               nextState[y][x] = empty;
-              nextState[y][nextX] = ">";
+              nextState[y][nextX] = horizontal;
               hasAnyMoved = true;
-            } else {
-              nextState[y][x] = ">";
             }
           }
         }
@@ -53,27 +47,21 @@ function part1(input: Element[][]): number {
     {
       const nextState: Element[][] = state.map((l) => [...l]);
 
-      for (let y = state.length - 1; y >= 0; y--) {
+      for (let y = 0; y < state.length; y++) {
         const nextY = (y + 1) % state.length;
-        for (let x = state[y].length; x >= 0; x--) {
-          if (state[y][x] === "v") {
+        for (let x = 0; x < state[y].length; x++) {
+          if (state[y][x] === vertical) {
             if (state[nextY][x] === empty) {
               nextState[y][x] = empty;
-              nextState[nextY][x] = "v";
+              nextState[nextY][x] = vertical;
               hasAnyMoved = true;
-            } else {
-              nextState[y][x] = "v";
             }
           }
         }
       }
-
       state = nextState;
     }
   }
-
-  console.log(steps, ":");
-  console.log(state.map((l) => l.join("")).join("\n"));
 
   return steps;
 }
