@@ -44,17 +44,14 @@ fn chec_disallow() {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("input.txt")?;
 
-    let mut allowed = vec![(0u32, u32::MAX)];
-
-    for line in file.lines() {
-        let disallow_range = parse_line(line)?;
-        allowed = disallow(allowed, disallow_range);
-    }
+    let allowed = file
+        .lines()
+        .map(|l| parse_line(l).unwrap())
+        .fold(vec![(0u32, u32::MAX)], disallow);
 
     println!("part 1: {}", allowed[0].0);
 
     let mut sum = 0u32;
-
     for (allowed_from, allowed_to) in allowed {
         sum += allowed_to - allowed_from + 1;
     }
