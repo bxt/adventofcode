@@ -9,4 +9,10 @@ edition = "2021"
 name = "adventofcode2022day01"
 path = "day01/main.rs"
 
+[[bin]]
+name = "adventofcode2022day02"
+path = "day02/main.rs"
+
 [dependencies]
+strum = "0.24"
+strum_macros = "0.24"

@@ -16,7 +16,7 @@ added a short summary for each day.
 Day | Deno        | Rust        | Description
 ----|-------------|-------------|-------------------------------------------------
 01  | [✓][deno01] | [✓][rust01] | [Elves calorie counting][aoc01]
-02  |             |             |
+02  | [✓][deno02] | [✓][rust02] | [Rock paper scissors scoring][aoc02]
 03  |             |             |
 04  |             |             |
 05  |             |             |
@@ -81,4 +81,6 @@ year I might follow (A-Z):
  [aoc25]: http://adventofcode.com/2020/day/25
  [deno01]: day01/main.ts
  [rust01]: day01/main.rs
+ [deno02]: day02/main.ts
+ [rust02]: day02/main.rs
 
