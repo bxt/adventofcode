@@ -3,8 +3,9 @@ import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 import { ensureElementOf, sum } from "../../2020/utils.ts";
 
 type RPS = "rock" | "paper" | "scissors";
+type Round = { opponent: RPS; you: RPS };
 
-const parseInput = (string: string): { opponent: RPS; you: RPS }[] =>
+const parseInput = (string: string): Round[] =>
   string.trim().split("\n").map((line) => {
     const [opponentRaw, youRaw] = line.trim().split(" ");
     const tokens = ["A", "B", "C", "X", "Y", "Z"] as const;
@@ -26,11 +27,11 @@ const text = await Deno.readTextFile("input.txt");
 
 const input = parseInput(text);
 
-const part1 = (input: { opponent: string; you: string }[]): number => {
+const part1 = (input: Round[]): number => {
   const roundScores = input.map((round) => {
     const { opponent, you } = round;
-    const key = `${opponent} ${you}`;
-    const scoreMap: Record<string, number> = {
+    const key: `${RPS} ${RPS}` = `${opponent} ${you}`;
+    const scoreMap = {
       "rock rock": 3 + 1,
       "rock paper": 6 + 2,
       "rock scissors": 0 + 3,
@@ -46,11 +47,11 @@ const part1 = (input: { opponent: string; you: string }[]): number => {
   return sum(roundScores);
 };
 
-const part2 = (input: { opponent: string; you: string }[]): number => {
+const part2 = (input: Round[]): number => {
   const roundScores = input.map((round) => {
     const { opponent, you } = round;
-    const key = `${opponent} ${you}`;
-    const scoreMap: Record<string, number> = {
+    const key: `${RPS} ${RPS}` = `${opponent} ${you}`;
+    const scoreMap = {
       "rock rock": 0 + 3,
       "rock paper": 3 + 1,
       "rock scissors": 6 + 2,
