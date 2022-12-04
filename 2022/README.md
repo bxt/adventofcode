@@ -53,6 +53,7 @@ year I might follow (A-Z):
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2022) (Python)
 * [fdlk](https://github.com/fdlk/advent-2022) (Scala)
 * [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2022) (Haskell)
+* [jamincan](https://www.reddit.com/user/jamincan) (Rust)
 
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
