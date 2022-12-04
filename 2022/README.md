@@ -17,8 +17,8 @@ Day | Deno        | Rust        | Description
 ----|-------------|-------------|-------------------------------------------------
 01  | [✓][deno01] | [✓][rust01] | [Elves calorie counting][aoc01]
 02  | [✓][deno02] | [✓][rust02] | [Rock paper scissors scoring][aoc02]
-03  |             |             |
-04  |             |             |
+03  |             | [✓][rust03] | [Checking common rucksack items][aoc03]
+04  |             | [✓][rust04] | [Checking range overlap][aoc04]
 05  |             |             |
 06  |             |             |
 07  |             |             |
@@ -40,7 +40,7 @@ Day | Deno        | Rust        | Description
 23  |             |             |
 24  |             |             |
 25  |             |             |
-Σ   |           1 |           0 |
+Σ   |           2 |           4 |
 
 Other solutions
 ---------------
