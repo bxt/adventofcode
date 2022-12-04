@@ -3,11 +3,11 @@ use std::ops::Range;
 type Couple = (Range<u32>, Range<u32>);
 
 fn overlap(range1: &Range<u32>, range2: &Range<u32>) -> bool {
-    range1.contains(&range2.start) && range1.contains(&(range2.end-1))
+    range1.contains(&range2.start) && range1.contains(&(range2.end - 1))
 }
 
 fn touches(range1: &Range<u32>, range2: &Range<u32>) -> bool {
-    range1.contains(&range2.start) || range1.contains(&(range2.end-1))
+    range1.contains(&range2.start) || range1.contains(&(range2.end - 1))
 }
 
 fn parse_input(input: &str) -> Vec<Couple> {
@@ -32,18 +32,11 @@ fn parse_range(line: &str) -> Result<Range<u32>, Box<dyn std::error::Error>> {
     Ok(from..to + 1)
 }
 
-fn part1(couples: &Vec<Couple>) -> u32 {
+fn part1(couples: &Vec<Couple>) -> usize {
     couples
         .iter()
-        .map(|couple| {
-            let (first, second) = couple;
-            if overlap(first, second) || overlap(second, first) {
-                1
-            } else {
-                0
-            }
-        })
-        .sum::<u32>()
+        .filter(|(first, second)| overlap(first, second) || overlap(second, first))
+        .count()
 }
 
 const EXAMPLE: &str = "\
@@ -60,18 +53,11 @@ fn check_part1() {
     assert_eq!(part1(&parse_input(EXAMPLE)), 2);
 }
 
-fn part2(couples: &Vec<Couple>) -> u32 {
+fn part2(couples: &Vec<Couple>) -> usize {
     couples
         .iter()
-        .map(|couple| {
-            let (first, second) = couple;
-            if touches(first, second) || touches(second, first) {
-                1
-            } else {
-                0
-            }
-        })
-        .sum::<u32>()
+        .filter(|(first, second)| touches(first, second) || touches(second, first))
+        .count()
 }
 
 #[test]
