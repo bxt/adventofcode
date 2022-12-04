@@ -6,6 +6,10 @@ fn overlap(range1: &Range<u32>, range2: &Range<u32>) -> bool {
     range1.contains(&range2.start) && range1.contains(&(range2.end-1))
 }
 
+fn touches(range1: &Range<u32>, range2: &Range<u32>) -> bool {
+    range1.contains(&range2.start) || range1.contains(&(range2.end-1))
+}
+
 fn parse_input(input: &str) -> Vec<Couple> {
     input
         .trim()
@@ -28,7 +32,7 @@ fn parse_range(line: &str) -> Result<Range<u32>, Box<dyn std::error::Error>> {
     Ok(from..to + 1)
 }
 
-fn part1(couples: Vec<Couple>) -> u32 {
+fn part1(couples: &Vec<Couple>) -> u32 {
     couples
         .iter()
         .map(|couple| {
@@ -53,7 +57,26 @@ const EXAMPLE: &str = "\
 
 #[test]
 fn check_part1() {
-    assert_eq!(part1(parse_input(EXAMPLE)), 2);
+    assert_eq!(part1(&parse_input(EXAMPLE)), 2);
+}
+
+fn part2(couples: &Vec<Couple>) -> u32 {
+    couples
+        .iter()
+        .map(|couple| {
+            let (first, second) = couple;
+            if touches(first, second) || touches(second, first) {
+                1
+            } else {
+                0
+            }
+        })
+        .sum::<u32>()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(part2(&parse_input(EXAMPLE)), 4);
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -61,8 +84,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed_input = parse_input(&file);
 
-    let part1 = part1(parsed_input);
+    let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
+
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
