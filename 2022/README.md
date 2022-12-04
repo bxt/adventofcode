@@ -83,4 +83,6 @@ year I might follow (A-Z):
  [rust01]: day01/main.rs
  [deno02]: day02/main.ts
  [rust02]: day02/main.rs
+ [rust03]: day03/main.rs
+ [rust04]: day04/main.rs
 
