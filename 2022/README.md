@@ -48,11 +48,11 @@ Other solutions
 I enjoy looking at how other coders solved the riddles to learn even more. This
 year I might follow (A-Z):
 
-* [carlastabile](https://github.com/carlastabile/advent-of-code/tree/master/2021) (Python)
-* [Chimney42](https://github.com/Chimney42/aoc-2021) (Python)
-* [cschell](https://github.com/cschell/adventofcode/tree/master/2021) (Python)
-* [fdlk](https://github.com/fdlk/advent-2021) (Scala)
-* [glguy](https://github.com/glguy/advent2021) (Haskell
+* [carlastabile](https://github.com/carlastabile/advent-of-code/tree/master/2021) (Python?)
+* [lianmakesthings](https://github.com/lianmakesthings/aoc2022) (Python)
+* [cschell](https://github.com/cschell/adventofcode/tree/master/2022) (Python)
+* [fdlk](https://github.com/fdlk/advent-2022) (Scala)
+* [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2022) (Haskell)
 
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
