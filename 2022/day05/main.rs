@@ -7,9 +7,25 @@ struct Crates {
 }
 
 impl Crates {
-    fn lift(&mut self, from: usize, to: usize) {
-        let c = self.stacks[from].pop().unwrap();
-        self.stacks[to].push(c);
+    fn lift(&mut self, instruction: Instruction) {
+        for _x in 0..instruction.repetitions {
+            let c = self.stacks[instruction.from - 1].pop().unwrap();
+            self.stacks[instruction.to - 1].push(c);
+        }
+    }
+
+    fn lift9001(&mut self, instruction: Instruction) {
+        let mut crates = vec![];
+        for _x in 0..instruction.repetitions {
+            let c = self.stacks[instruction.from - 1].pop().unwrap();
+            crates.push(c);
+        }
+
+        crates.reverse();
+
+        for c in crates {
+            self.stacks[instruction.to - 1].push(c);
+        }
     }
 
     fn tops(&self) -> String {
@@ -80,9 +96,7 @@ fn part1((input_crates, instructions): (Crates, Vec<Instruction>)) -> String {
     let mut crates = input_crates;
 
     for instruction in instructions {
-        for _x in 0..instruction.repetitions {
-            crates.lift(instruction.from - 1, instruction.to - 1);
-        }
+        crates.lift(instruction);
     }
 
     crates.tops()
@@ -105,16 +119,26 @@ const EXAMPLE: &str = "\
 //     assert_eq!(part1(&parse_input(EXAMPLE)), 2);
 // }
 
+fn part2((input_crates, instructions): (Crates, Vec<Instruction>)) -> String {
+    let mut crates = input_crates;
+
+    for instruction in instructions {
+        crates.lift9001(instruction);
+    }
+
+    crates.tops()
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day05/input.txt")?;
 
     let parsed_input = parse_input(&file);
-
     let part1 = part1(parsed_input);
-    println!("part 1: {:?}", part1);
+    println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let parsed_input2 = parse_input(&file);
+    let part2 = part2(parsed_input2);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
