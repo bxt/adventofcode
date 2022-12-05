@@ -82,7 +82,7 @@ impl std::str::FromStr for Instruction {
 }
 
 fn parse_input(input: &str) -> (Crates, Vec<Instruction>) {
-    let (crates_str, instructions_str) = input.trim().split_once("\n\n").unwrap();
+    let (crates_str, instructions_str) = input.split_once("\n\n").unwrap();
     (
         crates_str.parse().unwrap(),
         instructions_str
@@ -102,22 +102,15 @@ fn part1((input_crates, instructions): (Crates, Vec<Instruction>)) -> String {
     crates.tops()
 }
 
-const EXAMPLE: &str = "\
-        [D]    \n\
-    [N] [C]    \n\
-    [Z] [M] [P]\n\
-     1   2   3 \n\
-    \n\
-    move 1 from 2 to 1\n\
-    move 3 from 1 to 3\n\
-    move 2 from 2 to 1\n\
-    move 1 from 1 to 2\
-    ";
-
-// #[test]
-// fn check_part1() {
-//     assert_eq!(part1(&parse_input(EXAMPLE)), 2);
-// }
+#[test]
+fn check_part1() {
+    assert_eq!(
+        part1(parse_input(
+            &std::fs::read_to_string("day05/example.txt").unwrap()
+        )),
+        "CMZ"
+    );
+}
 
 fn part2((input_crates, instructions): (Crates, Vec<Instruction>)) -> String {
     let mut crates = input_crates;
@@ -127,6 +120,16 @@ fn part2((input_crates, instructions): (Crates, Vec<Instruction>)) -> String {
     }
 
     crates.tops()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(parse_input(
+            &std::fs::read_to_string("day05/example.txt").unwrap()
+        )),
+        "MCD"
+    );
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
