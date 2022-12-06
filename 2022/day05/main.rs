@@ -15,17 +15,10 @@ impl Crates {
     }
 
     fn lift9001(&mut self, instruction: Instruction) {
-        let mut crates = vec![];
-        for _x in 0..instruction.repetitions {
-            let c = self.stacks[instruction.from - 1].pop().unwrap();
-            crates.push(c);
-        }
-
-        crates.reverse();
-
-        for c in crates {
-            self.stacks[instruction.to - 1].push(c);
-        }
+        let from_stack = &mut self.stacks[instruction.from - 1];
+        let amount = usize::try_from(instruction.repetitions).unwrap();
+        let mut crates = from_stack.split_off(from_stack.len() - amount);
+        self.stacks[instruction.to - 1].append(&mut crates);
     }
 
     fn tops(&self) -> String {
