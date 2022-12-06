@@ -19,8 +19,8 @@ Day | Deno        | Rust        | Description
 02  | [✓][deno02] | [✓][rust02] | [Rock paper scissors scoring][aoc02]
 03  |             | [✓][rust03] | [Checking common rucksack items][aoc03]
 04  |             | [✓][rust04] | [Checking range overlap][aoc04]
-05  |             |             |
-06  |             |             |
+05  |             | [✓][rust05] | [Moving stacks of crates][aoc05]
+06  |             | [✓][rust06] | [Finding distinct char sequences][aoc06]
 07  |             |             |
 08  |             |             |
 09  |             |             |
@@ -40,7 +40,7 @@ Day | Deno        | Rust        | Description
 23  |             |             |
 24  |             |             |
 25  |             |             |
-Σ   |           2 |           4 |
+Σ   |           2 |           6 |
 
 Other solutions
 ---------------
@@ -86,4 +86,6 @@ year I might follow (A-Z):
  [rust02]: day02/main.rs
  [rust03]: day03/main.rs
  [rust04]: day04/main.rs
+ [rust05]: day05/main.rs
+ [rust06]: day06/main.rs
 
