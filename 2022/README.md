@@ -5,7 +5,7 @@ Advent of Code 2022
 
 This directory contains the code I used to solve the challenges from [Advent of Code 2022](http://adventofcode.com/2022).
 
-This year I'm going with TypeScript using [`deno`](https://deno.land/). Solutions can be run with `./main.ts`.
+This year I'm going with Rust. Solutins can be run with e.g. `cargo run --bin adventofcode2022day0`. Some days I used TypeScript with [`deno`](https://deno.land/), solutions can be run with `./main.ts` then.
 
 Contents
 --------
