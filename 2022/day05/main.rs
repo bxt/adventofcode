@@ -42,10 +42,7 @@ impl std::str::FromStr for Crates {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut lines = input.lines().rev();
         let stack_count = (lines.next().unwrap().len() + 1) / 4;
-        let mut stacks = vec![];
-        for _x in 0..stack_count {
-            stacks.push(vec![]);
-        }
+        let mut stacks = vec![Vec::new(); stack_count];
         for line in lines {
             for stack_number in 0..stack_count {
                 let character = line.chars().nth(stack_number * 4 + 1).unwrap();
