@@ -3,15 +3,10 @@ use std::collections::HashSet;
 fn find_marker(input: &str, window_size: usize) -> usize {
     let vec = input.chars().collect::<Vec<char>>();
 
-    for (index, window) in vec.windows(window_size).enumerate() {
-        let distinct = window.iter().collect::<HashSet<&char>>();
-
-        if distinct.len() == window_size {
-            return index + window_size;
-        }
-    }
-
-    panic!("No marker found!");
+    vec.windows(window_size)
+        .position(|window| window.iter().collect::<HashSet<_>>().len() == window_size)
+        .unwrap()
+        + window_size
 }
 
 #[test]
