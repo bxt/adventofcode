@@ -1,40 +1,45 @@
-fn part1(input: &str) -> u32 {
-    let mut index = 0;
-    let mut c1 = None;
-    let mut c2 = None;
-    let mut c3 = None;
-    let mut c4 = None;
+use std::collections::HashSet;
 
-    for c in input.chars() {
-        if index >= 4 && c1 != c2 && c1 != c3 && c1 != c4 && c2 != c3 && c2 != c4 && c3 != c4 {
-            return index;
+fn find_marker(input: &str, window_size: usize) -> usize {
+    let vec = input.chars().collect::<Vec<char>>();
+
+    for (index, window) in vec.windows(window_size).enumerate() {
+        let distinct = window.iter().collect::<HashSet<&char>>();
+
+        if distinct.len() == window_size {
+            return index + window_size;
         }
-
-        (c1, c2, c3, c4) = (c2, c3, c4, Some(c));
-
-        index += 1;
     }
 
-    0
+    panic!("No marker found!");
 }
 
 #[test]
 fn check_part1() {
-    assert_eq!(part1("mjqjpqmgbljsphdztnvjfqwrcgsmlb"), 7);
-    assert_eq!(part1("bvwbjplbgvbhsrlpgdmjqwftvncz"), 5);
-    assert_eq!(part1("nppdvjthqldpwncqszvftbrmjlhg"), 6);
-    assert_eq!(part1("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 10);
-    assert_eq!(part1("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 11);
+    assert_eq!(find_marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 4), 7);
+    assert_eq!(find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 4), 5);
+    assert_eq!(find_marker("nppdvjthqldpwncqszvftbrmjlhg", 4), 6);
+    assert_eq!(find_marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4), 10);
+    assert_eq!(find_marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4), 11);
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(find_marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14), 19);
+    assert_eq!(find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 14), 23);
+    assert_eq!(find_marker("nppdvjthqldpwncqszvftbrmjlhg", 14), 23);
+    assert_eq!(find_marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 14), 29);
+    assert_eq!(find_marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 14), 26);
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day06/input.txt")?;
 
-    let part1 = part1(&file);
+    let part1 = find_marker(&file, 4);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(parsed_input2);
-    // println!("part 2: {}", part2);
+    let part2 = find_marker(&file, 14);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
