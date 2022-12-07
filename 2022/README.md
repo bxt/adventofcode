@@ -21,7 +21,7 @@ Day | Deno        | Rust        | Description
 04  |             | [✓][rust04] | [Checking range overlap][aoc04]
 05  |             | [✓][rust05] | [Moving stacks of crates][aoc05]
 06  |             | [✓][rust06] | [Finding distinct char sequences][aoc06]
-07  |             |             |
+07  | [✓][deno07] | [✓][rust07] | [Finding recursive directory sizes][aoc07]
 08  |             |             |
 09  |             |             |
 10  |             |             |
@@ -40,7 +40,7 @@ Day | Deno        | Rust        | Description
 23  |             |             |
 24  |             |             |
 25  |             |             |
-Σ   |           2 |           6 |
+Σ   |           3 |           7 |
 
 Other solutions
 ---------------
@@ -88,4 +88,6 @@ year I might follow (A-Z):
  [rust04]: day04/main.rs
  [rust05]: day05/main.rs
  [rust06]: day06/main.rs
+ [deno07]: day07/main.ts
+ [rust07]: day07/main.rs
 
