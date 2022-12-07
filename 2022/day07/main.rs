@@ -83,9 +83,8 @@ fn reconstruct_directories(input: &Vec<CommandOutput>) -> HashMap<String, u32> {
 
 fn part1(input: &Vec<CommandOutput>) -> u32 {
     reconstruct_directories(input)
-        .values()
-        .filter(|v| v <= &&100000u32)
-        .sum()
+        .into_values()
+        .filter(|&v| v <= 100000).sum()
 }
 
 #[test]
@@ -103,9 +102,9 @@ fn part2(input: &Vec<CommandOutput>) -> u32 {
     let root_size = reconstructed_directories.get("").unwrap();
     let min_size = 30000000 + root_size - 70000000;
 
-    *reconstructed_directories
-        .values()
-        .filter(|v| v >= &&min_size)
+    reconstructed_directories
+        .into_values()
+        .filter(|&v| v >= min_size)
         .min()
         .unwrap()
 }
