@@ -1,6 +1,6 @@
-use std::collections::HashSet;
+use regex::Regex;
+use std::collections::HashMap;
 use std::fmt::Error;
-use std::rc::Rc;
 
 #[derive(Debug)]
 struct CommandOutput {
@@ -30,57 +30,62 @@ fn parse_input(input: &str) -> Vec<CommandOutput> {
         .collect::<Vec<_>>()
 }
 
-#[derive(Debug)]
-struct Directory {
-    name: String,
-    size: u32,
-    children: Vec<Rc<Directory>>,
-}
-
-fn reconstruct_directories(input: &Vec<CommandOutput>) -> Directory {
+fn reconstruct_directories(input: &Vec<CommandOutput>) -> HashMap<String, u32> {
     // TODO: figure out ownership
 
-    let mut root = Rc::new(Directory {
-        name: "".to_owned(),
-        size: 0,
-        children: vec![],
-    });
-    let mut current_directories = vec![&mut root];
+    let mut sizes: HashMap<String, u32> = HashMap::new();
+    let mut current_directory = "".to_owned();
 
     for command_output in input {
         let command_bits = command_output.command.split(" ").collect::<Vec<_>>();
         match command_bits[..] {
             ["cd", path] => match path {
                 ".." => {
-                    current_directories.pop();
+                    current_directory = current_directory
+                        .trim_end_matches(|c| c != '/')
+                        .trim_end_matches('/')
+                        .to_owned();
                 }
                 "/" => {
-                    // current_directories = vec![&mut root];
+                    current_directory = "".to_owned();
                 }
                 name => {
-                    let mut newDir =  Rc::new(Directory {
-                        name: name.to_owned(),
-                        size: 0,
-                        children: vec![],
-                    });
-                    current_directories.last_mut().unwrap().children.push(newDir);
-                    current_directories.push(Rc::clone(&newDir));
+                    current_directory = "".to_owned() + &current_directory + "/" + name;
                 }
             },
-            ["ls"] => {}
+            ["ls"] => {
+                let file_sizes = command_output.lines.iter().filter_map(|line| {
+                    let re: Regex = Regex::new(r"^(\d+) ").unwrap();
+                    re.captures(line)
+                        .and_then(|caps| caps[1].parse::<u32>().ok())
+                });
+                let size = file_sizes.sum();
+                sizes.insert(current_directory.clone(), size);
+            }
             _ => {
                 panic!("unknown command {}", command_output.command)
             }
         }
     }
 
-    root
+    let mut total_sizes: HashMap<String, u32> = HashMap::new();
+
+    for path in (&sizes).keys() {
+        let total_size = (&sizes)
+            .iter()
+            .filter_map(|(child_path, size)| child_path.starts_with(path).then(|| size))
+            .sum();
+        total_sizes.insert(path.clone(), total_size);
+    }
+
+    total_sizes
 }
 
 fn part1(input: &Vec<CommandOutput>) -> u32 {
-    println!("dirs: {:?}", reconstruct_directories(input));
-
-    95437
+    reconstruct_directories(input)
+        .values()
+        .filter(|v| v <= &&100000u32)
+        .sum()
 }
 
 #[test]
@@ -93,6 +98,28 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &Vec<CommandOutput>) -> u32 {
+    let reconstructed_directories = reconstruct_directories(input);
+    let root_size = reconstructed_directories.get("").unwrap();
+    let min_size = 30000000 + root_size - 70000000;
+
+    *reconstructed_directories
+        .values()
+        .filter(|v| v >= &&min_size)
+        .min()
+        .unwrap()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(&parse_input(
+            &std::fs::read_to_string("day07/example.txt").unwrap()
+        )),
+        24933642
+    );
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day07/input.txt")?;
 
@@ -100,6 +127,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
+
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
