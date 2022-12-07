@@ -73,7 +73,7 @@ fn reconstruct_directories(input: &Vec<CommandOutput>) -> HashMap<String, u32> {
     for path in (&sizes).keys() {
         let total_size = (&sizes)
             .iter()
-            .filter_map(|(child_path, size)| child_path.starts_with(path).then(|| size))
+            .filter_map(|(child_path, size)| child_path.starts_with(path).then_some(size))
             .sum();
         total_sizes.insert(path.clone(), total_size);
     }
