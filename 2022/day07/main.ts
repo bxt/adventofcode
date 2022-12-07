@@ -21,7 +21,7 @@ type Directory = {
 
 const dirMatcher = matchGroups(/^(?<sizeString>\d+) (?<filename>.+)$/);
 
-const part1 = (input: [string, string[]][]): number => {
+const reconstructDirectories = (input: [string, string[]][]): Directory => {
   const root = { name: "", size: 0, totalSize: -1, children: [] };
   const currentDirs: Directory[] = [];
 
@@ -67,6 +67,12 @@ const part1 = (input: [string, string[]][]): number => {
 
   figureTotalSize(root);
 
+  return root;
+};
+
+const part1 = (input: [string, string[]][]): number => {
+  const root = reconstructDirectories(input);
+
   const sumSuitableTotalSizes = (dir: Directory): number => {
     const mine = dir.totalSize <= 100000 ? dir.totalSize : 0;
     const others = sum(dir.children.map(sumSuitableTotalSizes));
@@ -83,3 +89,33 @@ const example = parseInput(exampleText);
 assertEquals(part1(example), 95437);
 
 console.log("Result part 1: " + part1(input));
+
+const part2 = (input: [string, string[]][]): number => {
+  const totalSpace = 70000000;
+  const requiredFreeSpace = 30000000;
+
+  const root = reconstructDirectories(input);
+
+  const currentFreeSpace = totalSpace - root.totalSize;
+  const minToDelete = requiredFreeSpace - currentFreeSpace;
+  if (minToDelete < 0) {
+    throw new Error("Already enough space!");
+  }
+
+  const candidateSizes: number[] = [];
+
+  const findCandidateSizes = (dir: Directory): void => {
+    if (dir.totalSize >= minToDelete) {
+      candidateSizes.push(dir.totalSize);
+    }
+    dir.children.forEach(findCandidateSizes);
+  };
+
+  findCandidateSizes(root);
+
+  return Math.min(...candidateSizes);
+};
+
+assertEquals(part2(example), 24933642);
+
+console.log("Result part 2: " + part2(input));
