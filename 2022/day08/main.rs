@@ -1,51 +1,3 @@
-#[derive(Clone)]
-struct TakeWhileInclusive<I, P> {
-    iter: I,
-    flag: bool,
-    predicate: P,
-}
-
-impl<I, P> TakeWhileInclusive<I, P> {
-    fn new(iter: I, predicate: P) -> TakeWhileInclusive<I, P> {
-        TakeWhileInclusive {
-            iter,
-            flag: false,
-            predicate,
-        }
-    }
-}
-
-impl<I: Iterator, P> Iterator for TakeWhileInclusive<I, P>
-where
-    P: FnMut(&I::Item) -> bool,
-{
-    type Item = I::Item;
-
-    #[inline]
-    fn next(&mut self) -> Option<I::Item> {
-        if self.flag {
-            None
-        } else {
-            let x = self.iter.next()?;
-            if (self.predicate)(&x) {
-                Some(x)
-            } else {
-                self.flag = true;
-                Some(x)
-            }
-        }
-    }
-}
-
-#[test]
-fn check_true_once_more_take_while() {
-    let iter = [1, 3, 4, 6, 9].iter();
-    let predicate = |&&x| x < 5;
-    TakeWhileInclusive::new(iter, predicate).next();
-    let result: Vec<i32> = TakeWhileInclusive::new(iter, predicate).collect();
-    assert_eq!(vec![1, 2, 3, 6], result);
-}
-
 fn parse_input(input: &str) -> Vec<Vec<u32>> {
     input
         .trim()
@@ -59,8 +11,6 @@ fn parse_input(input: &str) -> Vec<Vec<u32>> {
 }
 
 fn part1(trees: &Vec<Vec<u32>>) -> usize {
-    println!("trees: {:?}", trees);
-
     let mut visible = trees
         .iter()
         .map(|row| row.iter().map(|_| false).collect::<Vec<_>>())
@@ -108,8 +58,6 @@ fn part1(trees: &Vec<Vec<u32>>) -> usize {
         }
     }
 
-    println!("visible: {:?}", visible);
-
     visible
         .iter()
         .map(|row| row.iter().filter(|&&r| r).count())
@@ -127,8 +75,6 @@ fn check_part1() {
 }
 
 fn part2(trees: &Vec<Vec<u32>>) -> usize {
-    println!("trees: {:?}", trees);
-
     let mut scenic_scores = trees
         .iter()
         .map(|row| row.iter().map(|_| 0).collect::<Vec<usize>>())
@@ -139,16 +85,51 @@ fn part2(trees: &Vec<Vec<u32>>) -> usize {
             let mut outer_scenic_score = 1;
 
             {
-                let visible = trees[outer_row_index][(outer_col_index + 1)..]
-                    .iter()
-                    .count();
+                let mut visible = 0;
+                for tree in &trees[outer_row_index][(outer_col_index + 1)..] {
+                    visible += 1;
+                    if tree >= outer_tree {
+                        break;
+                    }
+                }
                 outer_scenic_score *= visible;
             }
 
-            println!(
-                "score at {} {}: {:?}",
-                outer_row_index, outer_col_index, outer_scenic_score
-            );
+            {
+                let mut visible = 0;
+                for tree in trees[outer_row_index][..outer_col_index].iter().rev() {
+                    visible += 1;
+                    if tree >= outer_tree {
+                        break;
+                    }
+                }
+                outer_scenic_score *= visible;
+            }
+
+            {
+                let mut visible = 0;
+                for row in trees[(outer_row_index + 1)..].iter() {
+                    let tree = &row[outer_col_index];
+                    visible += 1;
+                    if tree >= outer_tree {
+                        break;
+                    }
+                }
+                outer_scenic_score *= visible;
+            }
+
+            {
+                let mut visible = 0;
+                for row in trees[..outer_row_index].iter().rev() {
+                    let tree = &row[outer_col_index];
+                    visible += 1;
+                    if tree >= outer_tree {
+                        break;
+                    }
+                }
+                outer_scenic_score *= visible;
+            }
+
             scenic_scores[outer_row_index][outer_col_index] = outer_scenic_score;
         }
     }
