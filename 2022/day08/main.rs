@@ -1,38 +1,48 @@
-fn true_once_more<A, F>(predicate: F) -> impl FnMut(A) -> bool
+#[derive(Clone)]
+struct TakeWhileInclusive<I, P> {
+    iter: I,
+    flag: bool,
+    predicate: P,
+}
+
+impl<I, P> TakeWhileInclusive<I, P> {
+    fn new(iter: I, predicate: P) -> TakeWhileInclusive<I, P> {
+        TakeWhileInclusive {
+            iter,
+            flag: false,
+            predicate,
+        }
+    }
+}
+
+impl<I: Iterator, P> Iterator for TakeWhileInclusive<I, P>
 where
-    F: Fn(A) -> bool,
+    P: FnMut(&I::Item) -> bool,
 {
-    let mut was_false_once = false;
-    move |input| {
-        if was_false_once {
-            return false;
+    type Item = I::Item;
+
+    #[inline]
+    fn next(&mut self) -> Option<I::Item> {
+        if self.flag {
+            None
+        } else {
+            let x = self.iter.next()?;
+            if (self.predicate)(&x) {
+                Some(x)
+            } else {
+                self.flag = true;
+                Some(x)
+            }
         }
-        let result = predicate(input);
-        if !result {
-            was_false_once = true;
-            return true;
-        }
-        result
     }
 }
 
 #[test]
-fn check_true_once_more_simple() {
-    let mut closure = true_once_more(|x| x < 5);
-    assert_eq!(closure(3), true);
-    assert_eq!(closure(1), true);
-    assert_eq!(closure(5), true);
-    assert_eq!(closure(1), false);
-}
-
-#[test]
 fn check_true_once_more_take_while() {
-    let mut closure = true_once_more(|&&x| x < 5);
-    let mut closure2: impl FnMut<&i23> -> bool = |&x| x < 5;
-
-    let iter = [1, 3, 4, 6, 9].iter().take_while(closure2);
-    let foo = iter.next();
-    let result: Vec<i32> = iter.collect();
+    let iter = [1, 3, 4, 6, 9].iter();
+    let predicate = |&&x| x < 5;
+    TakeWhileInclusive::new(iter, predicate).next();
+    let result: Vec<i32> = TakeWhileInclusive::new(iter, predicate).collect();
     assert_eq!(vec![1, 2, 3, 6], result);
 }
 
