@@ -37,6 +37,10 @@ path = "day07/main.rs"
 name = "adventofcode2022day08"
 path = "day08/main.rs"
 
+[[bin]]
+name = "adventofcode2022day09"
+path = "day09/main.rs"
+
 [dependencies]
 strum = "0.24"
 strum_macros = "0.24"
