@@ -7,6 +7,13 @@ This directory contains the code I used to solve the challenges from [Advent of 
 
 This year I'm going with Rust. Solutins can be run with e.g. `cargo run --bin adventofcode2022day0`. Some days I used TypeScript with [`deno`](https://deno.land/), solutions can be run with `./main.ts` then.
 
+Learnings
+---------
+
+This year I'm going with Rust after having played with it for maybe a week, ugh. So far I can re-use a lot of knowledge from C and Haskell, however it feels like the code has a lot more of `unwrap()`, `?`, `ok_or()`, `*`, `&`, `iter()`, `collect::<_>()` than I am comfortable with, but slowly I get how the mutability and borrowing works. However, when approaching day 7, I wanted a tree stuctucre which is notoriously difficult in Rust, there was even (a meme about it)[https://old.reddit.com/r/adventofcode/comments/zezjpl/2022_day_7_trying_to_do_aoc_in_c_having_known_the/]. When I realized I would probably need a `Rc` and a `RefCell` nested, I got scared, solved it in TS and got back at it with a hacky non-tree algorithm. Maybe on another day, I'll give those a try.
+
+... let's hope for more learnings to come.
+
 Contents
 --------
 
