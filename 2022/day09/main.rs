@@ -43,8 +43,6 @@ fn visit_places(input: &Vec<Move>, chain_length: usize) -> HashSet<(i32, i32)> {
     let mut chain: Vec<(i32, i32)> = vec![(0, 0); chain_length];
 
     for Move { direction, amount } in input {
-        println!("\n\n== {:?} {:?} ==\n", direction, amount);
-
         for _ in 0..*amount {
             match direction {
                 Direction::L => {
@@ -82,27 +80,6 @@ fn visit_places(input: &Vec<Move>, chain_length: usize) -> HashSet<(i32, i32)> {
             }
 
             visited.insert(*chain.last().unwrap());
-        }
-
-        for y in -10..10 {
-            for x in -20..20 {
-                let pos = (x, y);
-                let chain_index = chain.iter().position(|&p| p == pos);
-
-                print!(
-                    "{}",
-                    chain_index.map(|i| i.to_string()).unwrap_or_else(|| {
-                        if pos == (0, 0) {
-                            "s".to_string()
-                        } else if visited.contains(&pos) {
-                            "_".to_string()
-                        } else {
-                            ".".to_string()
-                        }
-                    })
-                );
-            }
-            println!("");
         }
     }
 
