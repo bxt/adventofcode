@@ -56,7 +56,6 @@ I enjoy looking at how other coders solved the riddles to learn even more. This
 year I follow (A-Z):
 
 * [aleksandar9](https://github.com/aleksandar9/advent-of-code-2022-kotlin) (Kotlin)
-* [carlastabile](https://github.com/carlastabile/advent-of-code/tree/master/2021) (Python?)
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2022) (Python)
 * [fdlk](https://github.com/fdlk/advent-2022) (Scala)
 * [gabrielpedepera](https://github.com/gabrielpedepera/advent-of-code-2022) (Elixir)
