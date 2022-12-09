@@ -46,14 +46,24 @@ Other solutions
 ---------------
 
 I enjoy looking at how other coders solved the riddles to learn even more. This
-year I might follow (A-Z):
+year I follow (A-Z):
 
+* [aleksandar9](https://github.com/aleksandar9/advent-of-code-2022-kotlin) (Kotlin)
 * [carlastabile](https://github.com/carlastabile/advent-of-code/tree/master/2021) (Python?)
-* [lianmakesthings](https://github.com/lianmakesthings/aoc2022) (Python)
 * [cschell](https://github.com/cschell/adventofcode/tree/master/2022) (Python)
 * [fdlk](https://github.com/fdlk/advent-2022) (Scala)
+* [gabrielpedepera](https://github.com/gabrielpedepera/advent-of-code-2022) (Elixir)
 * [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2022) (Haskell)
 * [jamincan](https://www.reddit.com/user/jamincan) (Rust)
+* [jchevertonwynne](https://github.com/jchevertonwynne/advent-of-code-2022) (Rust)
+* [lianmakesthings](https://github.com/lianmakesthings/aoc2022) (Python)
+* [lvaroqui](https://github.com/lvaroqui/advent-of-code-2022-rust) (Rust)
+* [mikededo](https://github.com/mikededo/advent-of-code/tree/main/22) (Go)
+* [sirstrahd](https://github.com/sirstrahd/adventofcode/tree/main/src/Aoc2022) (Java)
+* [tbilou](https://github.com/tbilou/advent-of-code-2022) (Kotlin)
+* [Xaaris](https://github.com/Xaaris/AdventOfGo/tree/master/2022) (Go)
+* [xabgesagtx](https://github.com/xabgesagtx/advent-of-code-2022) (Kotlin)
+
 
  [aoc01]: http://adventofcode.com/2020/day/1
  [aoc02]: http://adventofcode.com/2020/day/2
