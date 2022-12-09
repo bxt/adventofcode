@@ -1,8 +1,6 @@
-use regex::Regex;
 use std::collections::HashSet;
 use std::fmt::Error;
 use std::str::FromStr;
-use strum::IntoEnumIterator;
 use strum_macros::{EnumIter, EnumString};
 
 #[derive(Debug, EnumString, EnumIter)]
@@ -19,7 +17,7 @@ struct Move {
     amount: u32,
 }
 
-impl std::str::FromStr for Move {
+impl FromStr for Move {
     type Err = Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
@@ -40,46 +38,71 @@ fn parse_input(input: &str) -> Vec<Move> {
         .collect::<Vec<_>>()
 }
 
-fn visit_places(input: &Vec<Move>) -> HashSet<(i32, i32)> {
-    // TODO: figure out ownership
-
+fn visit_places(input: &Vec<Move>, chain_length: usize) -> HashSet<(i32, i32)> {
     let mut visited: HashSet<(i32, i32)> = HashSet::new();
-    let mut head_x = 0i32;
-    let mut head_y = 0i32;
-    let mut tail_x = 0i32;
-    let mut tail_y = 0i32;
+    let mut chain: Vec<(i32, i32)> = vec![(0, 0); chain_length];
 
     for Move { direction, amount } in input {
+        println!("\n\n== {:?} {:?} ==\n", direction, amount);
+
         for _ in 0..*amount {
             match direction {
                 Direction::L => {
-                    head_x -= 1;
+                    chain[0] = (chain[0].0 - 1, chain[0].1);
                 }
                 Direction::R => {
-                    head_x += 1;
+                    chain[0] = (chain[0].0 + 1, chain[0].1);
                 }
                 Direction::U => {
-                    head_y -= 1;
+                    chain[0] = (chain[0].0, chain[0].1 - 1);
                 }
                 Direction::D => {
-                    head_y += 1;
+                    chain[0] = (chain[0].0, chain[0].1 + 1);
                 }
             }
-            let tail_diff_x = head_x - tail_x;
-            let tail_diff_y = head_y - tail_y;
-            if tail_diff_x.abs() == 2 {
-                tail_x += tail_diff_x / 2;
-                tail_y += tail_diff_y;
-            }
-            if tail_diff_y.abs() == 2 {
-                tail_x += tail_diff_x;
-                tail_y += tail_diff_y / 2;
-            }
-            // println!("H: {}, {}", head_x, head_y);
-            // println!("T: {}, {}", tail_x, tail_y);
-            // println!("--------");
 
-            visited.insert((tail_x, tail_y));
+            for index in 1..chain.len() {
+                let (head_x, head_y) = chain[index - 1];
+                let (tail_x, tail_y) = &mut chain[index];
+
+                let tail_diff_x = head_x - *tail_x;
+                let tail_diff_y = head_y - *tail_y;
+                if tail_diff_x.abs() == 2 {
+                    if tail_diff_y.abs() == 2 {
+                        *tail_x += tail_diff_x / 2;
+                        *tail_y += tail_diff_y / 2;
+                    } else {
+                        *tail_x += tail_diff_x / 2;
+                        *tail_y += tail_diff_y;
+                    }
+                } else if tail_diff_y.abs() == 2 {
+                    *tail_x += tail_diff_x;
+                    *tail_y += tail_diff_y / 2;
+                }
+            }
+
+            visited.insert(*chain.last().unwrap());
+        }
+
+        for y in -10..10 {
+            for x in -20..20 {
+                let pos = (x, y);
+                let chain_index = chain.iter().position(|&p| p == pos);
+
+                print!(
+                    "{}",
+                    chain_index.map(|i| i.to_string()).unwrap_or_else(|| {
+                        if pos == (0, 0) {
+                            "s".to_string()
+                        } else if visited.contains(&pos) {
+                            "_".to_string()
+                        } else {
+                            ".".to_string()
+                        }
+                    })
+                );
+            }
+            println!("");
         }
     }
 
@@ -87,7 +110,7 @@ fn visit_places(input: &Vec<Move>) -> HashSet<(i32, i32)> {
 }
 
 fn part1(input: &Vec<Move>) -> usize {
-    visit_places(input).len()
+    visit_places(input, 2).len()
 }
 
 #[test]
@@ -100,6 +123,30 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &Vec<Move>) -> usize {
+    visit_places(input, 10).len()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(&parse_input(
+            &std::fs::read_to_string("day09/example.txt").unwrap()
+        )),
+        1
+    );
+}
+
+#[test]
+fn check_part2_large() {
+    assert_eq!(
+        part2(&parse_input(
+            &std::fs::read_to_string("day09/example-large.txt").unwrap()
+        )),
+        36
+    );
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day09/input.txt")?;
 
@@ -108,8 +155,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
