@@ -22,8 +22,8 @@ Day | Deno        | Rust        | Description
 05  |             | [✓][rust05] | [Moving stacks of crates][aoc05]
 06  |             | [✓][rust06] | [Finding distinct char sequences][aoc06]
 07  | [✓][deno07] | [✓][rust07] | [Finding recursive directory sizes][aoc07]
-08  |             |             |
-09  |             |             |
+08  |             | [✓][rust08] | [Tree house visibility][aoc08]
+09  |             | [✓][rust09] | [Snake rope movement][aoc09]
 10  |             |             |
 11  |             |             |
 12  |             |             |
@@ -40,7 +40,7 @@ Day | Deno        | Rust        | Description
 23  |             |             |
 24  |             |             |
 25  |             |             |
-Σ   |           3 |           7 |
+Σ   |           3 |           9 |
 
 Other solutions
 ---------------
@@ -90,4 +90,6 @@ year I might follow (A-Z):
  [rust06]: day06/main.rs
  [deno07]: day07/main.ts
  [rust07]: day07/main.rs
+ [rust08]: day08/main.rs
+ [rust09]: day09/main.rs
 
