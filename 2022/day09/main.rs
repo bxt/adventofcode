@@ -46,16 +46,16 @@ fn visit_places(input: &Vec<Move>, chain_length: usize) -> HashSet<(i32, i32)> {
         for _ in 0..*amount {
             match direction {
                 Direction::L => {
-                    chain[0] = (chain[0].0 - 1, chain[0].1);
+                    chain[0].0 -= 1;
                 }
                 Direction::R => {
-                    chain[0] = (chain[0].0 + 1, chain[0].1);
+                    chain[0].0 += 1;
                 }
                 Direction::U => {
-                    chain[0] = (chain[0].0, chain[0].1 - 1);
+                    chain[0].1 -= 1;
                 }
                 Direction::D => {
-                    chain[0] = (chain[0].0, chain[0].1 + 1);
+                    chain[0].1 += 1;
                 }
             }
 
