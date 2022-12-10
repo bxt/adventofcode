@@ -157,7 +157,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         for _ in 0..*amount {
             chain.move_once(&direction);
-            visited_part1.insert(chain[0]);
+            visited_part1.insert(chain[1]);
             visited_part2.insert(*chain.last().unwrap());
 
             let mut pixel_map = PixelMap::new(dimensions, (width, height));
