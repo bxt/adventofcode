@@ -51,7 +51,7 @@ fn parse_input(input: &str) -> Vec<Instruction> {
 
 fn run_instructions(input: &Vec<Instruction>) -> Vec<i32> {
     let mut register: i32 = 1;
-    let mut result: Vec<i32> = vec![];
+    let mut result: Vec<i32> = vec![1];
 
     for instruction in input {
         match instruction {
@@ -81,7 +81,7 @@ fn part1(input: &Vec<Instruction>) -> i32 {
     // println!("cyc 180: {:?}", result[180 - 2]);
     // println!("cyc 220: {:?}", result[220 - 2]);
     for cycle in check_cycles {
-        let result_index = usize::try_from(cycle - 2).unwrap();
+        let result_index = usize::try_from(cycle - 1).unwrap();
         let register_value = result[result_index];
         let signal_strength = cycle * register_value;
         total_signal_strength += signal_strength;
