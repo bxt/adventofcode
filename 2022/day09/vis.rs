@@ -171,11 +171,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             pixel_map.set((0, 0), 3);
 
-            pixel_map.set(chain[0], 5);
-
             for index in 1..chain.len() {
                 pixel_map.set(chain[index], 4);
             }
+
+            pixel_map.set(chain[0], 5);
 
             font.write_text(
                 &mut pixel_map,
