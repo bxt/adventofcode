@@ -179,7 +179,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             font.write_text(
                 &mut pixel_map,
-                format!("P2 {:4}", visited_part2.len()).as_str(),
+                format!("P1 {:4}", visited_part1.len()).as_str(),
                 (
                     dimensions.0 .0 + 8,
                     dimensions.1 .1 - font.line_height() * 2 - 4,
@@ -189,7 +189,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             font.write_text(
                 &mut pixel_map,
-                format!("P1 {:4}", visited_part1.len()).as_str(),
+                format!("P2 {:4}", visited_part2.len()).as_str(),
                 (
                     dimensions.0 .0 + 8,
                     dimensions.1 .1 - font.line_height() - 4,
