@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
@@ -16,27 +15,23 @@ impl FromStr for Instruction {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         input
             .split_once(" ")
-            .map(|(a, b)| {
-                if a == "addx" {
-                    b.parse()
-                        .map(|op| Instruction::AddX(op))
-                        .map_err(|e| ParseInstructionError(e.to_string()))
-                } else {
-                    Err(ParseInstructionError(format!(
-                        "not a known 1-op instruction {}",
-                        input
-                    )))
-                }
+            .map(|(op_code, operand)| match op_code {
+                "addx" => operand
+                    .parse()
+                    .map(Instruction::AddX)
+                    .map_err(|e| ParseInstructionError(e.to_string())),
+                other => Err(ParseInstructionError(format!(
+                    "not a known 1-op instruction {}",
+                    other
+                ))),
             })
             .unwrap_or_else(|| {
-                if input == "noop" {
-                    Ok(Instruction::Noop)
-                } else {
-                    Err(ParseInstructionError(format!(
+                (input == "noop")
+                    .then_some(Instruction::Noop)
+                    .ok_or(ParseInstructionError(format!(
                         "not a known 0-op instruction {}",
                         input
                     )))
-                }
             })
     }
 }
@@ -73,22 +68,12 @@ fn part1(input: &Vec<Instruction>) -> i32 {
     let result = run_instructions(input);
     let check_cycles = [20, 60, 100, 140, 180, 220];
     let mut total_signal_strength = 0;
-    // println!("cyc 20: {:?}", result);
-    // println!("cyc 20: {:?}", result[20 - 2]);
-    // println!("cyc 60: {:?}", result[60 - 2]);
-    // println!("cyc 100: {:?}", result[100 - 2]);
-    // println!("cyc 140: {:?}", result[140 - 2]);
-    // println!("cyc 180: {:?}", result[180 - 2]);
-    // println!("cyc 220: {:?}", result[220 - 2]);
+
     for cycle in check_cycles {
         let result_index = usize::try_from(cycle - 1).unwrap();
         let register_value = result[result_index];
         let signal_strength = cycle * register_value;
         total_signal_strength += signal_strength;
-        println!(
-            "cyc {:?}: result[{:?}] = {:?} -> {:?} (S {:?})",
-            cycle, result_index, register_value, signal_strength, total_signal_strength
-        );
     }
 
     total_signal_strength
@@ -104,30 +89,24 @@ fn check_part1() {
     );
 }
 
-fn part2(input: &Vec<Instruction>) -> i32 {
+fn part2(input: &Vec<Instruction>) {
     let result = run_instructions(input);
-    println!("result.len(): {:?}", result.len());
     let mut screen = [false; 40 * 6];
 
     for (cycle, register_value) in result.into_iter().enumerate() {
-        let horizontal_position = i32::try_from(cycle % 40).unwrap();
-        if horizontal_position.abs_diff(register_value) < 2 {
+        let horizontal_draw_position = i32::try_from(cycle % 40).unwrap();
+        let is_sprite_there = horizontal_draw_position.abs_diff(register_value) < 2;
+        if is_sprite_there {
             screen[cycle] = true;
         }
     }
 
     for y in 0..6 {
         for x in 0..40 {
-            if screen[y * 40 + x] {
-                print!("#")
-            } else {
-                print!(".")
-            }
+            print!("{}", if screen[y * 40 + x] { "#" } else { "." })
         }
         println!("")
     }
-
-    0
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -138,8 +117,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    let part2 = part2(&parsed_input);
-    println!("part 2: {}", part2);
+    println!("part 2:");
+    part2(&parsed_input);
 
     Ok(())
 }
