@@ -6,6 +6,7 @@ use std::fs::File;
 use std::str::FromStr;
 use std::{borrow::Cow, cmp::min};
 use strum_macros::{EnumIter, EnumString};
+use visualisation_utils::font::Font;
 use visualisation_utils::pixel_map::PixelMap;
 
 #[derive(Debug, EnumString, EnumIter)]
@@ -111,6 +112,7 @@ fn figure_dimensions(input: &Vec<Move>) -> ((i32, i32), (i32, i32)) {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day09/input.txt")?;
+    let font = Font::from_file(7, 9, 83, "../2021/visualisation_utils/font.pbm");
 
     let chain_length = 10;
 
@@ -169,6 +171,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             for index in 1..chain.len() {
                 pixel_map.set(chain[index], 4);
             }
+
+            font.write_text(
+                &mut pixel_map,
+                format!("P2 {:4}", visited_part2.len()).as_str(),
+                (
+                    dimensions.0 .0 + 8,
+                    dimensions.1 .1 - font.line_height() * 2 - 4,
+                ),
+                2,
+            );
+
+            font.write_text(
+                &mut pixel_map,
+                format!("P1 {:4}", visited_part1.len()).as_str(),
+                (
+                    dimensions.0 .0 + 8,
+                    dimensions.1 .1 - font.line_height() - 4,
+                ),
+                3,
+            );
 
             let mut frame = Frame::default();
             frame.width = width;
