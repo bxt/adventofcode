@@ -104,6 +104,32 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &Vec<Instruction>) -> i32 {
+    let result = run_instructions(input);
+    println!("result.len(): {:?}", result.len());
+    let mut screen = [false; 40 * 6];
+
+    for (cycle, register_value) in result.into_iter().enumerate() {
+        let horizontal_position = i32::try_from(cycle % 40).unwrap();
+        if horizontal_position.abs_diff(register_value) < 2 {
+            screen[cycle] = true;
+        }
+    }
+
+    for y in 0..6 {
+        for x in 0..40 {
+            if screen[y * 40 + x] {
+                print!("#")
+            } else {
+                print!(".")
+            }
+        }
+        println!("")
+    }
+
+    0
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day10/input.txt")?;
 
@@ -112,8 +138,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
