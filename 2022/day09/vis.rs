@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::fmt::Error;
 use std::fs::File;
 use std::str::FromStr;
+use std::time::Instant;
 use std::{borrow::Cow, cmp::min};
 use strum_macros::{EnumIter, EnumString};
 use visualisation_utils::font::Font;
@@ -111,6 +112,8 @@ fn figure_dimensions(input: &Vec<Move>) -> ((i32, i32), (i32, i32)) {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let start = Instant::now();
+
     let file = std::fs::read_to_string("day09/input.txt")?;
     let font = Font::from_file(7, 9, 83, "../2021/visualisation_utils/font.pbm");
 
@@ -148,7 +151,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut chain: Vec<(i32, i32)> = vec![(0, 0); chain_length];
 
     for (input_index, Move { direction, amount }) in parsed_input.iter().enumerate() {
-        println!("Move {} / {}...", input_index, parsed_input.len());
+        if input_index % 10 == 0 {
+            println!("Move {} / {}...", input_index, parsed_input.len());
+        }
 
         for _ in 0..*amount {
             chain.move_once(&direction);
@@ -199,6 +204,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             encoder.write_frame(&frame).unwrap();
         }
     }
+
+    let elapsed = start.elapsed();
+    println!("Took: {:.2?}s", elapsed);
 
     Ok(())
 }
