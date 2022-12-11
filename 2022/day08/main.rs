@@ -11,46 +11,24 @@ fn parse_input(input: &str) -> Vec<Vec<u32>> {
 }
 
 fn part1(trees: &Vec<Vec<u32>>) -> usize {
+    let mut checks: Vec<Vec<(usize, usize)>> = vec![];
+
+    let rows = trees[0].len();
+    let cols = trees.len();
+    checks.extend((0..rows).map(|r| (0..cols).map(move |c| (r, c)).collect()));
+    checks.extend((0..rows).map(|r| (0..cols).rev().map(move |c| (r, c)).collect()));
+    checks.extend((0..cols).map(|c| (0..rows).map(move |r| (r, c)).collect()));
+    checks.extend((0..cols).map(|c| (0..rows).rev().map(move |r| (r, c)).collect()));
+
     let mut visible = trees
         .iter()
         .map(|row| row.iter().map(|_| false).collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
-    for (row_index, row) in trees.iter().enumerate() {
+    for check in checks {
         let mut highest_so_far = None;
-        for (col_index, tree) in row.iter().enumerate() {
-            if highest_so_far.and_then(|x| (tree <= x).then_some(0)) == None {
-                highest_so_far = Some(tree);
-                visible[row_index][col_index] = true;
-            }
-        }
-    }
-
-    for (row_index, row) in trees.iter().enumerate() {
-        let mut highest_so_far = None;
-        for (col_index, tree) in row.iter().enumerate().rev() {
-            if highest_so_far.and_then(|x| (tree <= x).then_some(0)) == None {
-                highest_so_far = Some(tree);
-                visible[row_index][col_index] = true;
-            }
-        }
-    }
-
-    for (col_index, _) in trees[0].iter().enumerate() {
-        let mut highest_so_far = None;
-        for (row_index, row) in trees.iter().enumerate() {
-            let tree = row[col_index];
-            if highest_so_far.and_then(|x| (tree <= x).then_some(0)) == None {
-                highest_so_far = Some(tree);
-                visible[row_index][col_index] = true;
-            }
-        }
-    }
-
-    for (col_index, _) in trees[0].iter().enumerate() {
-        let mut highest_so_far = None;
-        for (row_index, row) in trees.iter().enumerate().rev() {
-            let tree = row[col_index];
+        for (row_index, col_index) in check {
+            let tree = trees[row_index][col_index];
             if highest_so_far.and_then(|x| (tree <= x).then_some(0)) == None {
                 highest_so_far = Some(tree);
                 visible[row_index][col_index] = true;
