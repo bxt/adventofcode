@@ -1,10 +1,3 @@
-// Monkey 0:
-// Starting items: 89, 74
-// Operation: new = old * 5
-// Test: divisible by 17
-//   If true: throw to monkey 4
-//   If false: throw to monkey 7
-
 use regex::Regex;
 use std::{collections::VecDeque, str::FromStr};
 use strum::IntoEnumIterator;
@@ -47,8 +40,8 @@ impl FromStr for Operation {
 impl Operation {
     fn apply(&self, old: u64) -> u64 {
         match self {
-            Operation::Add(io) => old + io,
-            Operation::Times(io) => old * io,
+            Operation::Add(immediate_operand) => old + immediate_operand,
+            Operation::Times(immediate_operand) => old * immediate_operand,
             Operation::Square => old * old,
         }
     }
@@ -56,7 +49,7 @@ impl Operation {
 
 #[derive(Debug)]
 
-struct MonkeyCharacteristics {
+struct Monkey {
     initial_items: Vec<u64>,
     operation: Operation,
     test_divisor: u64,
@@ -64,7 +57,7 @@ struct MonkeyCharacteristics {
     monkey_false_index: usize,
 }
 
-impl FromStr for MonkeyCharacteristics {
+impl FromStr for Monkey {
     type Err = std::fmt::Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
@@ -81,77 +74,79 @@ impl FromStr for MonkeyCharacteristics {
     }
 }
 
-impl MonkeyCharacteristics {
-    fn inspect(&self, item: u64, monkey_modulus: u64) -> (usize, u64) {
-        let with_op = self.operation.apply(item);
-        let devided = with_op % monkey_modulus;
-        let test_result = devided % self.test_divisor == 0;
+impl Monkey {
+    fn inspect(&self, item: u64, monkey_modulus: u64, devide_by_three: bool) -> (usize, u64) {
+        let mut new_item = self.operation.apply(item);
+        if devide_by_three {
+            new_item /= 3;
+        }
+        new_item %= monkey_modulus;
         (
-            match test_result {
+            match new_item % self.test_divisor == 0 {
                 true => self.monkey_true_index,
                 false => self.monkey_false_index,
             },
-            devided,
+            new_item,
         )
     }
 }
 
-fn parse_input(input: &str) -> Vec<MonkeyCharacteristics> {
+fn parse_input(input: &str) -> Vec<Monkey> {
     input
         .split("\n\n")
         .map(|monkey_str| monkey_str.parse().unwrap())
         .collect()
 }
 
-fn part1(input: &Vec<MonkeyCharacteristics>) -> u64 {
-    println!("{:?}", input);
-
-    let monkey_modulus: u64 = input
-        .iter()
-        .map(|characteristics| characteristics.test_divisor)
-        .product();
-
-    println!("monkey_modulus: {}", monkey_modulus);
+fn run_monkey_business(input: &Vec<Monkey>, devide_by_three: bool, rounds: u32) -> u64 {
+    let monkey_modulus: u64 = input.iter().map(|monkey| monkey.test_divisor).product();
 
     let mut monkey_items = input
         .iter()
-        .map(|characteristics| characteristics.initial_items.to_vec().into_iter().collect())
+        .map(|monkey| monkey.initial_items.to_vec().into_iter().collect())
         .collect::<Vec<VecDeque<u64>>>();
-    let mut monkey_inspect_counts = input.iter().map(|_| 0).collect::<Vec<u64>>();
+    let mut monkey_inspect_counts = vec![0; input.len()];
 
-    for round in 1..=10000 {
+    for _ in 1..=rounds {
         for monkey_index in 0..monkey_items.len() {
-            loop {
-                match monkey_items[monkey_index].pop_front() {
-                    None => {
-                        break;
-                    }
-                    Some(item) => {
-                        monkey_inspect_counts[monkey_index] += 1;
-                        let (new_index, new_item) =
-                            input[monkey_index].inspect(item, monkey_modulus);
-                        monkey_items[new_index].push_back(new_item);
-                    }
-                }
+            while let Some(item) = monkey_items[monkey_index].pop_front() {
+                monkey_inspect_counts[monkey_index] += 1;
+                let (new_index, new_item) =
+                    input[monkey_index].inspect(item, monkey_modulus, devide_by_three);
+                monkey_items[new_index].push_back(new_item);
             }
         }
-
-        if round % 1000 == 0 {
-            println!("Tally round {}: {:?}", round, monkey_inspect_counts);
-        }
     }
-    println!("Tally: {:?}", monkey_inspect_counts);
 
-    monkey_inspect_counts.sort();
+    {
+        let mut mic = monkey_inspect_counts;
+        mic.sort();
+        mic[mic.len() - 1] * mic[mic.len() - 2]
+    }
+}
 
-    monkey_inspect_counts[monkey_inspect_counts.len() - 1]
-        * monkey_inspect_counts[monkey_inspect_counts.len() - 2]
+fn part1(input: &Vec<Monkey>) -> u64 {
+    run_monkey_business(input, true, 20)
 }
 
 #[test]
 fn check_part1() {
     assert_eq!(
         part1(&parse_input(
+            &std::fs::read_to_string("day11/example.txt").unwrap()
+        )),
+        10605
+    );
+}
+
+fn part2(input: &Vec<Monkey>) -> u64 {
+    run_monkey_business(input, false, 10000)
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(&parse_input(
             &std::fs::read_to_string("day11/example.txt").unwrap()
         )),
         2713310158
@@ -165,6 +160,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
+
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
