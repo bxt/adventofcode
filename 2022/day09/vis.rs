@@ -1,15 +1,13 @@
-use gif::{Encoder, Frame, Repeat};
 use std::cmp::max;
+use std::cmp::min;
 use std::collections::HashSet;
 use std::fmt::Error;
-use std::fs::File;
 use std::str::FromStr;
 use std::time::Instant;
-use std::{borrow::Cow, cmp::min};
 use strum_macros::{EnumIter, EnumString};
-use visualisation_utils::colors::get_color_map;
-use visualisation_utils::font::Font;
-use visualisation_utils::pixel_map::PixelMap;
+use visualisation_utils::encoder::LoopEncoder;
+use visualisation_utils::font::get_font;
+use visualisation_utils::pixel_map::{Canvas, MappedCanvas, OffsetCanvas, PixelMap};
 
 #[derive(Debug, EnumString, EnumIter)]
 enum Direction {
@@ -116,7 +114,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let start = Instant::now();
 
     let file = std::fs::read_to_string("day09/input.txt")?;
-    let font = Font::from_file(7, 9, 83, "../2021/visualisation_utils/font.pbm");
+    let font = get_font();
 
     let chain_length = 10;
 
@@ -128,15 +126,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("dimenstions: {:?}", dimensions);
 
     let (width, height) = (
-        u16::try_from(dimensions.0 .1 - dimensions.0 .0).unwrap() + 1,
-        u16::try_from(dimensions.1 .1 - dimensions.1 .0).unwrap() + 1,
+        usize::try_from(dimensions.0 .1 - dimensions.0 .0).unwrap() + 1,
+        usize::try_from(dimensions.1 .1 - dimensions.1 .0).unwrap() + 1,
     );
 
     println!("width: {:?}, height: {:?}", width, height);
 
-    let mut image = File::create("day09/output.gif").unwrap();
-    let mut encoder = Encoder::new(&mut image, width, height, get_color_map()).unwrap();
-    encoder.set_repeat(Repeat::Infinite).unwrap();
+    let mut encoder = LoopEncoder::new("day09/output.gif", (width, height));
 
     let mut visited_part1: HashSet<(i32, i32)> = HashSet::new();
     let mut visited_part2: HashSet<(i32, i32)> = HashSet::new();
@@ -152,53 +148,49 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             visited_part1.insert(chain[1]);
             visited_part2.insert(*chain.last().unwrap());
 
-            let mut pixel_map = PixelMap::new(dimensions, (width, height));
+            let mut pixel_map = PixelMap::new((width.into(), height.into()));
 
-            for &p in &visited_part1 {
-                pixel_map.set(p, 1);
+            {
+                let mut mapped_canvas: MappedCanvas<i32, _> = MappedCanvas::new(&mut pixel_map);
+                let mut canvas =
+                    OffsetCanvas::new(&mut mapped_canvas, (-dimensions.0 .0, -dimensions.1 .0));
+
+                for &p in &visited_part1 {
+                    canvas.set(p, 1);
+                }
+                for &p in &visited_part2 {
+                    canvas.set(p, 2);
+                }
+
+                canvas.set((0, 0), 3);
+
+                for index in 1..chain.len() {
+                    canvas.set(chain[index], 4);
+                }
+
+                canvas.set(chain[0], 5);
             }
-            for &p in &visited_part2 {
-                pixel_map.set(p, 2);
-            }
-
-            pixel_map.set((0, 0), 3);
-
-            for index in 1..chain.len() {
-                pixel_map.set(chain[index], 4);
-            }
-
-            pixel_map.set(chain[0], 5);
 
             font.write_text(
                 &mut pixel_map,
                 format!("P1 {:4}", visited_part1.len()).as_str(),
-                (
-                    dimensions.0 .0 + 8,
-                    dimensions.1 .1 - font.line_height() * 2 - 4,
-                ),
+                (8, height - font.line_height() * 2 - 4),
                 2,
             );
 
             font.write_text(
                 &mut pixel_map,
                 format!("P2 {:4}", visited_part2.len()).as_str(),
-                (
-                    dimensions.0 .0 + 8,
-                    dimensions.1 .1 - font.line_height() - 4,
-                ),
+                (8, height - font.line_height() - 4),
                 3,
             );
 
-            let mut frame = Frame::default();
-            frame.width = width;
-            frame.height = height;
-            frame.buffer = Cow::Owned(pixel_map.to_vec());
-            encoder.write_frame(&frame).unwrap();
+            encoder.write(pixel_map.to_vec());
         }
     }
 
     let elapsed = start.elapsed();
-    println!("Took: {:.2?}s", elapsed);
+    println!("Took: {:.2?}", elapsed);
 
     Ok(())
 }

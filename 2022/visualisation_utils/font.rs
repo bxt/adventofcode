@@ -1,18 +1,18 @@
-use crate::pixel_map::PixelMap;
+use crate::pixel_map::Canvas;
 
 #[derive(Debug)]
 pub struct Font {
-    font_width: i32,
-    font_height: i32,
+    font_width: usize,
+    font_height: usize,
     font_data: Vec<Vec<bool>>,
 }
 
-fn letter_position(letter: char) -> i32 {
+fn letter_position(letter: char) -> usize {
     match letter {
         'p' | 'P' => 0,
         '0'..='9' => {
             let digit = letter.to_digit(10).unwrap();
-            i32::try_from(digit).unwrap() + 1
+            usize::try_from(digit).unwrap() + 1
         }
         '*' => 11,
         _ => panic!("Letter '{}' not supported!", letter),
@@ -21,8 +21,8 @@ fn letter_position(letter: char) -> i32 {
 
 impl Font {
     pub fn from_file(
-        font_width: i32,
-        font_height: i32,
+        font_width: usize,
+        font_height: usize,
         font_total_width: usize,
         font_path: &str,
     ) -> Font {
@@ -50,37 +50,41 @@ impl Font {
         }
     }
 
-    pub fn line_height(&self) -> i32 {
+    pub fn line_height(&self) -> usize {
         self.font_height + 2
     }
 
-    pub fn write_letter(
+    pub fn write_letter<C>(
         &self,
-        pixel_map: &mut PixelMap,
+        canvas: &mut C,
         letter: char,
-        (x_offset, y_offset): (i32, i32),
+        (x_offset, y_offset): (usize, usize),
         color: u8,
-    ) {
+    ) where
+        C: Canvas<Position = (usize, usize)>,
+    {
         let pos = letter_position(letter);
         for x in 0..(self.font_width - 1) {
             for y in 0..self.font_height {
-                let x_index: usize = (x + pos * self.font_width).try_into().unwrap();
-                let y_index: usize = y.try_into().unwrap();
+                let x_index = pos * self.font_width + x;
+                let y_index = y;
 
                 if self.font_data[y_index][x_index] {
-                    pixel_map.set((x + x_offset, y + y_offset), color);
+                    canvas.set((x + x_offset, y + y_offset), color);
                 }
             }
         }
     }
 
-    pub fn write_text(
+    pub fn write_text<C>(
         &self,
-        pixel_map: &mut PixelMap,
+        canvas: &mut C,
         text: &str,
-        (x_offset, y_offset): (i32, i32),
+        (x_offset, y_offset): (usize, usize),
         color: u8,
-    ) {
+    ) where
+        C: Canvas<Position = (usize, usize)>,
+    {
         let mut current_y_offset = y_offset;
         let mut current_x_offset = x_offset;
 
@@ -95,15 +99,14 @@ impl Font {
                     continue;
                 }
                 _ => {
-                    self.write_letter(
-                        pixel_map,
-                        letter,
-                        (current_x_offset, current_y_offset),
-                        color,
-                    );
+                    self.write_letter(canvas, letter, (current_x_offset, current_y_offset), color);
                     current_x_offset += self.font_width;
                 }
             }
         }
     }
+}
+
+pub fn get_font() -> Font {
+    Font::from_file(7, 9, 83, "../2021/visualisation_utils/font.pbm")
 }
