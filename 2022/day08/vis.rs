@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::time::Instant;
-use visualisation_utils::canvas::{Canvas, PixelMap};
+use visualisation_utils::canvas::{Canvas, OffsetCanvas, PixelMap};
 
 use visualisation_utils::encoder::LoopEncoder;
 use visualisation_utils::font::Font;
@@ -45,24 +45,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for check in checks {
         let mut highest_so_far = None;
         let mut visible_this_check: HashSet<(usize, usize)> = HashSet::new();
+        let mut newly_visible_this_check: HashSet<(usize, usize)> = HashSet::new();
         for (row_index, col_index) in check {
             let tree = trees[row_index][col_index];
             if highest_so_far.and_then(|x| (tree <= x).then_some(0)) == None {
                 highest_so_far = Some(tree);
                 let tree_point = (col_index, row_index);
+                if !visible.contains(&tree_point) {
+                    newly_visible_this_check.insert(tree_point);
+                }
                 visible.insert(tree_point);
                 visible_this_check.insert(tree_point);
 
                 let mut pixel_map = PixelMap::new((width, height));
+                let mut padded_pixel_map = OffsetCanvas::new(&mut pixel_map, (pad, pad));
 
                 for &p in &visible {
-                    pixel_map.set(p, 1);
+                    padded_pixel_map.set(p, 1);
                 }
                 for &p in &visible_this_check {
-                    pixel_map.set(p, 4);
+                    padded_pixel_map.set(p, 2);
                 }
-
-                pixel_map.set(tree_point, 5);
+                for &p in &newly_visible_this_check {
+                    padded_pixel_map.set(p, 4);
+                }
+                if !newly_visible_this_check.contains(&tree_point) {
+                    padded_pixel_map.set(tree_point, 3);
+                } else {
+                    padded_pixel_map.set(tree_point, 5);
+                }
 
                 font.write_text(
                     &mut pixel_map,
