@@ -1,4 +1,4 @@
-use crate::pixel_map::Canvas;
+use crate::canvas::Canvas;
 
 #[derive(Debug)]
 pub struct Font {

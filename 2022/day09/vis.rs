@@ -5,9 +5,9 @@ use std::fmt::Error;
 use std::str::FromStr;
 use std::time::Instant;
 use strum_macros::{EnumIter, EnumString};
+use visualisation_utils::canvas::{Canvas, MappedCanvas, OffsetCanvas, PixelMap};
 use visualisation_utils::encoder::LoopEncoder;
 use visualisation_utils::font::get_font;
-use visualisation_utils::pixel_map::{Canvas, MappedCanvas, OffsetCanvas, PixelMap};
 
 #[derive(Debug, EnumString, EnumIter)]
 enum Direction {
