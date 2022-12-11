@@ -55,47 +55,30 @@ fn part2(trees: &Vec<Vec<u32>>) -> usize {
         .collect::<Vec<_>>();
 
     for (outer_row_index, outer_row) in trees.iter().enumerate() {
-        for (outer_col_index, outer_tree) in outer_row.iter().enumerate() {
+        for (outer_col_index, &outer_tree) in outer_row.iter().enumerate() {
             let mut outer_scenic_score = 1;
 
-            {
-                let mut visible = 0;
-                for tree in &trees[outer_row_index][(outer_col_index + 1)..] {
-                    visible += 1;
-                    if tree >= outer_tree {
-                        break;
-                    }
-                }
-                outer_scenic_score *= visible;
-            }
+            let checks = [
+                trees[outer_row_index][(outer_col_index + 1)..].to_vec(),
+                trees[outer_row_index][..outer_col_index]
+                    .iter()
+                    .rev()
+                    .copied()
+                    .collect(),
+                trees[(outer_row_index + 1)..]
+                    .iter()
+                    .map(|row| row[outer_col_index])
+                    .collect(),
+                trees[..outer_row_index]
+                    .iter()
+                    .rev()
+                    .map(|row| row[outer_col_index])
+                    .collect(),
+            ];
 
-            {
+            for check in checks {
                 let mut visible = 0;
-                for tree in trees[outer_row_index][..outer_col_index].iter().rev() {
-                    visible += 1;
-                    if tree >= outer_tree {
-                        break;
-                    }
-                }
-                outer_scenic_score *= visible;
-            }
-
-            {
-                let mut visible = 0;
-                for row in trees[(outer_row_index + 1)..].iter() {
-                    let tree = &row[outer_col_index];
-                    visible += 1;
-                    if tree >= outer_tree {
-                        break;
-                    }
-                }
-                outer_scenic_score *= visible;
-            }
-
-            {
-                let mut visible = 0;
-                for row in trees[..outer_row_index].iter().rev() {
-                    let tree = &row[outer_col_index];
+                for tree in check {
                     visible += 1;
                     if tree >= outer_tree {
                         break;
