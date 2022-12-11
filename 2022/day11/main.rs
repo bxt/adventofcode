@@ -12,8 +12,8 @@ use strum_macros::EnumIter;
 
 #[derive(Debug, PartialEq, EnumIter)]
 enum Operation {
-    Add(u32),
-    Times(u32),
+    Add(u64),
+    Times(u64),
     Square,
 }
 
@@ -31,7 +31,6 @@ impl FromStr for Operation {
                 Operation::Times(_) => {
                     let re: Regex = Regex::new(r"^old \* (\d+)$").unwrap();
                     let caps = re.captures(input);
-                    println!("#######**##### {:?} from {:?}", caps, input);
                     caps.map(|c| Operation::Times(c[1].parse().unwrap()))
                 }
                 Operation::Square => {
@@ -46,7 +45,7 @@ impl FromStr for Operation {
 }
 
 impl Operation {
-    fn apply(&self, old: u32) -> u32 {
+    fn apply(&self, old: u64) -> u64 {
         match self {
             Operation::Add(io) => old + io,
             Operation::Times(io) => old * io,
@@ -58,9 +57,9 @@ impl Operation {
 #[derive(Debug)]
 
 struct MonkeyCharacteristics {
-    initial_items: Vec<u32>,
+    initial_items: Vec<u64>,
     operation: Operation,
-    test_divisor: u32,
+    test_divisor: u64,
     monkey_true_index: usize,
     monkey_false_index: usize,
 }
@@ -83,9 +82,9 @@ impl FromStr for MonkeyCharacteristics {
 }
 
 impl MonkeyCharacteristics {
-    fn inspect(&self, item: u32) -> (usize, u32) {
+    fn inspect(&self, item: u64, monkey_modulus: u64) -> (usize, u64) {
         let with_op = self.operation.apply(item);
-        let devided = with_op / 3;
+        let devided = with_op % monkey_modulus;
         let test_result = devided % self.test_divisor == 0;
         (
             match test_result {
@@ -97,13 +96,6 @@ impl MonkeyCharacteristics {
     }
 }
 
-#[derive(Debug)]
-
-struct Monkey<'a> {
-    characteristics: &'a MonkeyCharacteristics,
-    items: VecDeque<u32>,
-}
-
 fn parse_input(input: &str) -> Vec<MonkeyCharacteristics> {
     input
         .split("\n\n")
@@ -111,16 +103,23 @@ fn parse_input(input: &str) -> Vec<MonkeyCharacteristics> {
         .collect()
 }
 
-fn part1(input: &Vec<MonkeyCharacteristics>) -> u32 {
+fn part1(input: &Vec<MonkeyCharacteristics>) -> u64 {
     println!("{:?}", input);
+
+    let monkey_modulus: u64 = input
+        .iter()
+        .map(|characteristics| characteristics.test_divisor)
+        .product();
+
+    println!("monkey_modulus: {}", monkey_modulus);
 
     let mut monkey_items = input
         .iter()
         .map(|characteristics| characteristics.initial_items.to_vec().into_iter().collect())
-        .collect::<Vec<VecDeque<u32>>>();
-    let mut monkey_inspect_counts = input.iter().map(|_| 0).collect::<Vec<u32>>();
+        .collect::<Vec<VecDeque<u64>>>();
+    let mut monkey_inspect_counts = input.iter().map(|_| 0).collect::<Vec<u64>>();
 
-    for round in 1..=20 {
+    for round in 1..=10000 {
         for monkey_index in 0..monkey_items.len() {
             loop {
                 match monkey_items[monkey_index].pop_front() {
@@ -129,23 +128,16 @@ fn part1(input: &Vec<MonkeyCharacteristics>) -> u32 {
                     }
                     Some(item) => {
                         monkey_inspect_counts[monkey_index] += 1;
-                        let (new_index, new_item) = input[monkey_index].inspect(item);
-                        println!(
-                            "Item with worry level {} is thrown to monkey {}.",
-                            new_item, new_index
-                        );
+                        let (new_index, new_item) =
+                            input[monkey_index].inspect(item, monkey_modulus);
                         monkey_items[new_index].push_back(new_item);
                     }
                 }
             }
         }
 
-        println!(
-            "After round {}, the monkeys are holding items with these worry levels:",
-            round
-        );
-        for (idx, items) in monkey_items.iter().enumerate() {
-            println!("Monkey {}: {:?}", idx, items);
+        if round % 1000 == 0 {
+            println!("Tally round {}: {:?}", round, monkey_inspect_counts);
         }
     }
     println!("Tally: {:?}", monkey_inspect_counts);
@@ -162,7 +154,7 @@ fn check_part1() {
         part1(&parse_input(
             &std::fs::read_to_string("day11/example.txt").unwrap()
         )),
-        10605
+        2713310158
     );
 }
 
