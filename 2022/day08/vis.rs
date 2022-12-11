@@ -1,7 +1,8 @@
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::collections::HashSet;
 use std::time::Instant;
 use visualisation_utils::canvas::{Canvas, OffsetCanvas, PixelMap};
-
 use visualisation_utils::encoder::LoopEncoder;
 use visualisation_utils::font::Font;
 
@@ -39,6 +40,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     checks.extend((0..rows).map(|r| (0..cols).rev().map(move |c| (r, c)).collect()));
     checks.extend((0..cols).map(|c| (0..rows).map(move |r| (r, c)).collect()));
     checks.extend((0..cols).map(|c| (0..rows).rev().map(move |r| (r, c)).collect()));
+
+    checks.shuffle(&mut thread_rng());
 
     let mut visible: HashSet<(usize, usize)> = HashSet::new();
 
