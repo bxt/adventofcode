@@ -7,6 +7,7 @@ use std::str::FromStr;
 use std::time::Instant;
 use std::{borrow::Cow, cmp::min};
 use strum_macros::{EnumIter, EnumString};
+use visualisation_utils::colors::get_color_map;
 use visualisation_utils::font::Font;
 use visualisation_utils::pixel_map::PixelMap;
 
@@ -133,17 +134,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("width: {:?}, height: {:?}", width, height);
 
-    let color_map = &[
-        0x00, 0x11, 0x22, // 0: COLOR_BLUE_1
-        0x00, 0x33, 0x66, // 1: COLOR_BLUE_2
-        0x00, 0x55, 0xAA, // 2: COLOR_BLUE_3
-        0x00, 0x77, 0xEE, // 3: COLOR_BLUE_4
-        0x00, 0x99, 0x00, // 4: COLOR_GREEN_3
-        0x00, 0xBB, 0x00, // 5: COLOR_GREEN_4
-    ];
-
     let mut image = File::create("day09/output.gif").unwrap();
-    let mut encoder = Encoder::new(&mut image, width, height, color_map).unwrap();
+    let mut encoder = Encoder::new(&mut image, width, height, get_color_map()).unwrap();
     encoder.set_repeat(Repeat::Infinite).unwrap();
 
     let mut visited_part1: HashSet<(i32, i32)> = HashSet::new();
