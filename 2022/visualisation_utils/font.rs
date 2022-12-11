@@ -54,15 +54,13 @@ impl Font {
         self.font_height + 2
     }
 
-    pub fn write_letter<C>(
+    pub fn write_letter(
         &self,
-        canvas: &mut C,
+        canvas: &mut impl Canvas<Position = (usize, usize)>,
         letter: char,
         (x_offset, y_offset): (usize, usize),
         color: u8,
-    ) where
-        C: Canvas<Position = (usize, usize)>,
-    {
+    ) {
         let pos = letter_position(letter);
         for x in 0..(self.font_width - 1) {
             for y in 0..self.font_height {
@@ -76,15 +74,13 @@ impl Font {
         }
     }
 
-    pub fn write_text<C>(
+    pub fn write_text(
         &self,
-        canvas: &mut C,
+        canvas: &mut impl Canvas<Position = (usize, usize)>,
         text: &str,
         (x_offset, y_offset): (usize, usize),
         color: u8,
-    ) where
-        C: Canvas<Position = (usize, usize)>,
-    {
+    ) {
         let mut current_y_offset = y_offset;
         let mut current_x_offset = x_offset;
 
