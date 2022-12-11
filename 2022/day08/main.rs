@@ -2,12 +2,8 @@ fn parse_input(input: &str) -> Vec<Vec<u32>> {
     input
         .trim()
         .lines()
-        .map(|line| {
-            line.chars()
-                .map(|d| d.to_digit(10).unwrap())
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>()
+        .map(|line| line.chars().map(|d| d.to_digit(10).unwrap()).collect())
+        .collect()
 }
 
 fn part1(trees: &Vec<Vec<u32>>) -> usize {
