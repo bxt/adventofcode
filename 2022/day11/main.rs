@@ -48,7 +48,6 @@ impl Operation {
 }
 
 #[derive(Debug)]
-
 struct Monkey {
     initial_items: Vec<u64>,
     operation: Operation,
