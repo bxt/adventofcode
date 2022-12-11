@@ -58,29 +58,42 @@ impl Operation {
 #[derive(Debug)]
 
 struct MonkeyCharacteristics {
-    name: u8,
     initial_items: Vec<u32>,
     operation: Operation,
     test_divisor: u32,
-    monkey_true_name: u8,
-    monkey_false_name: u8,
+    monkey_true_index: usize,
+    monkey_false_index: usize,
 }
 
 impl FromStr for MonkeyCharacteristics {
     type Err = std::fmt::Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let re: Regex = Regex::new(r"Monkey (\d+):\n +Starting items: ([^\n]+)\n +Operation: new = ([^\n]+)\n +Test: divisible by (\d+)\n +If true: throw to monkey (\d+)\n +If false: throw to monkey (\d+)").unwrap();
+        let re: Regex = Regex::new(r"Monkey \d+:\n +Starting items: ([^\n]+)\n +Operation: new = ([^\n]+)\n +Test: divisible by (\d+)\n +If true: throw to monkey (\d+)\n +If false: throw to monkey (\d+)").unwrap();
         let caps = re.captures(input).unwrap();
 
         Ok(Self {
-            name: caps[1].parse().unwrap(),
-            initial_items: caps[2].split(", ").map(|i| i.parse().unwrap()).collect(),
-            operation: caps[3].parse().unwrap(),
-            test_divisor: caps[4].parse().unwrap(),
-            monkey_true_name: caps[5].parse().unwrap(),
-            monkey_false_name: caps[6].parse().unwrap(),
+            initial_items: caps[1].split(", ").map(|i| i.parse().unwrap()).collect(),
+            operation: caps[2].parse().unwrap(),
+            test_divisor: caps[3].parse().unwrap(),
+            monkey_true_index: caps[4].parse().unwrap(),
+            monkey_false_index: caps[5].parse().unwrap(),
         })
+    }
+}
+
+impl MonkeyCharacteristics {
+    fn inspect(&self, item: u32) -> (usize, u32) {
+        let with_op = self.operation.apply(item);
+        let devided = with_op / 3;
+        let test_result = devided % self.test_divisor == 0;
+        (
+            match test_result {
+                true => self.monkey_true_index,
+                false => self.monkey_false_index,
+            },
+            devided,
+        )
     }
 }
 
@@ -89,26 +102,6 @@ impl FromStr for MonkeyCharacteristics {
 struct Monkey<'a> {
     characteristics: &'a MonkeyCharacteristics,
     items: VecDeque<u32>,
-}
-
-impl Monkey<'_> {
-    fn inspect_next(&mut self) -> Option<(u8, u32)> {
-        self.items.pop_front().map(|item| {
-            let with_op = self.characteristics.operation.apply(item);
-            let devided = with_op / 3;
-            let test_result = devided % self.characteristics.test_divisor == 0;
-            (
-                match test_result {
-                    true => self.characteristics.monkey_true_name,
-                    false => self.characteristics.monkey_false_name,
-                },
-                devided,
-            )
-        })
-    }
-    fn catch(&mut self, item: u32) {
-        self.items.push_back(item);
-    }
 }
 
 fn parse_input(input: &str) -> Vec<MonkeyCharacteristics> {
@@ -121,40 +114,27 @@ fn parse_input(input: &str) -> Vec<MonkeyCharacteristics> {
 fn part1(input: &Vec<MonkeyCharacteristics>) -> u32 {
     println!("{:?}", input);
 
-    let mut monkeys = input
+    let mut monkey_items = input
         .iter()
-        .map(|characteristics| Monkey {
-            characteristics,
-            items: characteristics.initial_items.to_vec().into_iter().collect(),
-        })
-        .collect::<Vec<_>>();
+        .map(|characteristics| characteristics.initial_items.to_vec().into_iter().collect())
+        .collect::<Vec<VecDeque<u32>>>();
+    let mut monkey_inspect_counts = input.iter().map(|_| 0).collect::<Vec<u32>>();
 
     for round in 1..=20 {
-        let mut throws = VecDeque::new();
-        for monkey in &mut monkeys {
+        for monkey_index in 0..monkey_items.len() {
             loop {
-                match monkey.inspect_next() {
+                match monkey_items[monkey_index].pop_front() {
                     None => {
                         break;
                     }
-                    Some(throw) => throws.push_back(throw),
-                }
-            }
-            loop {
-                match throws.pop_front() {
-                    None => {
-                        break;
-                    }
-                    Some((name, item)) => {
+                    Some(item) => {
+                        monkey_inspect_counts[monkey_index] += 1;
+                        let (new_index, new_item) = input[monkey_index].inspect(item);
                         println!(
                             "Item with worry level {} is thrown to monkey {}.",
-                            item, name
+                            new_item, new_index
                         );
-                        for monkey in &mut monkeys {
-                            if monkey.characteristics.name == name {
-                                monkey.catch(item)
-                            }
-                        }
+                        monkey_items[new_index].push_back(new_item);
                     }
                 }
             }
@@ -164,12 +144,16 @@ fn part1(input: &Vec<MonkeyCharacteristics>) -> u32 {
             "After round {}, the monkeys are holding items with these worry levels:",
             round
         );
-        for monkey in monkeys.iter() {
-            println!("Monkey {}: {:?}", monkey.characteristics.name, monkey.items);
+        for (idx, items) in monkey_items.iter().enumerate() {
+            println!("Monkey {}: {:?}", idx, items);
         }
     }
+    println!("Tally: {:?}", monkey_inspect_counts);
 
-    10605
+    monkey_inspect_counts.sort();
+
+    monkey_inspect_counts[monkey_inspect_counts.len() - 1]
+        * monkey_inspect_counts[monkey_inspect_counts.len() - 2]
 }
 
 #[test]
