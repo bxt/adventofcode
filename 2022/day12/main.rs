@@ -39,7 +39,7 @@ impl HeightMap {
 
         potential_neighbours
             .into_iter()
-            .filter(|&pos| self.get(pos) <= around_value + 1)
+            .filter(|&pos| around_value <= self.get(pos) + 1)
             .collect()
     }
 }
@@ -58,11 +58,11 @@ impl FromStr for HeightMap {
                 match ch {
                     b'S' => {
                         line_items.push(0);
-                        start_position = Some((x, y))
+                        end_position = Some((x, y))
                     }
                     b'E' => {
                         line_items.push(b'z' - b'a');
-                        end_position = Some((x, y))
+                        start_position = Some((x, y))
                     }
                     b'a'..=b'z' => line_items.push(ch - b'a'),
                     _ => panic!("Oy? {ch}"),
@@ -86,7 +86,7 @@ fn parse_input(input: &str) -> HeightMap {
 }
 
 fn part1(input: &HeightMap) -> u64 {
-    println!("{input:?}");
+    // println!("{input:?}");
 
     // let mut best_distances = RefCell::new(HashMap::new());
     let mut best_distances = HashMap::new();
@@ -118,7 +118,15 @@ fn part1(input: &HeightMap) -> u64 {
         let current_distance = *best_distances.get(&current).unwrap();
         known_distances.insert(current, current_distance);
 
+        if input.get(current) == 0 {
+            // println!("FFFFFOUND! {} for {:?}", input.get(current), current);
+
+            return current_distance;
+        }
+
         for neighbour in input.neighbours(current) {
+            // println!("    neighbour: {neighbour:?}");
+
             if !known_distances.contains_key(&neighbour) {
                 let possible_distance = best_distances.get(&current).unwrap() + 1;
                 if best_distances
@@ -133,7 +141,7 @@ fn part1(input: &HeightMap) -> u64 {
         }
     }
 
-    *known_distances.get(&input.end_position).unwrap()
+    unreachable!();
 }
 
 #[test]
@@ -142,7 +150,7 @@ fn check_part1() {
         part1(&parse_input(
             &std::fs::read_to_string("day12/example.txt").unwrap()
         )),
-        31
+        29
     );
 }
 
