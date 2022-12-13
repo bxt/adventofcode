@@ -37,10 +37,10 @@ Day | Deno        | Rust        | Description
 07  | [✓][deno07] | [✓][rust07] | [Finding recursive directory sizes][aoc07]
 08  |             | [✓][rust08] | [Tree house visibility][aoc08]
 09  |             | [✓][rust09] | [Snake rope movement][aoc09]
-10  |             |             |
-11  |             |             |
-12  |             |             |
-13  |             |             |
+10  |             | [✓][rust10] | [CPU and CRT drawing][aoc10]
+11  |             | [✓][rust11] | [Monkey queues throwing items][aoc11]
+12  |             | [✓][rust12] | [Shortest path into a hill][aoc12]
+13  |             | [✓][rust13] | [Parsing and comparing lists][aoc13]
 14  |             |             |
 15  |             |             |
 16  |             |             |
@@ -53,7 +53,7 @@ Day | Deno        | Rust        | Description
 23  |             |             |
 24  |             |             |
 25  |             |             |
-Σ   |           3 |           9 |
+Σ   |           3 |          13 |
 
 Other solutions
 ---------------
