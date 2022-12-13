@@ -1,10 +1,7 @@
 use std::cmp::Ordering;
+use std::iter::Peekable;
+use std::str::FromStr;
 use std::vec;
-use std::{
-    collections::{HashMap, VecDeque},
-    iter::Peekable,
-    str::FromStr,
-};
 
 trait FromBytesIter {
     type FromBytesIterError;
@@ -18,7 +15,7 @@ trait FromBytesIter {
 #[derive(Debug, PartialEq, Eq)]
 enum Packet {
     Number(u8),
-    List(Vec<Packet>),
+    List(Vec<Self>),
 }
 
 #[derive(Debug)]
@@ -34,34 +31,28 @@ impl FromBytesIter for Packet {
             Some(b'[') => {
                 input.next();
 
-                if input.peek() == Some(&b']') {
-                    input.next();
-                    return Ok(Packet::List(vec![]));
+                if input.next_if_eq(&b']').is_some() {
+                    return Ok(Self::List(vec![]));
                 }
 
                 let mut children = vec![];
 
-                let first = Packet::from_bytes_iter(input)?;
-                children.push(first);
+                children.push(Self::from_bytes_iter(input)?);
 
-                while input.peek() == Some(&b',') {
-                    input.next();
-                    let additional = Packet::from_bytes_iter(input)?;
-                    children.push(additional);
+                while input.next_if_eq(&b',').is_some() {
+                    children.push(Self::from_bytes_iter(input)?);
                 }
 
                 if input.next() == Some(b']') {
-                    Ok(Packet::List(children))
+                    Ok(Self::List(children))
                 } else {
                     Err(PacketParseError("expected closing bracket".to_string()))
                 }
             }
             Some(b'0'..=b'9') => u8::from_bytes_iter(input)
-                .map(Packet::Number)
+                .map(Self::Number)
                 .map_err(|_| PacketParseError("number not parsable?".to_string())),
-            Some(other_char) => Err(PacketParseError(
-                format!("unexpected char {other_char}").to_string(),
-            )),
+            Some(other_char) => Err(PacketParseError(format!("unexpected char {other_char}"))),
             None => Err(PacketParseError("unexpected end".to_string())),
         }
     }
@@ -87,7 +78,7 @@ impl FromStr for Packet {
     type Err = PacketParseError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        return Packet::from_bytes_iter(&mut input.bytes().peekable());
+        return Self::from_bytes_iter(&mut input.bytes().peekable());
     }
 }
 
@@ -113,26 +104,17 @@ fn parse_input(input: &str) -> Vec<(Packet, Packet)> {
         .split("\n\n")
         .map(|block| {
             let (a, b) = block.split_once("\n").unwrap();
-            // println!("a: {a}");
-            let pa = a.parse().unwrap();
-            // println!("b: {b}");
-            let pb = b.parse().unwrap();
-            (pa, pb)
+            (a.parse().unwrap(), b.parse().unwrap())
         })
         .collect()
 }
 
 fn part1(input: &Vec<(Packet, Packet)>) -> usize {
-    // println!("{input:?}");
-
-    let good_positions = input
+    input
         .iter()
         .enumerate()
         .filter_map(|(index, (p1, p2))| (p1 <= p2).then_some(index + 1))
-        .collect::<Vec<_>>();
-    println!("{good_positions:?}");
-
-    good_positions.iter().sum()
+        .sum()
 }
 
 #[test]
@@ -146,10 +128,10 @@ fn check_part1() {
 }
 
 fn part2(input: &Vec<(Packet, Packet)>) -> usize {
-    let dividers = vec![
-        Packet::List(vec![Packet::List(vec![Packet::Number(6)])]),
-        Packet::List(vec![Packet::List(vec![Packet::Number(2)])]),
-    ];
+    let dividers = vec![2, 6]
+        .into_iter()
+        .map(|n| Packet::List(vec![Packet::List(vec![Packet::Number(n)])]))
+        .collect::<Vec<_>>();
     let mut packets = vec![];
     packets.extend(dividers.iter());
     for (a, b) in input {
@@ -158,14 +140,11 @@ fn part2(input: &Vec<(Packet, Packet)>) -> usize {
     }
     packets.sort_unstable();
 
-    let good_positions = packets
+    packets
         .iter()
         .enumerate()
         .filter_map(|(index, p)| dividers.contains(p).then_some(index + 1))
-        .collect::<Vec<_>>();
-    println!("{good_positions:?}");
-
-    good_positions.iter().product()
+        .product()
 }
 
 #[test]
