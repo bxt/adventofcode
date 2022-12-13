@@ -114,5 +114,9 @@ year I follow (A-Z):
  [rust07]: day07/main.rs
  [rust08]: day08/main.rs
  [rust09]: day09/main.rs
+ [rust10]: day10/main.rs
+ [rust11]: day11/main.rs
+ [rust12]: day12/main.rs
+ [rust13]: day13/main.rs
  [vis08]: day08/vis.ts
  [vis09]: day09/vis.ts
