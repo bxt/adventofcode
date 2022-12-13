@@ -28,30 +28,8 @@ impl FromBytesIter for Packet {
         input: &mut Peekable<impl Iterator<Item = u8>>,
     ) -> Result<Self, PacketParseError> {
         match input.peek() {
-            Some(b'[') => {
-                input.next();
-
-                if input.next_if_eq(&b']').is_some() {
-                    return Ok(Self::List(vec![]));
-                }
-
-                let mut children = vec![];
-
-                children.push(Self::from_bytes_iter(input)?);
-
-                while input.next_if_eq(&b',').is_some() {
-                    children.push(Self::from_bytes_iter(input)?);
-                }
-
-                if input.next() == Some(b']') {
-                    Ok(Self::List(children))
-                } else {
-                    Err(PacketParseError("expected closing bracket".to_string()))
-                }
-            }
-            Some(b'0'..=b'9') => u8::from_bytes_iter(input)
-                .map(Self::Number)
-                .map_err(|_| PacketParseError("number not parsable?".to_string())),
+            Some(b'[') => Vec::from_bytes_iter(input).map(Self::List),
+            Some(b'0'..=b'9') => u8::from_bytes_iter(input).map(Self::Number),
             Some(other_char) => Err(PacketParseError(format!("unexpected char {other_char}"))),
             None => Err(PacketParseError("unexpected end".to_string())),
         }
@@ -59,7 +37,7 @@ impl FromBytesIter for Packet {
 }
 
 impl FromBytesIter for u8 {
-    type FromBytesIterError = std::fmt::Error;
+    type FromBytesIterError = PacketParseError;
 
     fn from_bytes_iter(
         input: &mut Peekable<impl Iterator<Item = u8>>,
@@ -71,6 +49,40 @@ impl FromBytesIter for u8 {
             input.next();
         }
         Ok(number)
+    }
+}
+
+impl<T> FromBytesIter for Vec<T>
+where
+    T: FromBytesIter,
+    PacketParseError: From<<T as FromBytesIter>::FromBytesIterError>,
+{
+    type FromBytesIterError = PacketParseError;
+
+    fn from_bytes_iter(
+        input: &mut Peekable<impl Iterator<Item = u8>>,
+    ) -> Result<Self, Self::FromBytesIterError> {
+        input
+            .next_if_eq(&b'[')
+            .ok_or(PacketParseError("expected opening bracket".to_string()))?;
+
+        if input.next_if_eq(&b']').is_some() {
+            return Ok(vec![]);
+        }
+
+        let mut children = vec![];
+
+        children.push(T::from_bytes_iter(input)?);
+
+        while input.next_if_eq(&b',').is_some() {
+            children.push(T::from_bytes_iter(input)?);
+        }
+
+        if input.next() == Some(b']') {
+            Ok(children)
+        } else {
+            Err(PacketParseError("expected closing bracket".to_string()))
+        }
     }
 }
 
@@ -132,6 +144,7 @@ fn part2(input: &Vec<(Packet, Packet)>) -> usize {
         .into_iter()
         .map(|n| Packet::List(vec![Packet::List(vec![Packet::Number(n)])]))
         .collect::<Vec<_>>();
+
     let mut packets = vec![];
     packets.extend(dividers.iter());
     for (a, b) in input {
