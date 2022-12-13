@@ -138,10 +138,7 @@ fn check_part1() {
 }
 
 fn part2(input: &Vec<(Packet, Packet)>) -> usize {
-    let dividers = vec![2, 6]
-        .into_iter()
-        .map(|n| Packet::List(vec![Packet::List(vec![Packet::Number(n)])]))
-        .collect::<Vec<_>>();
+    let dividers = [2, 6].map(|n| Packet::List(vec![Packet::List(vec![Packet::Number(n)])]));
 
     let mut packets = vec![];
     packets.extend(dividers.iter());
