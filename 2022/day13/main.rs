@@ -145,6 +145,39 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &Vec<(Packet, Packet)>) -> usize {
+    let dividers = vec![
+        Packet::List(vec![Packet::List(vec![Packet::Number(6)])]),
+        Packet::List(vec![Packet::List(vec![Packet::Number(2)])]),
+    ];
+    let mut packets = vec![];
+    packets.extend(dividers.iter());
+    for (a, b) in input {
+        packets.push(a);
+        packets.push(b);
+    }
+    packets.sort_unstable();
+
+    let good_positions = packets
+        .iter()
+        .enumerate()
+        .filter_map(|(index, p)| dividers.contains(p).then_some(index + 1))
+        .collect::<Vec<_>>();
+    println!("{good_positions:?}");
+
+    good_positions.iter().product()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(&parse_input(
+            &std::fs::read_to_string("day13/example.txt").unwrap()
+        )),
+        140
+    );
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day13/input.txt")?;
 
@@ -153,8 +186,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
