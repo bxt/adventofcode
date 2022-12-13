@@ -21,7 +21,7 @@ impl HeightMap {
 
     fn potential_neighbours(&self, around: Position) -> Vec<Position> {
         let (x, y) = around;
-        let mut potential_neighbours = vec![];
+        let mut potential_neighbours = Vec::with_capacity(4);
         if x > 0 {
             potential_neighbours.push((x - 1, y));
         }
