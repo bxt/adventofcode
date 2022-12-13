@@ -27,7 +27,7 @@ The following table lists the available solutions by day and language. I also
 added a short summary for each day.
 
 Day | Deno        | Rust        | Visual     | Description
-----|-------------|-------------|-------------------------------------------------
+----|-------------|-------------|------------|------------------------------------
 01  | [✓][deno01] | [✓][rust01] |            | [Elves calorie counting][aoc01]
 02  | [✓][deno02] | [✓][rust02] |            | [Rock paper scissors scoring][aoc02]
 03  |             | [✓][rust03] |            | [Checking common rucksack items][aoc03]
