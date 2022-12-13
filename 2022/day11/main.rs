@@ -52,8 +52,7 @@ struct Monkey {
     initial_items: Vec<u64>,
     operation: Operation,
     test_divisor: u64,
-    monkey_true_index: usize,
-    monkey_false_index: usize,
+    indices: [usize; 2],
 }
 
 impl FromStr for Monkey {
@@ -67,8 +66,7 @@ impl FromStr for Monkey {
             initial_items: caps[1].split(", ").map(|i| i.parse().unwrap()).collect(),
             operation: caps[2].parse().unwrap(),
             test_divisor: caps[3].parse().unwrap(),
-            monkey_true_index: caps[4].parse().unwrap(),
-            monkey_false_index: caps[5].parse().unwrap(),
+            indices: [5, 4].map(|n| caps[n].parse().unwrap()),
         })
     }
 }
@@ -80,13 +78,8 @@ impl Monkey {
             new_item /= 3;
         }
         new_item %= monkey_modulus;
-        (
-            match new_item % self.test_divisor == 0 {
-                true => self.monkey_true_index,
-                false => self.monkey_false_index,
-            },
-            new_item,
-        )
+        let new_index = self.indices[usize::from(new_item % self.test_divisor == 0)];
+        (new_index, new_item)
     }
 }
 
