@@ -26,34 +26,34 @@ Contents
 The following table lists the available solutions by day and language. I also
 added a short summary for each day.
 
-Day | Deno        | Rust        | Description
+Day | Deno        | Rust        | Visual     | Description
 ----|-------------|-------------|-------------------------------------------------
-01  | [✓][deno01] | [✓][rust01] | [Elves calorie counting][aoc01]
-02  | [✓][deno02] | [✓][rust02] | [Rock paper scissors scoring][aoc02]
-03  |             | [✓][rust03] | [Checking common rucksack items][aoc03]
-04  |             | [✓][rust04] | [Checking range overlap][aoc04]
-05  |             | [✓][rust05] | [Moving stacks of crates][aoc05]
-06  |             | [✓][rust06] | [Finding distinct char sequences][aoc06]
-07  | [✓][deno07] | [✓][rust07] | [Finding recursive directory sizes][aoc07]
-08  |             | [✓][rust08] | [Tree house visibility][aoc08]
-09  |             | [✓][rust09] | [Snake rope movement][aoc09]
-10  |             | [✓][rust10] | [CPU and CRT drawing][aoc10]
-11  |             | [✓][rust11] | [Monkey queues throwing items][aoc11]
-12  |             | [✓][rust12] | [Shortest path into a hill][aoc12]
-13  |             | [✓][rust13] | [Parsing and comparing lists][aoc13]
-14  |             |             |
-15  |             |             |
-16  |             |             |
-17  |             |             |
-18  |             |             |
-19  |             |             |
-20  |             |             |
-21  |             |             |
-22  |             |             |
-23  |             |             |
-24  |             |             |
-25  |             |             |
-Σ   |           3 |          13 |
+01  | [✓][deno01] | [✓][rust01] |            | [Elves calorie counting][aoc01]
+02  | [✓][deno02] | [✓][rust02] |            | [Rock paper scissors scoring][aoc02]
+03  |             | [✓][rust03] |            | [Checking common rucksack items][aoc03]
+04  |             | [✓][rust04] |            | [Checking range overlap][aoc04]
+05  |             | [✓][rust05] |            | [Moving stacks of crates][aoc05]
+06  |             | [✓][rust06] |            | [Finding distinct char sequences][aoc06]
+07  | [✓][deno07] | [✓][rust07] |            | [Finding recursive directory sizes][aoc07]
+08  |             | [✓][rust08] | [✓][vis08] | [Tree house visibility][aoc08]
+09  |             | [✓][rust09] | [✓][vis09] | [Snake rope movement][aoc09]
+10  |             | [✓][rust10] |            | [CPU and CRT drawing][aoc10]
+11  |             | [✓][rust11] |            | [Monkey queues throwing items][aoc11]
+12  |             | [✓][rust12] |            | [Shortest path into a hill][aoc12]
+13  |             | [✓][rust13] |            | [Parsing and comparing lists][aoc13]
+14  |             |             |            |
+15  |             |             |            |
+16  |             |             |            |
+17  |             |             |            |
+18  |             |             |            |
+19  |             |             |            |
+20  |             |             |            |
+21  |             |             |            |
+22  |             |             |            |
+23  |             |             |            |
+24  |             |             |            |
+25  |             |             |            |
+Σ   |           3 |          13 |          2 |
 
 Other solutions
 ---------------
@@ -114,4 +114,5 @@ year I follow (A-Z):
  [rust07]: day07/main.rs
  [rust08]: day08/main.rs
  [rust09]: day09/main.rs
-
+ [vis08]: day08/vis.ts
+ [vis09]: day09/vis.ts
