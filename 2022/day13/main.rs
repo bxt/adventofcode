@@ -78,11 +78,9 @@ where
             children.push(T::from_bytes_iter(input)?);
         }
 
-        if input.next() == Some(b']') {
-            Ok(children)
-        } else {
-            Err(PacketParseError("expected closing bracket".to_string()))
-        }
+        (input.next() == Some(b']'))
+            .then_some(children)
+            .ok_or(PacketParseError("expected closing bracket".to_string()))
     }
 }
 
