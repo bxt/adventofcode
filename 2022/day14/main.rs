@@ -1,8 +1,5 @@
 use core::cmp::{max, min};
 use std::collections::HashSet;
-use std::iter::Peekable;
-use std::str::FromStr;
-use std::vec;
 
 fn parse_input(input: &str) -> Vec<Vec<(usize, usize)>> {
     input
@@ -18,23 +15,20 @@ fn parse_input(input: &str) -> Vec<Vec<(usize, usize)>> {
         .collect()
 }
 
-fn simulate_sand<const has_floor: bool>(input: &Vec<Vec<(usize, usize)>>) -> usize {
-    println!("{input:?}");
-
+fn simulate_sand<const HAS_FLOOR: bool>(input: &Vec<Vec<(usize, usize)>>) -> usize {
     let abyss_after = *input
         .iter()
         .flat_map(|line| line.iter().map(|(_, y)| y))
         .max()
         .unwrap();
-    println!("abyss_after: {abyss_after:?}");
 
     let mut rocks = HashSet::new();
     for line in input {
         for window in line.windows(2) {
             match window {
                 &[(from_x, from_y), (to_x, to_y)] => {
-                    for x in (min(from_x, to_x))..=(max(from_x, to_x)) {
-                        for y in (min(from_y, to_y))..=(max(from_y, to_y)) {
+                    for x in min(from_x, to_x)..=max(from_x, to_x) {
+                        for y in min(from_y, to_y)..=max(from_y, to_y) {
                             rocks.insert((x, y));
                         }
                     }
@@ -43,28 +37,28 @@ fn simulate_sand<const has_floor: bool>(input: &Vec<Vec<(usize, usize)>>) -> usi
             }
         }
     }
-    println!("rocks: {rocks:?}");
 
     let mut sands = HashSet::new();
+    let start_grain = (500, 0);
 
     'pouring: loop {
-        let mut grain = (500, 0);
+        let mut grain = start_grain;
 
         'falling: loop {
-            if !has_floor && (grain.1 > abyss_after) {
+            if !HAS_FLOOR && (grain.1 > abyss_after) {
                 break 'pouring;
             }
 
-            let (start_x, start_y) = grain;
+            let (grain_x, grain_y) = grain;
             let candidates = [
-                (start_x, start_y + 1),
-                (start_x - 1, start_y + 1),
-                (start_x + 1, start_y + 1),
+                (grain_x, grain_y + 1),
+                (grain_x - 1, grain_y + 1),
+                (grain_x + 1, grain_y + 1),
             ];
             let maybe_new_grain = candidates.into_iter().find(|new_grain| {
                 !rocks.contains(new_grain)
                     && !sands.contains(new_grain)
-                    && (!has_floor || new_grain.1 < abyss_after + 2)
+                    && (!HAS_FLOOR || new_grain.1 < abyss_after + 2)
             });
 
             match maybe_new_grain {
@@ -73,7 +67,7 @@ fn simulate_sand<const has_floor: bool>(input: &Vec<Vec<(usize, usize)>>) -> usi
                 }
                 None => {
                     sands.insert(grain);
-                    if grain == (500, 0) {
+                    if grain == start_grain {
                         break 'pouring;
                     } else {
                         break 'falling;
@@ -87,8 +81,6 @@ fn simulate_sand<const has_floor: bool>(input: &Vec<Vec<(usize, usize)>>) -> usi
 }
 
 fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
-    println!("{input:?}");
-
     simulate_sand::<false>(input)
 }
 
@@ -103,8 +95,6 @@ fn check_part1() {
 }
 
 fn part2(input: &Vec<Vec<(usize, usize)>>) -> usize {
-    println!("{input:?}");
-
     simulate_sand::<true>(input)
 }
 
