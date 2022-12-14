@@ -41,7 +41,7 @@ Day | Deno        | Rust        | Visual     | Description
 11  |             | [✓][rust11] |            | [Monkey queues throwing items][aoc11]
 12  |             | [✓][rust12] |            | [Shortest path into a hill][aoc12]
 13  |             | [✓][rust13] |            | [Parsing and comparing lists][aoc13]
-14  |             |             |            |
+14  |             | [✓][rust14] | [✓][vis14] | [Falling sand][aoc14]
 15  |             |             |            |
 16  |             |             |            |
 17  |             |             |            |
@@ -53,7 +53,7 @@ Day | Deno        | Rust        | Visual     | Description
 23  |             |             |            |
 24  |             |             |            |
 25  |             |             |            |
-Σ   |           3 |          13 |          2 |
+Σ   |           3 |          14 |          3 |
 
 Other solutions
 ---------------
@@ -118,5 +118,7 @@ year I follow (A-Z):
  [rust11]: day11/main.rs
  [rust12]: day12/main.rs
  [rust13]: day13/main.rs
+ [rust14]: day14/main.rs
  [vis08]: day08/vis.ts
  [vis09]: day09/vis.ts
+ [vis14]: day14/vis.ts
