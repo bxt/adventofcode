@@ -21,7 +21,11 @@ fn parse_input(input: &str) -> Vec<Vec<(usize, usize)>> {
 
 fn simulate_sand(
     input: &Vec<Vec<(usize, usize)>>,
-) -> (HashSet<(usize, usize)>, Vec<(usize, usize)>) {
+) -> (
+    HashSet<(usize, usize)>,
+    Vec<(usize, usize)>,
+    Vec<Vec<(usize, usize)>>,
+) {
     let abyss_after = *input
         .iter()
         .flat_map(|line| line.iter().map(|(_, y)| y))
@@ -46,10 +50,14 @@ fn simulate_sand(
 
     let mut sands = HashSet::new();
     let mut sands_in_order = vec![];
+    let mut sand_samples = vec![];
+    let sample_rate = 10;
     let start_grain = (500, 0);
 
     'pouring: loop {
         let mut grain = start_grain;
+        let mut samples = vec![];
+        let mut loops = 0;
 
         while let Some(new_grain) = {
             if grain.1 > abyss_after {
@@ -66,18 +74,23 @@ fn simulate_sand(
                 .into_iter()
                 .find(|new_grain| !rocks.contains(new_grain) && !sands.contains(new_grain))
         } {
+            loops += 1;
+            if loops % sample_rate == 0 {
+                samples.push(new_grain)
+            }
             grain = new_grain;
         }
 
         sands.insert(grain);
         sands_in_order.push(grain);
+        sand_samples.push(samples);
 
         if grain == start_grain {
             break 'pouring;
         }
     }
 
-    (rocks, sands_in_order)
+    (rocks, sands_in_order, sand_samples)
 }
 
 fn figure_dimensions(rocks: &HashSet<(usize, usize)>) -> ((usize, usize), (usize, usize)) {
@@ -101,11 +114,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed_input = parse_input(&file);
 
-    let (rocks, sands_in_order) = simulate_sand(&parsed_input);
+    let (rocks, sands_in_order, sand_samples) = simulate_sand(&parsed_input);
 
     let dimensions = figure_dimensions(&rocks);
 
-    println!("dimensions. {dimensions:?}");
+    println!("dimensions: {dimensions:?}");
 
     let (width, height) = (
         dimensions.0 .1 - dimensions.0 .0 + 17,
@@ -121,27 +134,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut encoder = LoopEncoder::new("day14/output.gif", (width, height));
 
     for index in 0..sands_in_order.len() {
-        let mut pixel_map = PixelMap::new((width.into(), height.into()));
+        let mut draw_frame = |point: (usize, usize), color: u8| {
+            let mut pixel_map = PixelMap::new((width.into(), height.into()));
 
-        for &p in &sands_in_order[0..index] {
-            pixel_map.set(adjust(p), 1);
+            for &p in &sands_in_order[0..index] {
+                pixel_map.set(adjust(p), 1);
+            }
+            for &p in &rocks {
+                pixel_map.set(adjust(p), 2);
+            }
+
+            pixel_map.set(adjust((500, 0)), 3);
+
+            pixel_map.set(adjust(point), color);
+
+            font.write_text(
+                &mut pixel_map,
+                format!("P1 {:3}", index).as_str(),
+                (8, height - font.line_height() - 4),
+                2,
+            );
+
+            encoder.write(pixel_map.to_vec());
+        };
+        for &sample in &sand_samples[index] {
+            draw_frame(sample, 4);
         }
-        for &p in &rocks {
-            pixel_map.set(adjust(p), 2);
-        }
 
-        pixel_map.set(adjust((500, 0)), 3);
-
-        pixel_map.set(adjust(sands_in_order[index]), 5);
-
-        font.write_text(
-            &mut pixel_map,
-            format!("P1 {:3}", index).as_str(),
-            (8, height - font.line_height() - 4),
-            2,
-        );
-
-        encoder.write(pixel_map.to_vec());
+        draw_frame(sands_in_order[index], 5);
     }
 
     let elapsed = start.elapsed();
