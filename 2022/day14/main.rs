@@ -18,7 +18,7 @@ fn parse_input(input: &str) -> Vec<Vec<(usize, usize)>> {
         .collect()
 }
 
-fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
+fn simulate_sand<const has_floor: bool>(input: &Vec<Vec<(usize, usize)>>) -> usize {
     println!("{input:?}");
 
     let abyss_after = *input
@@ -51,7 +51,7 @@ fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
         let mut grain = (500, 0);
 
         'falling: loop {
-            if grain.1 > abyss_after {
+            if !has_floor && (grain.1 > abyss_after) {
                 break 'pouring;
             }
 
@@ -61,9 +61,11 @@ fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
                 (start_x - 1, start_y + 1),
                 (start_x + 1, start_y + 1),
             ];
-            let maybe_new_grain = candidates
-                .into_iter()
-                .find(|new_grain| !rocks.contains(new_grain) && !sands.contains(new_grain));
+            let maybe_new_grain = candidates.into_iter().find(|new_grain| {
+                !rocks.contains(new_grain)
+                    && !sands.contains(new_grain)
+                    && (!has_floor || new_grain.1 < abyss_after + 2)
+            });
 
             match maybe_new_grain {
                 Some(new_grain) => {
@@ -71,13 +73,23 @@ fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
                 }
                 None => {
                     sands.insert(grain);
-                    break 'falling;
+                    if grain == (500, 0) {
+                        break 'pouring;
+                    } else {
+                        break 'falling;
+                    }
                 }
             }
         }
     }
 
     sands.len()
+}
+
+fn part1(input: &Vec<Vec<(usize, usize)>>) -> usize {
+    println!("{input:?}");
+
+    simulate_sand::<false>(input)
 }
 
 #[test]
@@ -90,6 +102,22 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &Vec<Vec<(usize, usize)>>) -> usize {
+    println!("{input:?}");
+
+    simulate_sand::<true>(input)
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2(&parse_input(
+            &std::fs::read_to_string("day14/example.txt").unwrap()
+        )),
+        93
+    );
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day14/input.txt")?;
 
@@ -98,8 +126,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
