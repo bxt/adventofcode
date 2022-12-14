@@ -119,6 +119,6 @@ year I follow (A-Z):
  [rust12]: day12/main.rs
  [rust13]: day13/main.rs
  [rust14]: day14/main.rs
- [vis08]: day08/vis.ts
- [vis09]: day09/vis.ts
- [vis14]: day14/vis.ts
+ [vis08]: day08/vis.rs
+ [vis09]: day09/vis.rs
+ [vis14]: day14/vis.rs
