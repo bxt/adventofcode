@@ -44,7 +44,7 @@ fn simulate_sand<const HAS_FLOOR: bool>(input: &Vec<Vec<(usize, usize)>>) -> usi
     'pouring: loop {
         let mut grain = start_grain;
 
-        'falling: loop {
+        while let Some(new_grain) = {
             if !HAS_FLOOR && (grain.1 > abyss_after) {
                 break 'pouring;
             }
@@ -55,25 +55,19 @@ fn simulate_sand<const HAS_FLOOR: bool>(input: &Vec<Vec<(usize, usize)>>) -> usi
                 (grain_x - 1, grain_y + 1),
                 (grain_x + 1, grain_y + 1),
             ];
-            let maybe_new_grain = candidates.into_iter().find(|new_grain| {
+            candidates.into_iter().find(|new_grain| {
                 !rocks.contains(new_grain)
                     && !sands.contains(new_grain)
                     && (!HAS_FLOOR || new_grain.1 < abyss_after + 2)
-            });
+            })
+        } {
+            grain = new_grain;
+        }
 
-            match maybe_new_grain {
-                Some(new_grain) => {
-                    grain = new_grain;
-                }
-                None => {
-                    sands.insert(grain);
-                    if grain == start_grain {
-                        break 'pouring;
-                    } else {
-                        break 'falling;
-                    }
-                }
-            }
+        sands.insert(grain);
+
+        if grain == start_grain {
+            break 'pouring;
         }
     }
 
