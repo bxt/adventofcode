@@ -1,6 +1,6 @@
 use core::cmp::{max, min};
 use regex::Regex;
-use std::{collections::HashSet, str::FromStr};
+use std::{collections::HashSet, io::Write, str::FromStr};
 
 #[derive(Debug)]
 struct Scan {
@@ -53,7 +53,6 @@ impl Weavable for (i32, i32) {
         let mut ranges = Vec::with_capacity(input.len() + 1);
         let mut building_range = *self;
         let mut building_range_added = false;
-        // let mut input_iter = input.into_iter();
 
         for range in input {
             if range.0 < building_range.0 {
@@ -90,33 +89,29 @@ fn parse_input(input: &str) -> Vec<Scan> {
         .collect()
 }
 
-fn part1(input: &Vec<Scan>, target_y: i32) -> i32 {
-    // println!("{input:?}");
-    // println!("----");
-
+fn build_ranges(input: &Vec<Scan>, target_y: i32) -> Vec<(i32, i32)> {
     let mut ranges = vec![];
 
     for scan in input {
         if let Some(range) = scan.excluded_at(target_y) {
             ranges = range.weave_into(ranges);
-            // println!("+ {range:?}");
-            // println!("= {ranges:?}");
         }
     }
 
-    // println!("{ranges:?}");
+    ranges
+}
 
+fn part1<const TARGET_Y: i32>(input: &Vec<Scan>) -> i32 {
+    let ranges = build_ranges(&input, TARGET_Y);
     let blocked_positions: i32 = ranges.into_iter().map(|(a, b)| (b - a + 1)).sum();
+
     let beacons_on_target: i32 = input
         .iter()
-        .filter_map(|s| (s.beacon.1 == target_y).then_some(s.beacon.0))
+        .filter_map(|s| (s.beacon.1 == TARGET_Y).then_some(s.beacon.0))
         .collect::<HashSet<_>>()
         .len()
         .try_into()
         .unwrap();
-
-    println!("blocked_positions: {blocked_positions:?}");
-    println!("beacons_on_target: {beacons_on_target:?}");
 
     blocked_positions - beacons_on_target
 }
@@ -157,11 +152,38 @@ fn check_part1() {
     assert_eq!((5, 9).weave_into(vec![(4, 7)]), vec![(4, 9)]);
 
     assert_eq!(
-        part1(
-            &parse_input(&std::fs::read_to_string("day15/example.txt").unwrap()),
-            10
-        ),
+        part1::<10>(&parse_input(
+            &std::fs::read_to_string("day15/example.txt").unwrap()
+        )),
         26
+    );
+}
+
+fn part2<const MAX: i32>(input: &Vec<Scan>) -> i128 {
+    let div = 100_000;
+    for target_y in 0..=MAX {
+        if target_y % div == 0 {
+            print!("{}/{}\r", target_y / div, MAX / div);
+            std::io::stdout().flush().unwrap();
+        }
+        let ranges = build_ranges(&input, target_y);
+        // dbg!(ranges.len());
+        if ranges.len() == 2 {
+            let target_x = ranges[0].1 + 1;
+            return i128::from(target_x) * 4000000 + i128::from(target_y);
+        }
+    }
+
+    unreachable!()
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        part2::<20>(&parse_input(
+            &std::fs::read_to_string("day15/example.txt").unwrap()
+        ),),
+        56000011
     );
 }
 
@@ -170,11 +192,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed_input = parse_input(&file);
 
-    let part1 = part1(&parsed_input, 2000000);
+    let part1 = part1::<2_000_000>(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2::<4_000_000>(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
