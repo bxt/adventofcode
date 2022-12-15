@@ -1,4 +1,4 @@
-use core::cmp::{max, min};
+use core::cmp::max;
 use regex::Regex;
 use std::{collections::HashSet, io::Write, str::FromStr};
 
