@@ -17,10 +17,10 @@ fn parse_input(input: &str) -> Vec<Direction> {
         .collect()
 }
 
-const width: usize = 7;
+const WIDTH: usize = 7;
 
 fn can_place_piece_at(
-    field: &Vec<[bool; width]>,
+    field: &Vec<[bool; WIDTH]>,
     piece: &Vec<Vec<i32>>,
     at_x: i32,
     at_y: usize,
@@ -28,7 +28,7 @@ fn can_place_piece_at(
     for (shape_y, piece_row) in piece.iter().rev().enumerate() {
         for shape_x in piece_row {
             let x = shape_x + at_x;
-            let is_in_field_horizontal = (0..i32::try_from(width).unwrap()).contains(&x);
+            let is_in_field_horizontal = (0..i32::try_from(WIDTH).unwrap()).contains(&x);
             if !is_in_field_horizontal {
                 return false; // going into wall
             }
@@ -44,14 +44,14 @@ fn can_place_piece_at(
     true
 }
 
-fn place_piece_at(field: &mut Vec<[bool; width]>, piece: &Vec<Vec<i32>>, at_x: i32, at_y: usize) {
+fn place_piece_at(field: &mut Vec<[bool; WIDTH]>, piece: &Vec<Vec<i32>>, at_x: i32, at_y: usize) {
     for (shape_y, piece_row) in piece.iter().rev().enumerate() {
         for shape_x in piece_row {
             let x = shape_x + at_x;
             let x_usize = usize::try_from(x).unwrap();
             let y = at_y + shape_y;
             while y >= field.len() {
-                field.push([false; width]);
+                field.push([false; WIDTH]);
             }
             field[y][x_usize] = true;
         }
@@ -59,7 +59,7 @@ fn place_piece_at(field: &mut Vec<[bool; width]>, piece: &Vec<Vec<i32>>, at_x: i
 }
 
 fn part1(input: &Vec<Direction>) -> usize {
-    let mut field: Vec<[bool; width]> = vec![];
+    let mut field: Vec<[bool; WIDTH]> = vec![];
     let mut jet_index = 0;
 
     let pieces: [Vec<Vec<i32>>; 5] = [
@@ -72,46 +72,31 @@ fn part1(input: &Vec<Direction>) -> usize {
 
     for piece_index in 0..2022 {
         let piece = &pieces[piece_index % pieces.len()];
-        let mut piece_y = field.len() + 3;
+        let mut piece_y = field.len() + 4;
         let mut piece_x: i32 = 0;
 
-        'falling: loop {
-            {
-                let direction = input[jet_index % input.len()];
-                jet_index += 1;
+        while piece_y > 0 && can_place_piece_at(&field, &piece, piece_x, piece_y - 1) {
+            piece_y -= 1;
 
-                let move_x = match direction {
-                    Direction::Left => -1,
-                    Direction::Right => 1,
-                };
+            let direction = input[jet_index % input.len()];
+            jet_index += 1;
 
-                let new_x = piece_x + move_x;
+            let move_x = match direction {
+                Direction::Left => -1,
+                Direction::Right => 1,
+            };
 
-                if can_place_piece_at(&field, &piece, new_x, piece_y) {
-                    piece_x = new_x;
-                }
-            }
+            let new_x = piece_x + move_x;
 
-            if piece_y == 0 {
-                break 'falling;
-            }
-            let new_y = piece_y - 1;
-
-            if can_place_piece_at(&field, &piece, piece_x, new_y) {
-                piece_y = new_y;
-            } else {
-                break 'falling;
+            if can_place_piece_at(&field, &piece, new_x, piece_y) {
+                piece_x = new_x;
             }
         }
 
         place_piece_at(&mut field, &piece, piece_x, piece_y);
     }
 
-    let result = field.len();
-
-    // dbg!(field);
-
-    result
+    field.len()
 }
 
 #[test]
