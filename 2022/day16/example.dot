@@ -1,0 +1,12 @@
+digraph {
+AA [label="AA 0"]; AA -> {DD, II, BB};
+BB [label="BB 13"]; BB -> {CC, AA};
+CC [label="CC 2"]; CC -> {DD, BB};
+DD [label="DD 20"]; DD -> {CC, AA, EE};
+EE [label="EE 3"]; EE -> {FF, DD};
+FF [label="FF 0"]; FF -> {EE, GG};
+GG [label="GG 0"]; GG -> {FF, HH};
+HH [label="HH 22"]; HH -> {GG};
+II [label="II 0"]; II -> {AA, JJ};
+JJ [label="JJ 21"]; JJ -> {II};
+}
