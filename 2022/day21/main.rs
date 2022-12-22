@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-fn main() {
-    let input = std::fs::read_to_string("src/input.txt").unwrap();
-    println!("Hello, world!");
+fn parse_input(input: &str) -> (HashMap<&str, i128>, Vec<(&str, &str, &str, &str)>) {
     let mut known = HashMap::new();
     let mut unknown = vec![];
     for line in input.trim().lines() {
@@ -15,6 +13,12 @@ fn main() {
             unknown.push((var, fst, op, snd));
         }
     }
+    (known, unknown)
+}
+
+fn part1(input: &str) -> i128 {
+    let (mut known, mut unknown) = parse_input(input);
+
     dbg!(known.len());
     while !known.contains_key("root") {
         unknown = unknown
@@ -40,17 +44,13 @@ fn main() {
             .collect();
         dbg!(known.len());
     }
-    dbg!(known.get("root"));
+
+    *known.get("root").unwrap()
 }
 
-// p2:
-use std::collections::HashMap;
+fn part2(input: &str) -> i128 {
+    let (mut known, mut unknown) = parse_input(input);
 
-fn main() {
-    let input = std::fs::read_to_string("src/input.txt").unwrap();
-    println!("Hello, world!");
-    let mut known = HashMap::new();
-    let mut unknown = vec![];
     for line in input.trim().lines() {
         let (var, value) = line.split_once(": ").unwrap();
         if let Ok(number) = value.parse::<i128>() {
@@ -127,6 +127,18 @@ fn main() {
             .collect();
         dbg!(known.len());
     }
-    dbg!(known.get("humn"));
+
+    *known.get("humn").unwrap()
 }
 
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let file = std::fs::read_to_string("day21/input.txt")?;
+
+    let part1 = part1(&file);
+    println!("part 1: {}", part1);
+
+    let part2 = part2(&file);
+    println!("part 2: {}", part2);
+
+    Ok(())
+}
