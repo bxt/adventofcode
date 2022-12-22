@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Debug)]
 enum Move {
     Left,
@@ -7,8 +5,7 @@ enum Move {
     Forward(u32),
 }
 
-fn main() {
-    let input = std::fs::read_to_string("src/input.txt").unwrap();
+fn parse_input(input: &str) -> Vec<Move> {
     let mut moves = vec![];
     for byte in input.bytes() {
         match byte {
@@ -27,7 +24,10 @@ fn main() {
         index += 1;
     }
 
-    // dbg!(moves);
+    moves
+}
+
+fn part1(moves: &Vec<Move>) -> usize {
     let mut heading = 0;
     let directions = [(1, 0), (0, -1), (-1, 0), (0, -1)]; // Right, down, left, up
     let mut x = 0;
@@ -38,7 +38,7 @@ fn main() {
             Move::Left => heading = (heading + 3) % 4,
             Move::Right => heading = (heading + 1) % 4,
             Move::Forward(steps) => {
-                for _ in 0..steps {
+                for _ in 0..*steps {
                     let (dx, dy) = directions[heading];
                     x += dx;
                     y += dy;
@@ -48,4 +48,30 @@ fn main() {
     }
 
     dbg!((x, y));
+
+    64
+}
+
+#[test]
+fn check_part1() {
+    assert_eq!(
+        part1(&parse_input(
+            &std::fs::read_to_string("day22/example.txt").unwrap()
+        )),
+        6032
+    );
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let file = std::fs::read_to_string("day22/input.txt")?;
+
+    let parsed_input = parse_input(&file);
+
+    let part1 = part1(&parsed_input);
+    println!("part 1: {}", part1);
+
+    // let part2 = part2(&parsed_input);
+    // println!("part 2: {}", part2);
+
+    Ok(())
 }
