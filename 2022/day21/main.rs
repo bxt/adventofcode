@@ -19,14 +19,11 @@ fn parse_input(input: &str) -> (HashMap<&str, i128>, Vec<(&str, &str, &str, &str
 fn part1(input: &str) -> i128 {
     let (mut known, mut unknown) = parse_input(input);
 
-    dbg!(known.len());
     while !known.contains_key("root") {
         unknown = unknown
             .into_iter()
             .filter(|(var, fst, op, snd)| {
-                if known.contains_key(fst) && known.contains_key(snd) {
-                    let fst_val = known.get(fst).unwrap();
-                    let snd_val = known.get(snd).unwrap();
+                if let (Some(fst_val), Some(snd_val)) = (known.get(fst), known.get(snd)) {
                     known.insert(
                         var,
                         match op {
@@ -42,7 +39,6 @@ fn part1(input: &str) -> i128 {
                 return true;
             })
             .collect();
-        dbg!(known.len());
     }
 
     *known.get("root").unwrap()
@@ -51,37 +47,21 @@ fn part1(input: &str) -> i128 {
 fn part2(input: &str) -> i128 {
     let (mut known, mut unknown) = parse_input(input);
 
-    for line in input.trim().lines() {
-        let (var, value) = line.split_once(": ").unwrap();
-        if let Ok(number) = value.parse::<i128>() {
-            known.insert(var, number);
-        } else {
-            let (fst, op_and_snd) = value.split_once(" ").unwrap();
-            let (op, snd) = op_and_snd.split_once(" ").unwrap();
-            unknown.push((var, fst, op, snd));
-        }
-    }
-    dbg!(known.len());
     known.remove("humn");
-    dbg!(known.len());
+
     while !known.contains_key("humn") {
         unknown = unknown
             .into_iter()
             .filter(|(var, fst, op, snd)| {
                 if var == &"root" {
-                    if known.contains_key(fst) || known.contains_key(snd) {
-                        if known.contains_key(fst) {
-                            let fst_val = known.get(fst).unwrap();
-                            known.insert(snd, *fst_val);
-                        } else {
-                            let snd_val = known.get(snd).unwrap();
-                            known.insert(fst, *snd_val);
-                        }
+                    if let Some(fst_val) = known.get(fst) {
+                        known.insert(snd, *fst_val);
+                        return false;
+                    } else if let Some(snd_val) = known.get(snd) {
+                        known.insert(fst, *snd_val);
                         return false;
                     }
-                } else if known.contains_key(fst) && known.contains_key(snd) {
-                    let fst_val = known.get(fst).unwrap();
-                    let snd_val = known.get(snd).unwrap();
+                } else if let (Some(fst_val), Some(snd_val)) = (known.get(fst), known.get(snd)) {
                     known.insert(
                         var,
                         match op {
@@ -93,9 +73,7 @@ fn part2(input: &str) -> i128 {
                         },
                     );
                     return false;
-                } else if known.contains_key(var) && known.contains_key(snd) {
-                    let var_val = known.get(var).unwrap();
-                    let snd_val = known.get(snd).unwrap();
+                } else if let (Some(var_val), Some(snd_val)) = (known.get(var), known.get(snd)) {
                     known.insert(
                         fst,
                         match op {
@@ -107,9 +85,7 @@ fn part2(input: &str) -> i128 {
                         },
                     );
                     return false;
-                } else if known.contains_key(var) && known.contains_key(fst) {
-                    let var_val = known.get(var).unwrap();
-                    let fst_val = known.get(fst).unwrap();
+                } else if let (Some(var_val), Some(fst_val)) = (known.get(var), known.get(fst)) {
                     known.insert(
                         snd,
                         match op {
@@ -125,7 +101,6 @@ fn part2(input: &str) -> i128 {
                 return true;
             })
             .collect();
-        dbg!(known.len());
     }
 
     *known.get("humn").unwrap()
