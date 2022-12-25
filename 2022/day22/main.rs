@@ -369,7 +369,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("part 1: {}", part1);
 
     let part2 = part2(&parsed_input);
-    println!("part 2: {}", part2); // 17300, 92383 too low
+    println!("part 2: {}", part2);
 
     Ok(())
 }
