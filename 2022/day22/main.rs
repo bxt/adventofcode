@@ -33,18 +33,18 @@ fn parse_rows(input: &str) -> Vec<Row> {
     input
         .split("\n")
         .map(|line| {
-            let mut bs = line.bytes().peekable();
+            let mut line_bytes = line.bytes().peekable();
             let mut start = 0;
-            while bs.next_if_eq(&b' ').is_some() {
+            while line_bytes.next_if_eq(&b' ').is_some() {
                 start += 1;
             }
             let mut length = 0;
             let mut walls = vec![];
-            while let Some(b) = bs.next() {
-                match b {
+            while let Some(byte) = line_bytes.next() {
+                match byte {
                     b'.' => {}
                     b'#' => walls.push(length),
-                    _ => panic!("Unknown byte in row: {b}"),
+                    _ => panic!("Unknown byte in row: {byte}"),
                 }
                 length += 1;
             }
