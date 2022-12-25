@@ -13,12 +13,41 @@ enum Move {
     Right,
     Forward(u32),
 }
-#[derive(Debug, FromRepr)]
+#[derive(Debug, FromRepr, Clone, Copy)]
 enum Heading {
     Right,
     Down,
     Left,
     Up,
+}
+
+impl Heading {
+    fn turn_left(self) -> Self {
+        Self::from_repr((self as usize + 3) % 4).unwrap()
+    }
+    fn turn_right(self) -> Self {
+        Self::from_repr((self as usize + 1) % 4).unwrap()
+    }
+}
+
+#[derive(Debug)]
+struct Turtle {
+    x: usize,
+    y: usize,
+    heading: Heading,
+}
+
+impl Turtle {
+    fn turn_left(&mut self) {
+        self.heading = self.heading.turn_left();
+    }
+    fn turn_right(&mut self) {
+        self.heading = self.heading.turn_right();
+    }
+    fn calculate_password(self) -> usize {
+        let Self { x, y, heading } = self;
+        1000 * (y + 1) + 4 * (x + 1) + heading as usize
+    }
 }
 
 fn parse_input(input: &str) -> (Vec<Row>, Vec<Move>) {
@@ -80,80 +109,103 @@ fn parse_moves(input: &str) -> Vec<Move> {
     moves
 }
 
-fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
-    let (rows, moves) = input;
-    let mut heading = Heading::Right;
-    let mut x: usize = rows[0].start;
-    let mut y: usize = 0;
+fn step_part1(rows: &Vec<Row>, turtle: &Turtle) -> Turtle {
+    let Turtle { x, y, heading } = *turtle;
+    match heading {
+        Heading::Down => {
+            let mut new_y = y + 1;
+            if new_y >= rows.len() {
+                new_y = 0;
+            }
+            while x < rows[new_y].start || x >= rows[new_y].start + rows[new_y].length {
+                new_y += 1;
+                if new_y >= rows.len() {
+                    new_y = 0;
+                }
+            }
+            Turtle {
+                y: new_y,
+                ..*turtle
+            }
+        }
+        Heading::Up => {
+            let mut new_y = y;
+            if new_y == 0 {
+                new_y = rows.len();
+            }
+            new_y -= 1;
+            while x < rows[new_y].start || x >= rows[new_y].start + rows[new_y].length {
+                if new_y == 0 {
+                    new_y = rows.len();
+                }
+                new_y -= 1;
+            }
+            Turtle {
+                y: new_y,
+                ..*turtle
+            }
+        }
+        Heading::Right => {
+            let row = &rows[y];
+            let mut new_x = x + 1;
+            if new_x >= row.start + row.length {
+                new_x = row.start;
+            }
+            Turtle {
+                x: new_x,
+                ..*turtle
+            }
+        }
+        Heading::Left => {
+            let row = &rows[y];
+            let mut new_x = x;
+            if new_x <= row.start {
+                new_x = row.start + row.length;
+            }
+            new_x -= 1;
+            Turtle {
+                x: new_x,
+                ..*turtle
+            }
+        }
+    }
+}
+
+fn do_the_moves(
+    rows: &Vec<Row>,
+    moves: &Vec<Move>,
+    step: impl Fn(&Vec<Row>, &Turtle) -> Turtle,
+) -> Turtle {
+    let mut turtle = Turtle {
+        heading: Heading::Right,
+        x: rows[0].start,
+        y: 0,
+    };
 
     for m in moves {
         match m {
-            Move::Left => heading = Heading::from_repr((heading as usize + 3) % 4).unwrap(),
-            Move::Right => heading = Heading::from_repr((heading as usize + 1) % 4).unwrap(),
+            Move::Left => turtle.turn_left(),
+            Move::Right => turtle.turn_right(),
             Move::Forward(steps) => {
                 'moving: for _ in 0..*steps {
-                    let (new_x, new_y) = match heading {
-                        Heading::Down => {
-                            let mut new_y = y + 1;
-                            if new_y >= rows.len() {
-                                new_y = 0;
-                            }
-                            while x < rows[new_y].start
-                                || x >= rows[new_y].start + rows[new_y].length
-                            {
-                                new_y += 1;
-                                if new_y >= rows.len() {
-                                    new_y = 0;
-                                }
-                            }
-                            (x, new_y)
-                        }
-                        Heading::Up => {
-                            // up
-                            let mut new_y = y;
-                            if new_y == 0 {
-                                new_y = rows.len();
-                            }
-                            new_y -= 1;
-                            while x < rows[new_y].start
-                                || x >= rows[new_y].start + rows[new_y].length
-                            {
-                                if new_y == 0 {
-                                    new_y = rows.len();
-                                }
-                                new_y -= 1;
-                            }
-                            (x, new_y)
-                        }
-                        Heading::Right => {
-                            let row = &rows[y];
-                            let mut new_x = x + 1;
-                            if new_x >= row.start + row.length {
-                                new_x = row.start;
-                            }
-                            (new_x, y)
-                        }
-                        Heading::Left => {
-                            let row = &rows[y];
-                            let mut new_x = x;
-                            if new_x <= row.start {
-                                new_x = row.start + row.length;
-                            }
-                            new_x -= 1;
-                            (new_x, y)
-                        }
-                    };
-                    if rows[new_y].walls.contains(&(new_x - &rows[new_y].start)) {
+                    let new_turtle = step(rows, &turtle);
+                    let Turtle { x, y, .. } = new_turtle;
+                    if rows[y].walls.contains(&(x - rows[y].start)) {
                         break 'moving;
                     } else {
-                        (x, y) = (new_x, new_y);
+                        turtle = new_turtle;
                     }
                 }
             }
         }
     }
 
-    1000 * (y + 1) + 4 * (x + 1) + heading as usize
+    turtle
+}
+
+fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
+    let (rows, moves) = input;
+    do_the_moves(rows, moves, step_part1).calculate_password()
 }
 
 #[test]
