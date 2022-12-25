@@ -149,7 +149,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
                     if new_x >= rows[new_y].start + rows[new_y].length {
                         panic!("high");
                     }
-                    if rows[new_y].walls.contains(&new_x) {
+                    if rows[new_y].walls.contains(&(new_x - &rows[new_y].start)) {
                         break 'moving;
                     } else {
                         (x, y) = (new_x, new_y);
