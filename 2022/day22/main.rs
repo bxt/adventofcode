@@ -282,7 +282,7 @@ fn step_part2(_rows: &Vec<Row>, turtle: &Turtle) -> Turtle {
                 Turtle {
                     x: y - 50,
                     y: 100,
-                    heading: Heading::Up,
+                    heading: Heading::Down,
                 }
             } else if x == 0 && 100 <= y && y < 150 {
                 // c -> C
@@ -369,7 +369,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("part 1: {}", part1);
 
     let part2 = part2(&parsed_input);
-    println!("part 2: {}", part2); // 92383 too low
+    println!("part 2: {}", part2); // 17300, 92383 too low
 
     Ok(())
 }
