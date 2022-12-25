@@ -1,3 +1,5 @@
+use strum_macros::FromRepr;
+
 #[derive(Debug)]
 struct Row {
     start: usize,
@@ -10,6 +12,13 @@ enum Move {
     Left,
     Right,
     Forward(u32),
+}
+#[derive(Debug, FromRepr)]
+enum Heading {
+    Right,
+    Down,
+    Left,
+    Up,
 }
 
 fn parse_input(input: &str) -> (Vec<Row>, Vec<Move>) {
@@ -35,9 +44,7 @@ fn parse_rows(input: &str) -> Vec<Row> {
                 match b {
                     b'.' => {}
                     b'#' => walls.push(length),
-                    _ => {
-                        panic!("huh? {b}")
-                    }
+                    _ => panic!("Unknown byte in row: {b}"),
                 }
                 length += 1;
             }
@@ -75,19 +82,18 @@ fn parse_moves(input: &str) -> Vec<Move> {
 
 fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
     let (rows, moves) = input;
-    let mut heading = 0; // 0= Right, 1=down, 2=left, 3=up
+    let mut heading = Heading::Right;
     let mut x: usize = rows[0].start;
     let mut y: usize = 0;
 
     for m in moves {
         match m {
-            Move::Left => heading = (heading + 3) % 4,
-            Move::Right => heading = (heading + 1) % 4,
+            Move::Left => heading = Heading::from_repr((heading as usize + 3) % 4).unwrap(),
+            Move::Right => heading = Heading::from_repr((heading as usize + 1) % 4).unwrap(),
             Move::Forward(steps) => {
                 'moving: for _ in 0..*steps {
                     let (new_x, new_y) = match heading {
-                        1 => {
-                            // down
+                        Heading::Down => {
                             let mut new_y = y + 1;
                             if new_y >= rows.len() {
                                 new_y = 0;
@@ -102,7 +108,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
                             }
                             (x, new_y)
                         }
-                        3 => {
+                        Heading::Up => {
                             // up
                             let mut new_y = y;
                             if new_y == 0 {
@@ -119,8 +125,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
                             }
                             (x, new_y)
                         }
-                        0 => {
-                            // right
+                        Heading::Right => {
                             let row = &rows[y];
                             let mut new_x = x + 1;
                             if new_x >= row.start + row.length {
@@ -128,8 +133,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
                             }
                             (new_x, y)
                         }
-                        2 => {
-                            // left
+                        Heading::Left => {
                             let row = &rows[y];
                             let mut new_x = x;
                             if new_x <= row.start {
@@ -138,17 +142,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
                             new_x -= 1;
                             (new_x, y)
                         }
-                        _ => {
-                            panic!("heading?!?")
-                        }
                     };
-                    // dbg!((new_x, new_y));
-                    if new_x < rows[new_y].start {
-                        panic!("low");
-                    }
-                    if new_x >= rows[new_y].start + rows[new_y].length {
-                        panic!("high");
-                    }
                     if rows[new_y].walls.contains(&(new_x - &rows[new_y].start)) {
                         break 'moving;
                     } else {
@@ -159,9 +153,7 @@ fn part1(input: &(Vec<Row>, Vec<Move>)) -> usize {
         }
     }
 
-    dbg!((x, y));
-
-    1000 * (y + 1) + 4 * (x + 1) + heading
+    1000 * (y + 1) + 4 * (x + 1) + heading as usize
 }
 
 #[test]
@@ -180,7 +172,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let parsed_input = parse_input(&file);
 
     let part1 = part1(&parsed_input);
-    println!("part 1: {}", part1); // 65206 too low, 103242 & 164074 too high
+    println!("part 1: {}", part1);
 
     // let part2 = part2(&parsed_input);
     // println!("part 2: {}", part2);
