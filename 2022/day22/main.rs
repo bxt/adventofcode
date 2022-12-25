@@ -171,6 +171,143 @@ fn step_part1(rows: &Vec<Row>, turtle: &Turtle) -> Turtle {
     }
 }
 
+// Hardcoded for input shape as per fold.txt
+fn step_part2(_rows: &Vec<Row>, turtle: &Turtle) -> Turtle {
+    let Turtle { x, y, heading } = *turtle;
+    match heading {
+        Heading::Down => {
+            if y == 199 && x < 50 {
+                // g -> G
+                Turtle {
+                    x: x + 100,
+                    y: 0,
+                    heading: Heading::Down,
+                }
+            } else if y == 149 && 50 <= x && x < 100 {
+                // B -> b
+                Turtle {
+                    x: 49,
+                    y: x + 100,
+                    heading: Heading::Left,
+                }
+            } else if y == 49 && 100 <= x && x < 150 {
+                // D -> d
+                Turtle {
+                    x: 99,
+                    y: x - 50,
+                    heading: Heading::Left,
+                }
+            } else {
+                Turtle {
+                    y: y + 1,
+                    ..*turtle
+                }
+            }
+        }
+        Heading::Up => {
+            if y == 100 && x < 50 {
+                // a -> A
+                Turtle {
+                    x: 50,
+                    y: x + 50,
+                    heading: Heading::Right,
+                }
+            } else if y == 0 && 50 <= x && x < 100 {
+                // F -> f
+                Turtle {
+                    x: 0,
+                    y: x + 100,
+                    heading: Heading::Right,
+                }
+            } else if y == 0 && 100 <= x && x < 150 {
+                // G -> g
+                Turtle {
+                    x: x - 100,
+                    y: 199,
+                    heading: Heading::Up,
+                }
+            } else {
+                Turtle {
+                    y: y - 1,
+                    ..*turtle
+                }
+            }
+        }
+        Heading::Right => {
+            if x == 149 && y < 50 {
+                // E -> e
+                Turtle {
+                    x: 99,
+                    y: 149 - y,
+                    heading: Heading::Left,
+                }
+            } else if x == 99 && 50 <= y && y < 100 {
+                // d -> D
+                Turtle {
+                    x: y + 50,
+                    y: 49,
+                    heading: Heading::Up,
+                }
+            } else if x == 99 && 100 <= y && y < 150 {
+                // e -> E
+                Turtle {
+                    x: 149,
+                    y: 149 - y,
+                    heading: Heading::Left,
+                }
+            } else if x == 49 && 150 <= y && y < 200 {
+                // b -> B
+                Turtle {
+                    x: y - 100,
+                    y: 149,
+                    heading: Heading::Up,
+                }
+            } else {
+                Turtle {
+                    x: x + 1,
+                    ..*turtle
+                }
+            }
+        }
+        Heading::Left => {
+            if x == 50 && y < 50 {
+                // C -> c
+                Turtle {
+                    x: 0,
+                    y: 149 - y,
+                    heading: Heading::Right,
+                }
+            } else if x == 50 && 50 <= y && y < 100 {
+                // A -> a
+                Turtle {
+                    x: y - 50,
+                    y: 100,
+                    heading: Heading::Up,
+                }
+            } else if x == 0 && 100 <= y && y < 150 {
+                // c -> C
+                Turtle {
+                    x: 50,
+                    y: 149 - y,
+                    heading: Heading::Right,
+                }
+            } else if x == 0 && 150 <= y && y < 200 {
+                // f -> F
+                Turtle {
+                    x: y - 100,
+                    y: 0,
+                    heading: Heading::Down,
+                }
+            } else {
+                Turtle {
+                    x: x - 1,
+                    ..*turtle
+                }
+            }
+        }
+    }
+}
+
 fn do_the_moves(
     rows: &Vec<Row>,
     moves: &Vec<Move>,
@@ -218,6 +355,11 @@ fn check_part1() {
     );
 }
 
+fn part2(input: &(Vec<Row>, Vec<Move>)) -> usize {
+    let (rows, moves) = input;
+    do_the_moves(rows, moves, step_part2).calculate_password()
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day22/input.txt")?;
 
@@ -226,8 +368,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let part1 = part1(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = part2(&parsed_input);
+    println!("part 2: {}", part2); // 92383 too low
 
     Ok(())
 }
