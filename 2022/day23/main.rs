@@ -1,7 +1,6 @@
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
 use std::io::{stdout, Write};
-use std::vec;
 
 fn parse_input(input: &str) -> Vec<(i32, i32)> {
     input
@@ -50,13 +49,14 @@ fn solve<const IS_PART_1: bool>(input: &Vec<(i32, i32)>) -> usize {
 
         let nswe: [usize; 4] = [1, 5, 7, 3];
 
-        let mut new_field = vec![];
         let field_set: HashSet<&(i32, i32)> = HashSet::from_iter(&field);
 
-        for &position in field.iter() {
-            let neighbours = neighbours(position);
-            let present_neighbours = neighbours.map(|n| field_set.contains(&n));
-            new_field.push(
+        let new_field: Vec<(i32, i32)> = field
+            .iter()
+            .map(|&position| {
+                let neighbours = neighbours(position);
+                let present_neighbours = neighbours.map(|n| field_set.contains(&n));
+
                 (present_neighbours.iter().filter(|&&b| b).count() != 0)
                     .then(|| {
                         (0..nswe.len()).find_map(|i| {
@@ -72,9 +72,9 @@ fn solve<const IS_PART_1: bool>(input: &Vec<(i32, i32)>) -> usize {
                         })
                     })
                     .flatten()
-                    .unwrap_or(position),
-            );
-        }
+                    .unwrap_or(position)
+            })
+            .collect();
 
         let mut frequencies: HashMap<(i32, i32), usize> = HashMap::new();
         for &position in new_field.iter() {
@@ -91,6 +91,7 @@ fn solve<const IS_PART_1: bool>(input: &Vec<(i32, i32)>) -> usize {
                 field[index] = new_position
             }
         }
+
         let round_number = round + 1;
         if IS_PART_1 && round_number == 10 {
             let dimensions = figure_dimensions(&field);
