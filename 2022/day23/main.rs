@@ -43,7 +43,8 @@ fn neighbours((x, y): (i32, i32)) -> [(i32, i32); 8] {
 fn part1(input: &Vec<(i32, i32)>) -> u32 {
     let mut field = input.to_vec();
 
-    for round in 0..10 {
+    for round in 0.. {
+        dbg!(round);
         let nswe: [usize; 4] = [1, 5, 7, 3];
 
         let mut new_field = vec![];
@@ -77,11 +78,18 @@ fn part1(input: &Vec<(i32, i32)>) -> u32 {
             *frequencies.entry(position).or_default() += 1;
         }
 
+        let mut changed_any = false;
         for (index, _) in new_field.iter().enumerate() {
             let new_position = new_field[index];
             if frequencies[&new_position] == 1 {
+                if field[index] != new_position {
+                    changed_any = true;
+                }
                 field[index] = new_position
             }
+        }
+        if !changed_any {
+            return round.try_into().unwrap();
         }
     }
 
