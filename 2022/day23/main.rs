@@ -1,5 +1,5 @@
 use std::cmp::{max, min};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::vec;
 
 fn parse_input(input: &str) -> Vec<(i32, i32)> {
@@ -47,10 +47,11 @@ fn part1(input: &Vec<(i32, i32)>) -> u32 {
         let nswe: [usize; 4] = [1, 5, 7, 3];
 
         let mut new_field = vec![];
+        let field_set: HashSet<&(i32, i32)> = HashSet::from_iter(&field);
 
         for &position in field.iter() {
             let neighbours = neighbours(position);
-            let present_neighbours = neighbours.map(|n| field.contains(&n));
+            let present_neighbours = neighbours.map(|n| field_set.contains(&n));
             new_field.push(
                 (present_neighbours.iter().filter(|&&b| b).count() != 0)
                     .then(|| {
