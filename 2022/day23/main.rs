@@ -51,22 +51,24 @@ fn part1(input: &Vec<(i32, i32)>) -> u32 {
         for &position in field.iter() {
             let neighbours = neighbours(position);
             let present_neighbours = neighbours.map(|n| field.contains(&n));
-            let new_position = if present_neighbours.iter().filter(|&&b| b).count() == 0 {
-                position
-            } else {
-                (0..nswe.len())
-                    .find_map(|i| {
-                        let direction_index = nswe[(round + i) % 4];
-                        ([direction_index - 1, direction_index, direction_index + 1]
-                            .iter()
-                            .filter(|&&index| present_neighbours[index % present_neighbours.len()])
-                            .count()
-                            == 0)
-                            .then_some(neighbours[direction_index])
+            new_field.push(
+                (present_neighbours.iter().filter(|&&b| b).count() != 0)
+                    .then(|| {
+                        (0..nswe.len()).find_map(|i| {
+                            let direction_index = nswe[(round + i) % 4];
+                            ([direction_index - 1, direction_index, direction_index + 1]
+                                .iter()
+                                .filter(|&&index| {
+                                    present_neighbours[index % present_neighbours.len()]
+                                })
+                                .count()
+                                == 0)
+                                .then_some(neighbours[direction_index])
+                        })
                     })
-                    .unwrap_or(position)
-            };
-            new_field.push(new_position);
+                    .flatten()
+                    .unwrap_or(position),
+            );
         }
 
         let mut frequencies: HashMap<(i32, i32), usize> = HashMap::new();
