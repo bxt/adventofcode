@@ -1,5 +1,6 @@
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
+use std::io::{stdout, Write};
 use std::vec;
 
 fn parse_input(input: &str) -> Vec<(i32, i32)> {
@@ -40,11 +41,13 @@ fn neighbours((x, y): (i32, i32)) -> [(i32, i32); 8] {
     ]
 }
 
-fn part1(input: &Vec<(i32, i32)>) -> u32 {
+fn solve<const IS_PART_1: bool>(input: &Vec<(i32, i32)>) -> usize {
     let mut field = input.to_vec();
 
     for round in 0.. {
-        dbg!(round);
+        print!("round {round}\r");
+        stdout().flush().unwrap();
+
         let nswe: [usize; 4] = [1, 5, 7, 3];
 
         let mut new_field = vec![];
@@ -88,17 +91,22 @@ fn part1(input: &Vec<(i32, i32)>) -> u32 {
                 field[index] = new_position
             }
         }
-        if !changed_any {
-            return round.try_into().unwrap();
+        let round_number = round + 1;
+        if IS_PART_1 && round_number == 10 {
+            let dimensions = figure_dimensions(&field);
+            let area_u32 = (dimensions.0 .0.abs_diff(dimensions.0 .1) + 1)
+                * (dimensions.1 .0.abs_diff(dimensions.1 .1) + 1);
+            let area = usize::try_from(area_u32).unwrap();
+            let occupied = field.len();
+            let free = area - occupied;
+            return free;
+        }
+        if !IS_PART_1 && !changed_any {
+            return round_number;
         }
     }
 
-    let dimensions = figure_dimensions(&field);
-    let area = (dimensions.0 .0.abs_diff(dimensions.0 .1) + 1)
-        * (dimensions.1 .0.abs_diff(dimensions.1 .1) + 1);
-    let occupied = u32::try_from(field.len()).unwrap();
-    let free = area - occupied;
-    free
+    unreachable!(); // we should "return" in the loop eventually
 }
 
 fn main() {
@@ -106,9 +114,9 @@ fn main() {
 
     let parsed_input = parse_input(&file);
 
-    let part1 = part1(&parsed_input);
+    let part1 = solve::<true>(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = solve::<false>(&parsed_input);
+    println!("part 2: {}", part2);
 }
