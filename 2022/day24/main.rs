@@ -62,7 +62,10 @@ fn parse_input(input: &str) -> Vec<Vec<Cell>> {
         .collect()
 }
 
-fn part1(input: &Vec<Vec<Cell>>) -> i32 {
+fn solve<const FORGOT_SNACKS: bool>(input: &Vec<Vec<Cell>>) -> i32 {
+    let mut has_snacks = !FORGOT_SNACKS;
+    let mut is_going_back = false;
+
     let mut field: Vec<Vec<Cell>> = Vec::with_capacity(input.len() + 2);
     field.push(
         (0..input[0].len())
@@ -136,12 +139,20 @@ fn part1(input: &Vec<Vec<Cell>>) -> i32 {
         // dbg!(field);
         // dbg!(expeditions);
         dbg!(expeditions.len());
-        if expeditions
+        if let Some(&endpoint) = expeditions
             .iter()
-            .find(|(_, y)| *y == field.len() - 2)
-            .is_some()
+            .find(|(_, y)| *y == if is_going_back { 1 } else { field.len() - 2 })
         {
-            return round;
+            if has_snacks {
+                return round;
+            } else {
+                if is_going_back {
+                    has_snacks = true
+                }
+                is_going_back = !is_going_back;
+                expeditions = HashSet::new();
+                expeditions.insert(endpoint);
+            }
         }
     }
 
@@ -151,10 +162,20 @@ fn part1(input: &Vec<Vec<Cell>>) -> i32 {
 #[test]
 fn check_part1() {
     assert_eq!(
-        part1(&parse_input(
+        solve::<false>(&parse_input(
             &std::fs::read_to_string("day24/example.txt").unwrap()
         )),
         18
+    );
+}
+
+#[test]
+fn check_part2() {
+    assert_eq!(
+        solve::<true>(&parse_input(
+            &std::fs::read_to_string("day24/example.txt").unwrap()
+        )),
+        54
     );
 }
 
@@ -163,11 +184,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let parsed_input = parse_input(&file);
 
-    let part1 = part1(&parsed_input);
+    let part1 = solve::<false>(&parsed_input);
     println!("part 1: {}", part1);
 
-    // let part2 = part2(&parsed_input);
-    // println!("part 2: {}", part2);
+    let part2 = solve::<true>(&parsed_input);
+    println!("part 2: {}", part2);
 
     Ok(())
 }
