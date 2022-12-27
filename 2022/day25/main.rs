@@ -70,10 +70,7 @@ fn string_from_snafu_digits(input: Vec<SnafuDigit>) -> String {
 }
 
 fn part1(input: &Vec<Vec<SnafuDigit>>) -> String {
-    let mut sum = 0;
-    for digits in input {
-        sum += u64_from_snafu_digits(digits);
-    }
+    let sum = input.iter().map(u64_from_snafu_digits).sum();
     string_from_snafu_digits(snafu_digits_from_u64(sum))
 }
 
