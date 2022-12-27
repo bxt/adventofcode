@@ -100,25 +100,27 @@ fn solve<const FORGOT_SNACKS: bool>(input: &Vec<Vec<Cell>>) -> i32 {
                         Cell::Wall => Cell::Wall,
                         Cell::Space(_) => {
                             let mut blizzards = vec![];
-                            if field[y][if x == 1 { field[y].len() - 2 } else { x - 1 }]
-                                .contains(&Heading::Right)
-                            {
-                                blizzards.push(Heading::Right);
-                            }
-                            if field[y][if x == field[y].len() - 2 { 1 } else { x + 1 }]
-                                .contains(&Heading::Left)
-                            {
-                                blizzards.push(Heading::Left);
-                            }
-                            if field[if y == 2 { field.len() - 3 } else { y - 1 }][x]
-                                .contains(&Heading::Down)
-                            {
-                                blizzards.push(Heading::Down);
-                            }
-                            if field[if y == field.len() - 3 { 2 } else { y + 1 }][x]
-                                .contains(&Heading::Up)
-                            {
-                                blizzards.push(Heading::Up);
+                            for (cell, heading) in [
+                                (
+                                    &field[y][if x == 1 { field[y].len() - 2 } else { x - 1 }],
+                                    Heading::Right,
+                                ),
+                                (
+                                    &field[y][if x == field[y].len() - 2 { 1 } else { x + 1 }],
+                                    Heading::Left,
+                                ),
+                                (
+                                    &field[if y == 2 { field.len() - 3 } else { y - 1 }][x],
+                                    Heading::Down,
+                                ),
+                                (
+                                    &field[if y == field.len() - 3 { 2 } else { y + 1 }][x],
+                                    Heading::Up,
+                                ),
+                            ] {
+                                if cell.contains(&heading) {
+                                    blizzards.push(heading);
+                                }
                             }
                             Cell::Space(blizzards)
                         }
@@ -133,21 +135,17 @@ fn solve<const FORGOT_SNACKS: bool>(input: &Vec<Vec<Cell>>) -> i32 {
                 potential_expeditions.insert(position);
             }
         }
-        // dbg!(&potential_expeditions);
         potential_expeditions.retain(|&(x, y)| field[y][x].is_empty());
         expeditions = potential_expeditions;
-        // dbg!(field);
-        // dbg!(expeditions);
-        dbg!(expeditions.len());
-        if let Some(&endpoint) = expeditions
-            .iter()
-            .find(|(_, y)| *y == if is_going_back { 1 } else { field.len() - 2 })
-        {
+
+        let target_y = if is_going_back { 1 } else { field.len() - 2 };
+
+        if let Some(&endpoint) = expeditions.iter().find(|(_, y)| *y == target_y) {
             if has_snacks {
                 return round;
             } else {
                 if is_going_back {
-                    has_snacks = true
+                    has_snacks = true;
                 }
                 is_going_back = !is_going_back;
                 expeditions = HashSet::new();
