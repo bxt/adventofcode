@@ -1,17 +1,18 @@
-use strum_macros::{Display, EnumString};
+use strum::IntoEnumIterator;
+use strum_macros::{Display, EnumIter, EnumString};
 
-#[derive(Debug, Clone, Copy, PartialEq, EnumString, Display)]
+#[derive(Debug, Clone, Copy, PartialEq, EnumString, EnumIter, Display)]
 enum SnafuDigit {
+    #[strum(serialize = "=")]
+    DoubleMinus = -2,
+    #[strum(serialize = "-")]
+    Minus,
+    #[strum(serialize = "0")]
+    Zero,
     #[strum(serialize = "1")]
     One,
     #[strum(serialize = "2")]
     Two,
-    #[strum(serialize = "0")]
-    Zero,
-    #[strum(serialize = "-")]
-    Minus,
-    #[strum(serialize = "=")]
-    DoubleMinus,
 }
 
 fn snafu_digits_from_str(input: &str) -> Vec<SnafuDigit> {
@@ -26,24 +27,11 @@ fn parse_input(input: &str) -> Vec<Vec<SnafuDigit>> {
 }
 
 fn i64_from_snafu_digit(input: SnafuDigit) -> i64 {
-    match input {
-        SnafuDigit::One => 1,
-        SnafuDigit::Two => 2,
-        SnafuDigit::Zero => 0,
-        SnafuDigit::Minus => -1,
-        SnafuDigit::DoubleMinus => -2,
-    }
+    input as i64
 }
 
 fn snafu_digit_from_i64(input: i64) -> SnafuDigit {
-    match input {
-        1 => SnafuDigit::One,
-        2 => SnafuDigit::Two,
-        0 => SnafuDigit::Zero,
-        -1 => SnafuDigit::Minus,
-        -2 => SnafuDigit::DoubleMinus,
-        _ => panic!("Out of bounds: {input}"),
-    }
+    SnafuDigit::iter().find(|&e| e as i64 == input).unwrap()
 }
 
 fn u64_from_snafu_digits(input: &Vec<SnafuDigit>) -> u64 {
