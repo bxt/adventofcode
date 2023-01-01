@@ -1,7 +1,37 @@
-use std::cmp::{max, min};
-
 fn parse_input(input: &str) -> Vec<i32> {
     input.trim().lines().map(|l| l.parse().unwrap()).collect()
+}
+
+fn mix_once<T: Copy>(vec: &mut Vec<T>, from: usize, to: usize) {
+    // if to < from {
+    // vec.remove(from);
+    // vec.insert(to, *number);
+    // } else {
+    //     vec.remove(from);
+    //     vec.insert(to, *number);
+    // }
+    if from <= to {
+        for index in from..to {
+            let tmp = vec[index];
+            vec[index] = vec[index + 1];
+            vec[index + 1] = tmp;
+        }
+    } else {
+        for index in (to..from).into_iter().rev() {
+            let tmp = vec[index];
+            vec[index] = vec[index + 1];
+            vec[index + 1] = tmp;
+        }
+    }
+}
+
+#[test]
+fn check_mix_once() {
+    let mut vec = vec![1, 2, 3, 4, 5];
+    mix_once(&mut vec, 1, 3);
+    assert_eq!(vec, vec![1, 3, 4, 2, 5]);
+    mix_once(&mut vec, 3, 1);
+    assert_eq!(vec, vec![1, 2, 3, 4, 5]);
 }
 
 fn part1(input: &Vec<i32>) -> i32 {
@@ -15,26 +45,12 @@ fn part1(input: &Vec<i32>) -> i32 {
     for number in input {
         let from = shuffled.iter().position(|n| n == number).unwrap();
         let from_i32 = i32::try_from(from).unwrap();
-        let to = ((from_i32 + number) % len_i32 + len_i32) % len_i32;
+        let offset = if *number < 0 { -1 } else { 0 };
+        let to = ((from_i32 + number + offset) % len_i32 + len_i32) % len_i32;
         let to_usize = usize::try_from(to).unwrap();
         dbg!(from);
         dbg!(to);
-        // if to_usize < from {
-        // shuffled.remove(from);
-        // shuffled.insert(to_usize, *number);
-        // } else {
-        //     shuffled.remove(from);
-        //     shuffled.insert(to_usize, *number);
-        // }
-        let begin = min(from, to_usize);
-        let end = max(from, to_usize);
-
-        for index in begin..end {
-            let tmp = shuffled[index];
-            shuffled[index] = shuffled[index + 1];
-            shuffled[index + 1] = tmp;
-        }
-
+        mix_once(&mut shuffled, from, to_usize);
         dbg!(&shuffled);
     }
 
