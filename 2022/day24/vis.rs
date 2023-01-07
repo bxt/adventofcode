@@ -1,9 +1,9 @@
-use std::{collections::HashSet, str::FromStr, vec};
+use std::{collections::HashSet, vec};
 
 use strum::IntoEnumIterator;
 use strum_macros::{EnumIter, EnumString};
 
-use visualisation_utils::canvas::{self, Canvas, PixelMap};
+use visualisation_utils::canvas::{Canvas, PixelMap};
 use visualisation_utils::encoder::LoopEncoder;
 use visualisation_utils::font::get_font;
 
@@ -60,6 +60,7 @@ impl Blizzard {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string("day24/input.txt")?;
+    let font = get_font();
 
     let mut blizzards = vec![];
     let mut start_x = -1;
@@ -95,7 +96,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut result_part1 = 0;
     let mut result_part2 = 0;
 
-    let (canvas_width, canvas_height) = (200, 40);
+    let pad = 12;
+    let pad_i32 = i32::try_from(pad).unwrap();
+    let (canvas_width, canvas_height) = (
+        usize::try_from(width).unwrap() * 4 + pad * 2,
+        usize::try_from(height).unwrap() * 4 + pad * 3 + font.line_height(),
+    );
     let mut encoder = LoopEncoder::new("day24/output.gif", (canvas_width, canvas_height));
 
     loop {
@@ -131,28 +137,66 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             result_part1 += 1;
         }
 
-        let mut pixel_map = PixelMap::new((canvas_width, canvas_height));
+        for subframe in 0..4 {
+            let mut pixel_map = PixelMap::new((canvas_width, canvas_height));
 
-        for blizzard in &blizzards {
-            pixel_map.set(
-                (
-                    (blizzard.x + 10).try_into().unwrap(),
-                    (blizzard.y + 10).try_into().unwrap(),
-                ),
+            for blizzard in &blizzards {
+                let mut pos = (blizzard.x * 4, blizzard.y * 4);
+                for _ in 0..subframe {
+                    pos = blizzard.heading.go(pos);
+                }
+                let (x, y) = (
+                    usize::try_from(pos.0 + pad_i32).unwrap(),
+                    usize::try_from(pos.1 + pad_i32).unwrap(),
+                );
+                pixel_map.set((x, y), 3);
+                match blizzard.heading {
+                    Heading::Right => {
+                        pixel_map.set((x - 1, y - 1), 3);
+                        pixel_map.set((x - 1, y + 1), 3);
+                    }
+                    Heading::Down => {
+                        pixel_map.set((x - 1, y - 1), 3);
+                        pixel_map.set((x + 1, y - 1), 3);
+                    }
+                    Heading::Left => {
+                        pixel_map.set((x + 1, y - 1), 3);
+                        pixel_map.set((x + 1, y + 1), 3);
+                    }
+                    Heading::Up => {
+                        pixel_map.set((x - 1, y + 1), 3);
+                        pixel_map.set((x + 1, y + 1), 3);
+                    }
+                }
+            }
+            for expedition in &expeditions {
+                let (x, y) = (
+                    usize::try_from(expedition.0 * 4 + pad_i32).unwrap(),
+                    usize::try_from(expedition.1 * 4 + pad_i32).unwrap(),
+                );
+                pixel_map.set((x, y), 5);
+                pixel_map.set((x + 1, y), 4);
+                pixel_map.set((x, y + 1), 4);
+                pixel_map.set((x - 1, y), 4);
+                pixel_map.set((x, y - 1), 4);
+            }
+
+            let text_part1 = format!("P1 {:3}", result_part1);
+            font.write_text(
+                &mut pixel_map,
+                text_part1.as_str(),
+                (pad, canvas_height - font.line_height() - pad),
+                2,
+            );
+            font.write_text(
+                &mut pixel_map,
+                format!("{} P2 {:3}", " ".repeat(text_part1.len()), result_part2).as_str(),
+                (pad, canvas_height - font.line_height() - pad),
                 3,
             );
-        }
-        for expedition in &expeditions {
-            pixel_map.set(
-                (
-                    (expedition.0 + 10).try_into().unwrap(),
-                    (expedition.1 + 10).try_into().unwrap(),
-                ),
-                5,
-            );
-        }
 
-        encoder.write(pixel_map.to_vec());
+            encoder.write(pixel_map.to_vec());
+        }
 
         if let Some(&endpoint) = expeditions.iter().find(|(_, y)| *y == target_y) {
             if has_snacks {
