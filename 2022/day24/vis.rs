@@ -1,3 +1,4 @@
+use std::iter::once;
 use std::{collections::HashSet, vec};
 
 use strum::IntoEnumIterator;
@@ -117,7 +118,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .flat_map(|expedition| {
                 Heading::iter()
                     .map(|heading| heading.go(*expedition))
-                    .chain(vec![*expedition].into_iter())
+                    .chain(once(*expedition))
                     .filter_map(|moved| {
                         let (x, y) = moved;
                         let is_startpoint = y == -1 && x == start_x;
