@@ -117,11 +117,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             })
             .collect();
 
-        let target_y = if is_going_back { 0 } else { height - 1 };
-
-        if result_part2 > 1000 {
-            panic!("uh oh!?")
-        }
+        let target_y = if is_going_back { -1 } else { height };
 
         result_part2 += 1;
         if !is_going_back && !has_snacks {
