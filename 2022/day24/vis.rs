@@ -3,6 +3,10 @@ use std::{collections::HashSet, str::FromStr, vec};
 use strum::IntoEnumIterator;
 use strum_macros::{EnumIter, EnumString};
 
+use visualisation_utils::canvas::{self, Canvas, PixelMap};
+use visualisation_utils::encoder::LoopEncoder;
+use visualisation_utils::font::get_font;
+
 #[derive(Debug, Clone, Copy, PartialEq, EnumString, EnumIter)]
 enum Heading {
     #[strum(serialize = ">")]
@@ -49,8 +53,8 @@ impl Blizzard {
         if new_y >= height {
             new_y = 0
         }
-        self.x = new_x;
-        self.y = new_y;
+        *x = new_x;
+        *y = new_y;
     }
 }
 
@@ -91,6 +95,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut result_part1 = 0;
     let mut result_part2 = 0;
 
+    let (canvas_width, canvas_height) = (200, 40);
+    let mut encoder = LoopEncoder::new("day24/output.gif", (canvas_width, canvas_height));
+
     loop {
         let mut occupied_spots = HashSet::new();
 
@@ -124,10 +131,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             result_part1 += 1;
         }
 
-        dbg!(result_part1);
-        dbg!(result_part2);
-        dbg!(expeditions.len());
-        dbg!(occupied_spots.len());
+        let mut pixel_map = PixelMap::new((canvas_width, canvas_height));
+
+        for blizzard in &blizzards {
+            pixel_map.set(
+                (
+                    (blizzard.x + 10).try_into().unwrap(),
+                    (blizzard.y + 10).try_into().unwrap(),
+                ),
+                3,
+            );
+        }
+        for expedition in &expeditions {
+            pixel_map.set(
+                (
+                    (expedition.0 + 10).try_into().unwrap(),
+                    (expedition.1 + 10).try_into().unwrap(),
+                ),
+                5,
+            );
+        }
+
+        encoder.write(pixel_map.to_vec());
 
         if let Some(&endpoint) = expeditions.iter().find(|(_, y)| *y == target_y) {
             if has_snacks {
