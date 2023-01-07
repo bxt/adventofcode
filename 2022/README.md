@@ -42,18 +42,18 @@ Day | Deno        | Rust        | Visual     | Description
 12  |             | [✓][rust12] |            | [Shortest path into a hill][aoc12]
 13  |             | [✓][rust13] |            | [Parsing and comparing lists][aoc13]
 14  |             | [✓][rust14] | [✓][vis14] | [Falling sand][aoc14]
-15  |             |             |            |
-16  |             |             |            |
-17  |             |             |            |
-18  |             |             |            |
-19  |             |             |            |
-20  |             |             |            |
-21  |             |             |            |
-22  |             |             |            |
-23  |             |             |            |
-24  |             |             |            |
-25  |             |             |            |
-Σ   |           3 |          14 |          3 |
+15  |             | [✓][rust15] |            | [Manhattan scanner beacon radii][aoc15]
+16  |             | [-][rust16] |            | [Valve opening order][aoc16]
+17  |             | [a][rust17] |            | [Very long rock tetris][aoc17]
+18  |             | [✓][rust18] |            | [Connected lava voxel droplet][aoc18]
+19  |             | [-][rust19] |            | [building geode-collecting robots][aoc19]
+20  |             | [-][rust20] |            | [Number list mixing encryption][aoc20]
+21  |             | [✓][rust21] |            | [Solving a bunch of equations for monkey yelling][aoc21]
+22  |             | [✓][rust22] | [a][vis22] | [Walking around a cube][aoc22]
+23  |             | [✓][rust23] |            | [Elves distancing][aoc23]
+24  |             | [✓][rust24] | [✓][vis24] | [Dodging blizzards][aoc24]
+25  |             | [✓][rust25] |            | [SNAFU base 5 en-/decoding][aoc25]
+Σ   |           3 |        21.5 |          5 |
 
 Other solutions
 ---------------
@@ -119,6 +119,19 @@ year I follow (A-Z):
  [rust12]: day12/main.rs
  [rust13]: day13/main.rs
  [rust14]: day14/main.rs
+ [rust15]: day15/main.rs
+ [rust16]: day16/main.rs
+ [rust17]: day17/main.rs
+ [rust18]: day18/main.rs
+ [rust19]: day19/main.rs
+ [rust20]: day20/main.rs
+ [rust21]: day21/main.rs
+ [rust22]: day22/main.rs
+ [rust23]: day23/main.rs
+ [rust24]: day24/main.rs
+ [rust25]: da25/main.rs
  [vis08]: day08/vis.rs
  [vis09]: day09/vis.rs
  [vis14]: day14/vis.rs
+ [vis22]: day22/vis.rs
+ [vis24]: day24/vis.rs
