@@ -37,8 +37,7 @@ impl From<&SnafuNumber> for u64 {
         let mut value = 0;
         for &digit in &number.0 {
             value *= 5;
-            let digit_value = i64::from(digit);
-            value += digit_value;
+            value += i64::from(digit);
         }
         value.try_into().unwrap()
     }
