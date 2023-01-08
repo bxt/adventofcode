@@ -1,7 +1,10 @@
-use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter, EnumString};
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
-#[derive(Debug, Clone, Copy, PartialEq, EnumString, EnumIter, Display)]
+use strum::IntoEnumIterator;
+use strum_macros::{EnumIter, EnumString};
+
+#[derive(Debug, Clone, Copy, PartialEq, EnumString, EnumIter, strum_macros::Display)]
 enum SnafuDigit {
     #[strum(serialize = "=")]
     DoubleMinus = -2,
@@ -15,63 +18,80 @@ enum SnafuDigit {
     Two,
 }
 
-fn snafu_digits_from_str(input: &str) -> Vec<SnafuDigit> {
-    input
-        .split("")
-        .filter_map(|letter| letter.parse().ok())
-        .collect()
-}
-
-fn parse_input(input: &str) -> Vec<Vec<SnafuDigit>> {
-    input.trim().lines().map(snafu_digits_from_str).collect()
-}
-
-fn i64_from_snafu_digit(input: SnafuDigit) -> i64 {
-    input as i64
-}
-
-fn snafu_digit_from_i64(input: i64) -> SnafuDigit {
-    SnafuDigit::iter().find(|&e| e as i64 == input).unwrap()
-}
-
-fn u64_from_snafu_digits(input: &Vec<SnafuDigit>) -> u64 {
-    let mut value = 0;
-    for &digit in input {
-        value *= 5;
-        value += i64_from_snafu_digit(digit);
+impl From<SnafuDigit> for i64 {
+    fn from(input: SnafuDigit) -> i64 {
+        input as i64
     }
-    value.try_into().unwrap()
 }
 
-fn snafu_digits_from_u64(input: u64) -> Vec<SnafuDigit> {
-    let mut number = input;
-    let mut digits = vec![];
-    while number != 0 {
-        let (d, m_u64) = (number / 5, number % 5);
-        number = d;
-        let m = i64::try_from(m_u64).unwrap();
-        if m > 2 {
-            number += 1;
-            digits.push(snafu_digit_from_i64(m - 5));
-        } else {
-            digits.push(snafu_digit_from_i64(m));
+impl From<i64> for SnafuDigit {
+    fn from(input: i64) -> Self {
+        Self::iter().find(|&e| i64::from(e) == input).unwrap()
+    }
+}
+
+struct SnafuNumber(Vec<SnafuDigit>);
+
+impl From<&SnafuNumber> for u64 {
+    fn from(number: &SnafuNumber) -> Self {
+        let mut value = 0;
+        for &digit in &number.0 {
+            value *= 5;
+            let digit_value = i64::from(digit);
+            value += digit_value;
         }
+        value.try_into().unwrap()
     }
-    digits.reverse();
-    digits
 }
 
-fn string_from_snafu_digits(input: Vec<SnafuDigit>) -> String {
-    input
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<String>>()
-        .join("")
+impl From<u64> for SnafuNumber {
+    fn from(input: u64) -> Self {
+        let mut number = input;
+        let mut digits = vec![];
+        while number != 0 {
+            let (d, m_u64) = (number / 5, number % 5);
+            number = d;
+            let m = i64::try_from(m_u64).unwrap();
+            if m > 2 {
+                number += 1;
+                digits.push(SnafuDigit::from(m - 5));
+            } else {
+                digits.push(SnafuDigit::from(m));
+            }
+        }
+        digits.reverse();
+        Self(digits)
+    }
 }
 
-fn part1(input: &Vec<Vec<SnafuDigit>>) -> String {
-    let sum = input.iter().map(u64_from_snafu_digits).sum();
-    string_from_snafu_digits(snafu_digits_from_u64(sum))
+impl FromStr for SnafuNumber {
+    type Err = std::fmt::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(
+            s.split("")
+                .filter_map(|letter| letter.parse().ok())
+                .collect(),
+        ))
+    }
+}
+
+impl Display for SnafuNumber {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        for digit in &self.0 {
+            write!(f, "{}", digit)?;
+        }
+        Ok(())
+    }
+}
+
+fn parse_input(input: &str) -> Vec<SnafuNumber> {
+    input.trim().lines().map(|s| s.parse().unwrap()).collect()
+}
+
+fn part1(input: &Vec<SnafuNumber>) -> String {
+    let sum: u64 = input.into_iter().map(u64::from).sum();
+    SnafuNumber::from(sum).to_string()
 }
 
 #[test]
@@ -105,14 +125,8 @@ fn check_part1() {
         (37, "122"),
     ];
     for (number, snafu_digit_string) in examples {
-        assert_eq!(
-            u64_from_snafu_digits(&snafu_digits_from_str(snafu_digit_string)),
-            number
-        );
-        assert_eq!(
-            string_from_snafu_digits(snafu_digits_from_u64(number)),
-            snafu_digit_string
-        );
+        assert_eq!(u64::from(&snafu_digit_string.parse().unwrap()), number);
+        assert_eq!(SnafuNumber::from(number).to_string(), snafu_digit_string);
     }
 }
 
