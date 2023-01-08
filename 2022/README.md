@@ -129,7 +129,7 @@ year I follow (A-Z):
  [rust22]: day22/main.rs
  [rust23]: day23/main.rs
  [rust24]: day24/main.rs
- [rust25]: da25/main.rs
+ [rust25]: day25/main.rs
  [vis08]: day08/vis.rs
  [vis09]: day09/vis.rs
  [vis14]: day14/vis.rs
