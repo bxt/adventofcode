@@ -53,6 +53,42 @@ fn is_possible(game: &Game) -> bool {
     })
 }
 
+fn minimum_cube_set<'a>(game: &Game) -> Vec<(&'a str, u32)> {
+    game.picks.iter().fold(
+        vec![("red", 0), ("green", 0), ("blue", 0)],
+        |pick1: Vec<(&str, u32)>, pick2| {
+            pick1
+                .iter()
+                .map(|(color, count)| {
+                    let count2 = pick2
+                        .iter()
+                        .filter_map(|(color2, count)| (color2 == color).then_some(*count))
+                        .next()
+                        .unwrap_or(0);
+                    (*color, std::cmp::max(*count, count2))
+                })
+                .collect()
+        },
+    )
+}
+
+#[test]
+fn check_minimum_cube_set() {
+    assert_eq!(
+        minimum_cube_set(&parse_line(
+            "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
+        )),
+        vec![("red", 4), ("green", 2), ("blue", 6)],
+    );
+}
+
+fn power_of_minimum_cube_set(game: &Game) -> u32 {
+    minimum_cube_set(game)
+        .iter()
+        .map(|(_, count)| count)
+        .product()
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day02/input.txt")?;
 
@@ -70,6 +106,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .sum();
 
     println!("part 1: {:?}", possible_game_id_sum);
+
+    let power_sum: u32 = parsed_lines
+        .iter()
+        .map(|game| power_of_minimum_cube_set(game))
+        .sum();
+
+    println!("part 2: {:?}", power_sum);
 
     Ok(())
 }
