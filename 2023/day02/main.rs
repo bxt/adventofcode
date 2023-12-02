@@ -4,45 +4,41 @@ struct Game<'a> {
     picks: Vec<Vec<(&'a str, u32)>>,
 }
 
-fn parse_line(line: &str) -> Option<Game> {
-    let mut line_bits = line.split(": ");
-    let id = line_bits.next()?.split(" ").nth(1)?.parse::<u32>().ok()?;
+fn parse_line(line: &str) -> Game {
+    let mut line_strs = line.split(": ");
+    let id_str = line_strs.next().unwrap().split(" ").nth(1).unwrap();
+    let id = id_str.parse::<u32>().unwrap();
 
-    let picks = line_bits
-        .next()?
-        .split("; ")
+    let pick_strs = line_strs.next().unwrap().split("; ");
+    let picks = pick_strs
         .map(|pick_str| {
             pick_str
                 .split(", ")
                 .map(|cubes_str| {
-                    let mut cubes_bits = cubes_str.split(" ");
-                    let count_str = cubes_bits.next().ok_or("no bit")?;
-                    let count = count_str.parse::<u32>().map_err(|err| err.to_string())?;
-                    let color = cubes_bits.next().ok_or("no color")?;
-                    Ok((color, count))
-                })
-                .map(|cube| {
-                    cube.unwrap_or_else(|err: String| panic!("Ouch: {:?} with {:?}", line, err))
+                    let mut cubes_strs = cubes_str.split(" ");
+                    let count = cubes_strs.next().unwrap().parse::<u32>().unwrap();
+                    let color = cubes_strs.next().unwrap();
+                    (color, count)
                 })
                 .collect()
         })
         .collect();
 
-    Some(Game { id, picks })
+    Game { id, picks }
 }
 
 #[test]
 fn check_parse_line() {
     assert_eq!(
         parse_line("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
-        Some(Game {
+        Game {
             id: 1,
             picks: vec![
                 vec![("blue", 3), ("red", 4)],
                 vec![("red", 1), ("green", 2), ("blue", 6)],
                 vec![("green", 2)]
             ]
-        })
+        }
     );
 }
 
@@ -64,7 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .split("\n")
         .map(|line| line.trim())
         .filter(|line| !line.is_empty())
-        .map(|line| parse_line(&line).unwrap_or_else(|| panic!("Ouch: {:?}", line)))
+        .map(|line| parse_line(&line))
         .collect::<Vec<Game>>();
 
     let possible_game_id_sum: u32 = parsed_lines
