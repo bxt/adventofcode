@@ -77,6 +77,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         None => current_number = Some(digit),
                         Some(prev_number) => current_number = Some(prev_number * 10 + digit),
                     }
+
                     let neighbors = coord.eight_neighbors();
 
                     let neighboring_gears = neighbors
@@ -94,7 +95,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 None => match current_number {
                     None => {}
                     Some(number) => {
-                        numbers.push((number, current_symbol));
+                        if current_symbol.is_some() {
+                            numbers.push(number);
+                        }
                         for gear in current_gears {
                             gears.entry(gear).or_insert_with(|| vec![]).push(number);
                         }
@@ -108,21 +111,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!(
-        "part 1: {:?}",
-        numbers
-            .into_iter()
-            .filter_map(|(number, symbol)| symbol.map(|_| number))
-            .sum::<u32>()
-    );
+    println!("part 1: {:?}", numbers.into_iter().sum::<u32>());
 
-    println!(
-        "part 2: {:?}",
-        gears
-            .iter()
-            .filter_map(|(_, numbers)| (numbers.len() == 2).then(|| numbers[0] * numbers[1]))
-            .sum::<u32>()
-    );
+    let gear_ratio_sum = gears
+        .iter()
+        .filter_map(|(_, numbers)| (numbers.len() == 2).then(|| numbers[0] * numbers[1]))
+        .sum::<u32>();
+    println!("part 2: {:?}", gear_ratio_sum);
 
     Ok(())
 }
