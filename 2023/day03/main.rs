@@ -20,7 +20,7 @@ impl<T: Add<Output = T>> Add for Coord<T> {
 
 impl Coord<i32> {
     fn eight_neighbors(self) -> Vec<Self> {
-        vec![
+        let offsets = vec![
             Coord(-1, -1),
             Coord(0, -1),
             Coord(1, -1),
@@ -29,23 +29,29 @@ impl Coord<i32> {
             Coord(-1, 1),
             Coord(0, 1),
             Coord(1, 1),
-        ]
-        .into_iter()
-        .map(|coord| self + coord)
-        .collect::<Vec<_>>()
+        ];
+        offsets.into_iter().map(|coord| self + coord).collect()
     }
 
-    fn on<'a>(self, lines: &'a Vec<&'a str>) -> Option<&str> {
-        let Coord(line_index, index) = self;
-        (line_index >= 0 && index >= 0)
+    fn on<'a>(self, field: &'a Vec<&'a str>) -> Option<&str> {
+        (self.0 >= 0 && self.1 >= 0)
             .then(|| {
-                let line_index_usize = usize::try_from(line_index).unwrap();
-                let index_usize = usize::try_from(index).unwrap();
-                (line_index_usize < lines.len() && index_usize < lines[line_index_usize].len())
-                    .then(|| &lines[line_index_usize][index_usize..index_usize + 1])
+                let index0 = usize::try_from(self.0).unwrap();
+                let index1 = usize::try_from(self.1).unwrap();
+                (index0 < field.len() && index1 < field[index0].len())
+                    .then(|| &field[index0][index1..index1 + 1])
             })
             .flatten()
     }
+}
+
+fn enumerate_field<'a>(field: &'a Vec<&'a str>) -> impl Iterator<Item = (i32, i32)> + 'a {
+    (0..field.len()).map(|index0| {
+        let line = field[index0];
+        let index0_i32 = i32::try_from(index0).unwrap();
+        let index1_extend = i32::try_from(line.len()).unwrap();
+        (index0_i32, index1_extend)
+    })
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -59,16 +65,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut numbers = vec![];
     let mut gears = HashMap::new();
 
-    for line_index_usize in 0..lines.len() {
-        let line = lines[line_index_usize];
-        let line_index = i32::try_from(line_index_usize).unwrap();
-
+    for (line_index, line_length) in enumerate_field(&lines) {
         let mut current_number = None;
         let mut current_symbol = None;
         let mut current_gears: HashSet<Coord<i32>> = HashSet::new();
 
-        for index_usize in 0..(line.len() + 1) {
-            let index = i32::try_from(index_usize).unwrap();
+        for index in 0..line_length + 1 {
             let coord = Coord(line_index, index);
 
             match coord.on(&lines).and_then(|l| l.parse::<u32>().ok()) {
