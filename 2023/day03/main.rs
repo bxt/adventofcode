@@ -2,9 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::iter::once;
 use std::ops::Add;
 
-fn try_into_symbol(letter: &str) -> Option<&str> {
-    let is_symbol = letter != "." && letter.parse::<u32>().is_err();
-    is_symbol.then_some(letter)
+fn is_symbol(letter: &&str) -> bool {
+    *letter != "." && letter.parse::<u32>().is_err()
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -82,15 +81,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     let neighboring_gears = neighbors
                         .iter()
-                        .filter_map(|&coord| (coord.on(&lines) == Some("*")).then_some(coord));
+                        .filter(|&coord| coord.on(&lines) == Some("*"));
                     current_gears.extend(neighboring_gears);
 
                     current_symbol = neighbors
                         .into_iter()
-                        .map(|coord| coord.on(&lines))
+                        .map(|coord| coord.on(&lines).filter(is_symbol))
                         .chain(once(current_symbol))
-                        .map(|l| l.and_then(try_into_symbol))
-                        .find(|option| option.is_some())
+                        .find(Option::is_some)
                         .flatten();
                 }
                 None => match current_number {
@@ -98,8 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     Some(number) => {
                         numbers.push((number, current_symbol));
                         for gear in current_gears {
-                            let values = gears.entry(gear).or_insert_with(|| vec![]);
-                            values.push(number);
+                            gears.entry(gear).or_insert_with(|| vec![]).push(number);
                         }
 
                         current_number = None;
