@@ -1,22 +1,51 @@
 use std::collections::{HashMap, HashSet};
 use std::iter::once;
-
-type Coord = (i32, i32);
+use std::ops::Add;
 
 fn try_into_symbol(letter: &str) -> Option<&str> {
     let is_symbol = letter != "." && letter.parse::<u32>().is_err();
     is_symbol.then_some(letter)
 }
 
-fn at<'a>(lines: &'a Vec<&'a str>, (line_index, index): Coord) -> Option<&str> {
-    (line_index >= 0 && index >= 0)
-        .then(|| {
-            let line_index_usize = usize::try_from(line_index).unwrap();
-            let index_usize = usize::try_from(index).unwrap();
-            (line_index_usize < lines.len() && index_usize < lines[line_index_usize].len())
-                .then(|| &lines[line_index_usize][index_usize..index_usize + 1])
-        })
-        .flatten()
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+struct Coord<T>(T, T);
+
+impl<T: Add<Output = T>> Add for Coord<T> {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl Coord<i32> {
+    fn eight_neighbors(self) -> Vec<Self> {
+        vec![
+            Coord(-1, -1),
+            Coord(0, -1),
+            Coord(1, -1),
+            Coord(-1, 0),
+            Coord(1, 0),
+            Coord(-1, 1),
+            Coord(0, 1),
+            Coord(1, 1),
+        ]
+        .into_iter()
+        .map(|coord| self + coord)
+        .collect::<Vec<_>>()
+    }
+
+    fn on<'a>(self, lines: &'a Vec<&'a str>) -> Option<&str> {
+        let Coord(line_index, index) = self;
+        (line_index >= 0 && index >= 0)
+            .then(|| {
+                let line_index_usize = usize::try_from(line_index).unwrap();
+                let index_usize = usize::try_from(index).unwrap();
+                (line_index_usize < lines.len() && index_usize < lines[line_index_usize].len())
+                    .then(|| &lines[line_index_usize][index_usize..index_usize + 1])
+            })
+            .flatten()
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -36,37 +65,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut current_number = None;
         let mut current_symbol = None;
-        let mut current_gears: HashSet<Coord> = HashSet::new();
+        let mut current_gears: HashSet<Coord<i32>> = HashSet::new();
 
         for index_usize in 0..(line.len() + 1) {
             let index = i32::try_from(index_usize).unwrap();
-            let coord = (line_index, index);
+            let coord = Coord(line_index, index);
 
-            match at(&lines, coord).and_then(|letter| letter.parse::<u32>().ok()) {
+            match coord.on(&lines).and_then(|l| l.parse::<u32>().ok()) {
                 Some(digit) => {
                     match current_number {
                         None => current_number = Some(digit),
                         Some(prev_number) => current_number = Some(prev_number * 10 + digit),
                     }
-                    let neighbors = vec![
-                        (line_index - 1, index - 1),
-                        (line_index, index - 1),
-                        (line_index + 1, index - 1),
-                        (line_index - 1, index),
-                        (line_index + 1, index),
-                        (line_index - 1, index + 1),
-                        (line_index, index + 1),
-                        (line_index + 1, index + 1),
-                    ];
+                    let neighbors = coord.eight_neighbors();
 
                     let neighboring_gears = neighbors
                         .iter()
-                        .filter_map(|&coord| (at(&lines, coord) == Some("*")).then_some(coord));
+                        .filter_map(|&coord| (coord.on(&lines) == Some("*")).then_some(coord));
                     current_gears.extend(neighboring_gears);
 
                     current_symbol = neighbors
                         .into_iter()
-                        .map(|coord| at(&lines, coord))
+                        .map(|coord| coord.on(&lines))
                         .chain(once(current_symbol))
                         .map(|l| l.and_then(try_into_symbol))
                         .find(|option| option.is_some())
