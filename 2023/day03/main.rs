@@ -34,14 +34,13 @@ impl Coord<i32> {
     }
 
     fn on<'a>(self, field: &'a Vec<&'a str>) -> Option<&str> {
-        (self.0 >= 0 && self.1 >= 0)
-            .then(|| {
-                let index0 = usize::try_from(self.0).unwrap();
-                let index1 = usize::try_from(self.1).unwrap();
-                (index0 < field.len() && index1 < field[index0].len())
-                    .then(|| &field[index0][index1..index1 + 1])
-            })
-            .flatten()
+        if self.0 < 0 || self.1 < 0 {
+            return None;
+        }
+        let index0 = usize::try_from(self.0).unwrap();
+        let index1 = usize::try_from(self.1).unwrap();
+        (index0 < field.len() && index1 < field[index0].len())
+            .then(|| &field[index0][index1..index1 + 1])
     }
 }
 
