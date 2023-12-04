@@ -1,5 +1,4 @@
 use std::collections::{HashMap, HashSet};
-use std::iter::once;
 use std::ops::Add;
 
 fn is_symbol(letter: &&str) -> bool {
@@ -65,8 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for (line_index, line_length) in enumerate_field(&lines) {
         let mut current_number = None;
-        let mut current_symbol = None;
-        let mut current_gears: HashSet<Coord<i32>> = HashSet::new();
+        let mut current_neighbors: HashSet<Coord<i32>> = HashSet::new();
 
         for index in 0..line_length + 1 {
             let coord = Coord(line_index, index);
@@ -79,32 +77,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
 
                     let neighbors = coord.eight_neighbors();
-
-                    let neighboring_gears = neighbors
-                        .iter()
-                        .filter(|&coord| coord.on(&lines) == Some("*"));
-                    current_gears.extend(neighboring_gears);
-
-                    current_symbol = neighbors
-                        .into_iter()
-                        .map(|coord| coord.on(&lines).filter(is_symbol))
-                        .chain(once(current_symbol))
-                        .find(Option::is_some)
-                        .flatten();
+                    current_neighbors.extend(neighbors);
                 }
                 None => match current_number {
                     None => {}
                     Some(number) => {
-                        if current_symbol.is_some() {
+                        let has_symbol = current_neighbors
+                            .iter()
+                            .any(|coord| coord.on(&lines).filter(is_symbol).is_some());
+                        if has_symbol {
                             numbers.push(number);
                         }
-                        for gear in current_gears {
+
+                        let gear_coords = current_neighbors
+                            .iter()
+                            .filter(|&coord| coord.on(&lines) == Some("*"));
+                        for &gear in gear_coords {
                             gears.entry(gear).or_insert_with(|| vec![]).push(number);
                         }
 
                         current_number = None;
-                        current_symbol = None;
-                        current_gears = HashSet::new();
+                        current_neighbors = HashSet::new();
                     }
                 },
             }
