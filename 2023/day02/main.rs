@@ -5,20 +5,17 @@ struct Game<'a> {
 }
 
 fn parse_line(line: &str) -> Game {
-    let mut line_strs = line.split(": ");
-    let id_str = line_strs.next().unwrap().split(" ").nth(1).unwrap();
-    let id = id_str.parse::<u32>().unwrap();
+    let (id_str, picks_str) = line.split_once(": ").unwrap();
+    let id = id_str.split_once(" ").unwrap().1.parse::<u32>().unwrap();
 
-    let pick_strs = line_strs.next().unwrap().split("; ");
-    let picks = pick_strs
+    let picks = picks_str
+        .split("; ")
         .map(|pick_str| {
             pick_str
                 .split(", ")
                 .map(|cubes_str| {
-                    let mut cubes_strs = cubes_str.split(" ");
-                    let count = cubes_strs.next().unwrap().parse::<u32>().unwrap();
-                    let color = cubes_strs.next().unwrap();
-                    (color, count)
+                    let (count_str, color) = cubes_str.split_once(" ").unwrap();
+                    (color, count_str.parse::<u32>().unwrap())
                 })
                 .collect()
         })
