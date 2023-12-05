@@ -100,6 +100,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let map_y = |y_orig: i64| ((y_orig as f64) * field_height / highest_number).floor() as usize;
 
+    let mut seeds_interpolated_history = vec![];
+
     for mapping_index in 0..mappings.len() {
         let mapping_offset = mapping_index * mapping_width;
         let addition = if mapping_index == mappings.len() - 1 {
@@ -138,11 +140,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let min_seed = *seeds_interpolated.iter().min().unwrap();
 
-            for seed in seeds_interpolated {
-                padded_pixel_map.set((offset, map_y(seed)), 4);
+            if !is_in_addition {
+                seeds_interpolated_history.push(seeds_interpolated);
             }
 
-            padded_pixel_map.set((offset, map_y(min_seed)), 5);
+            for (offset, seeds_interpolated) in seeds_interpolated_history.iter().enumerate() {
+                let min_seed = *seeds_interpolated.iter().min().unwrap();
+
+                for seed in seeds_interpolated {
+                    let last_index = seeds_interpolated_history.len() - 1;
+                    let value = if offset == last_index { 4 } else { 3 };
+                    padded_pixel_map.set((offset, map_y(*seed)), value);
+                }
+
+                padded_pixel_map.set((offset, map_y(min_seed)), 5);
+            }
 
             font.write_text(
                 &mut pixel_map,
