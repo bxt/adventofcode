@@ -56,6 +56,7 @@ year I follow (A-Z):
 * [aleksandar9](https://github.com/aleksandar9/advent-of-code-2023-kotlin) (Kotlin)
 * [carlastabile](https://github.com/carlastabile/advent-of-code/tree/main/2023) (Ruby)
 * [certainty](https://github.com/certainty/advent_of_code/tree/main/2023) (Lisp)
+* [DerDodo](https://github.com/DerDodo/AdventOfCode2023) (Python)
 * [fdlk](https://github.com/fdlk/advent-2023) (Scala)
 * [gabrielpedepera](https://github.com/gabrielpedepera/advent-of-code-2023) (Elixir)
 * [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2023) (Haskell)
