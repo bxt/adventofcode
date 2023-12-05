@@ -7,36 +7,7 @@ struct Rerange {
     length: i64,
 }
 
-trait OptionalReranger {
-    fn translate(&self, number: i64) -> Option<i64>;
-}
-
-trait Reranger {
-    fn translate(&self, number: i64) -> i64;
-}
-
-impl OptionalReranger for Rerange {
-    fn translate(&self, number: i64) -> Option<i64> {
-        (number >= self.source && number < self.source + self.length)
-            .then_some(number - self.source + self.destination)
-    }
-}
-
-impl Reranger for Vec<Rerange> {
-    fn translate(&self, number: i64) -> i64 {
-        self.iter()
-            .map(|rerange| rerange.translate(number))
-            .find(Option::is_some)
-            .unwrap_or(Some(number))
-            .unwrap()
-    }
-}
-
-impl Reranger for Vec<Vec<Rerange>> {
-    fn translate(&self, number: i64) -> i64 {
-        self.iter().fold(number, |acc, n| n.translate(acc))
-    }
-}
+#[inline(always)]
 fn mk_rerange(source: i64, destination: i64, length: i64) -> Rerange {
     Rerange {
         source,
@@ -90,7 +61,7 @@ fn chain_reranges(input: Rerange, ontop: Rerange) -> (Vec<Rerange>, Vec<Rerange>
                     vec![Rerange {
                         source: ontop.source - input.destination + input.source,
                         destination: ontop.destination,
-                        length: ontop.length + past_ontop, // +1?
+                        length: ontop.length + past_ontop,
                     }],
                 )
             } else {
@@ -118,20 +89,20 @@ fn chain_reranges(input: Rerange, ontop: Rerange) -> (Vec<Rerange>, Vec<Rerange>
     }
 }
 
-fn chain_all_reranges(input: Vec<Rerange>, ontop: Vec<Rerange>) -> Vec<Rerange> {
-    let mut input_mut = input;
+fn chain_all_reranges(inputs: Vec<Rerange>, ontops: Vec<Rerange>) -> Vec<Rerange> {
+    let mut inputs_mut = inputs;
     let mut output = vec![];
-    for o in ontop.iter() {
-        input_mut = input_mut
+    for ontop in ontops.iter() {
+        inputs_mut = inputs_mut
             .into_iter()
-            .flat_map(|i| {
-                let (new_inputs, outputs) = chain_reranges(i, *o);
+            .flat_map(|input| {
+                let (new_inputs, outputs) = chain_reranges(input, *ontop);
                 output.extend(outputs.into_iter());
                 new_inputs.into_iter()
             })
             .collect();
     }
-    output.extend(input_mut.into_iter());
+    output.extend(inputs_mut.into_iter());
     output
 }
 
@@ -189,28 +160,6 @@ fn check_chain_reranges() {
 }
 
 #[test]
-fn check_translate() {
-    let rerange1 = mk_rerange(98, 50, 2);
-    assert_eq!(rerange1.translate(97), None);
-    assert_eq!(rerange1.translate(98), Some(50));
-    assert_eq!(rerange1.translate(99), Some(51));
-    assert_eq!(rerange1.translate(100), None);
-    let rerange2 = mk_rerange(50, 52, 48);
-    assert_eq!(rerange2.translate(49), None);
-    assert_eq!(rerange2.translate(50), Some(52));
-    assert_eq!(rerange2.translate(97), Some(99));
-    assert_eq!(rerange2.translate(98), None);
-    let both = vec![rerange1, rerange2];
-    assert_eq!(both.translate(0), 0);
-    assert_eq!(both.translate(49), 49);
-    assert_eq!(both.translate(50), 52);
-    assert_eq!(both.translate(97), 99);
-    assert_eq!(both.translate(98), 50);
-    assert_eq!(both.translate(99), 51);
-    assert_eq!(both.translate(100), 100);
-}
-
-#[test]
 fn check_chain_all_reranges() {
     let rerange11 = mk_rerange(98, 50, 2);
     let rerange12 = mk_rerange(50, 52, 48);
@@ -228,7 +177,7 @@ fn check_chain_all_reranges() {
     let rerange21 = mk_rerange(15, 0, 37);
     let rerange22 = mk_rerange(52, 37, 2);
     let rerange23 = mk_rerange(0, 39, 15);
-    let chain2 = vec![
+    let reranges = vec![
         vec![rerange0],
         vec![rerange11, rerange12],
         vec![rerange21, rerange22, rerange23],
@@ -238,7 +187,7 @@ fn check_chain_all_reranges() {
     .unwrap();
 
     assert_eq!(
-        chain2,
+        reranges,
         vec![
             mk_rerange(98, 35, 2),
             mk_rerange(15, 0, 35),
@@ -248,10 +197,18 @@ fn check_chain_all_reranges() {
         ]
     );
 
-    assert_eq!(chain2.translate(79), 81);
-    assert_eq!(chain2.translate(14), 53);
-    assert_eq!(chain2.translate(55), 57);
-    assert_eq!(chain2.translate(13), 52);
+    let seeds = vec![79, 14, 55, 13];
+    let bootstrap_reranges = seeds.into_iter().map(|s| mk_rerange(s, s, 1)).collect();
+    let rs = chain_all_reranges(bootstrap_reranges, reranges);
+    let mut mapped = rs.into_iter().map(|r| r.destination).collect::<Vec<_>>();
+    mapped.sort();
+    assert_eq!(mapped, vec![52, 53, 57, 81]);
+}
+
+fn find_min_destination(bootstrap_reranges: Vec<Rerange>, reranges: Vec<Vec<Rerange>>) -> i64 {
+    let all_reranges = once(bootstrap_reranges).chain(reranges.into_iter());
+    let reduced = all_reranges.reduce(chain_all_reranges).unwrap();
+    reduced.into_iter().map(|r| r.destination).min().unwrap()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -292,38 +249,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let destination = one.parse::<i64>().unwrap();
                     let source = two.parse::<i64>().unwrap();
                     let length = three.parse::<i64>().unwrap();
-                    Rerange {
-                        source,
-                        destination,
-                        length,
-                    }
+                    mk_rerange(source, destination, length)
                 })
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
-    println!(
-        "Part 1: {:?}",
-        seeds
-            .iter()
-            .map(|&seed| reranges.translate(seed))
-            .min()
-            .unwrap()
-    );
+    let single_seeds_as_reranges = seeds.iter().map(|&s| mk_rerange(s, s, 1)).collect();
+    let part1 = find_min_destination(single_seeds_as_reranges, reranges.to_vec());
+    println!("Part 1: {:?}", part1);
 
-    let chained = once(vec![mk_rerange(0, 0, 999999999999)])
-        .chain(reranges.into_iter())
-        .reduce(chain_all_reranges)
-        .unwrap();
+    let paired_seeds_as_reranges = seeds
+        .chunks(2)
+        .map(|chunk| {
+            if let &[source, length] = chunk {
+                mk_rerange(source, source, length)
+            } else {
+                panic!("at the Disco")
+            }
+        })
+        .collect::<Vec<_>>();
 
-    println!(
-        "Part 1: {:?}",
-        seeds
-            .iter()
-            .map(|&seed| chained.translate(seed))
-            .min()
-            .unwrap()
-    );
+    let part2 = find_min_destination(paired_seeds_as_reranges, reranges);
+    println!("Part 2: {:?}", part2);
 
     Ok(())
 }
