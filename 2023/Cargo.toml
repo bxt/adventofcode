@@ -28,3 +28,10 @@ path = "day04/main.rs"
 [[bin]]
 name = "adventofcode2023day05"
 path = "day05/main.rs"
+
+[[bin]]
+name = "adventofcode2023day05vis"
+path = "day05/vis.rs"
+
+[dependencies]
+adventofcode2022 = { path = "../2022" }
