@@ -16,7 +16,7 @@ impl<T: Add<Output = T>> Add for Coord<T> {
     }
 }
 
-impl Coord<i32> {
+impl Coord<isize> {
     fn eight_neighbors(self) -> Vec<Self> {
         let offsets = vec![
             Coord(-1, -1),
@@ -42,12 +42,12 @@ impl Coord<i32> {
     }
 }
 
-fn enumerate_field<'a>(field: &'a Vec<&'a str>) -> impl Iterator<Item = (i32, i32)> + 'a {
+fn enumerate_field<'a>(field: &'a Vec<&'a str>) -> impl Iterator<Item = (isize, isize)> + 'a {
     (0..field.len()).map(|index0| {
         let line = field[index0];
-        let index0_i32 = i32::try_from(index0).unwrap();
-        let index1_extend = i32::try_from(line.len()).unwrap();
-        (index0_i32, index1_extend)
+        let index0_isize = isize::try_from(index0).unwrap();
+        let index1_extend = isize::try_from(line.len()).unwrap();
+        (index0_isize, index1_extend)
     })
 }
 
@@ -64,7 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for (line_index, line_length) in enumerate_field(&lines) {
         let mut current_number = None;
-        let mut current_neighbors: HashSet<Coord<i32>> = HashSet::new();
+        let mut current_neighbors: HashSet<Coord<isize>> = HashSet::new();
 
         for index in 0..line_length + 1 {
             let coord = Coord(line_index, index);
