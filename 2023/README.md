@@ -21,10 +21,10 @@ added a short summary for each day.
 Day | Rust        | Description
 ----|-------------|----------------------------------------------
 01  | [✓][rust01] | [Calibration numbers with digit names][aoc01]
-02  | [-][rust02] | [?][aoc02]
-03  | [-][rust03] | [?][aoc03]
-04  | [-][rust04] | [?][aoc04]
-05  | [-][rust05] | [?][aoc05]
+02  | [✓][rust02] | [Color cube game][aoc02]
+03  | [✓][rust03] | [Numbers and their gear neighbors][aoc03]
+04  | [✓][rust04] | [Scratch card multiplication][aoc04]
+05  | [✓][rust05] | [Seed mapping intervals][aoc05]
 06  | [-][rust06] | [?][aoc06]
 07  | [-][rust07] | [?][aoc07]
 08  | [-][rust08] | [?][aoc08]
