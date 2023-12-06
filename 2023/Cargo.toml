@@ -35,3 +35,7 @@ path = "day05/vis.rs"
 
 [dependencies]
 adventofcode2022 = { path = "../2022" }
+
+[[bin]]
+name = "adventofcode2023day06"
+path = "day06/main.rs"
