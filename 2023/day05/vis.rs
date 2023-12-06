@@ -1,4 +1,4 @@
-use std::cmp::min;
+use std::cmp::{max, min};
 use std::iter::once;
 use std::time::Instant;
 use visualisation_utils::canvas::{Canvas, OffsetCanvas, PixelMap};
@@ -74,10 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .flat_map(|(s, d, l)| once(s + l).chain(once(d + l)))
         .max()
         .unwrap();
-    let highest_number_i64 = once(highest_seed_number)
-        .chain(once(highest_range_number))
-        .max()
-        .unwrap();
+    let highest_number_i64 = max(highest_seed_number, highest_range_number);
     let highest_number = highest_number_i64 as f64;
 
     let mapping_width = 96;
