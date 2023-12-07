@@ -88,11 +88,12 @@ fn check_hand_rank_vector_p1() {
 
 fn hand_rank_vector_p2(hand: &[u8]) -> Vec<usize> {
     let mut tally = counts(hand);
-    if let Some((_, jokers)) = tally.remove_entry(&JOKER) {
+
+    if let Some((_, joker_count)) = tally.remove_entry(&JOKER) {
         if let Some(use_for) = tally.values_mut().max() {
-            *use_for += jokers;
+            *use_for += joker_count;
         } else {
-            tally.insert(JOKER, jokers);
+            tally.insert(JOKER, joker_count);
         }
     }
 
