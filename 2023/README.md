@@ -60,7 +60,7 @@ year I follow (A-Z):
 * [fdlk](https://github.com/fdlk/advent-2023) (Scala)
 * [gabrielpedepera](https://github.com/gabrielpedepera/advent-of-code-2023) (Elixir)
 * [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2023) (Haskell)
-* [jamincan](https://www.reddit.com/user/jamincan) (Rust)
+* [jamincan](https://github.com/jamincan/aoc2023/tree/main) (Rust)
 * [jchevertonwynne](https://github.com/jchevertonwynne/advent-of-code-2023) (Rust)
 * [jonathanpaulson](https://github.com/jonathanpaulson/AdventOfCode/tree/master/2023) (Python)
 * [lvaroqui](https://github.com/lvaroqui/advent-of-code-2023-rust) (Rust)
