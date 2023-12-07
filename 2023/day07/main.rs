@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
+const JOKER: u8 = 11;
+
 fn parse_hand(input: &str) -> Vec<u8> {
     input
         .bytes()
@@ -9,7 +11,7 @@ fn parse_hand(input: &str) -> Vec<u8> {
             b'A' => 14,
             b'K' => 13,
             b'Q' => 12,
-            b'J' => 11,
+            b'J' => JOKER,
             b'T' => 10,
             _ => panic!("Not a card: {b}"),
         })
@@ -50,7 +52,7 @@ fn check_counts() {
     );
 }
 
-fn hand_rank_vector(hand: &[u8]) -> Vec<usize> {
+fn hand_rank_vector_p1(hand: &[u8]) -> Vec<usize> {
     let mut counts = counts(hand)
         .into_iter()
         .map(|(_, count)| count)
@@ -64,27 +66,76 @@ fn hand_rank_vector(hand: &[u8]) -> Vec<usize> {
 }
 
 #[test]
-fn check_hand_rank_vector() {
+fn check_hand_rank_vector_p1() {
     assert_eq!(
-        hand_rank_vector(&parse_hand("32T3K")),
+        hand_rank_vector_p1(&parse_hand("32T3K")),
         vec![2, 1, 1, 1, 3, 2, 10, 3, 13]
     );
     assert_eq!(
-        hand_rank_vector(&parse_hand("KK677")),
+        hand_rank_vector_p1(&parse_hand("KK677")),
         vec![2, 2, 1, 13, 13, 6, 7, 7]
     );
     assert_eq!(
-        hand_rank_vector(&parse_hand("KTJJT")),
+        hand_rank_vector_p1(&parse_hand("KTJJT")),
         vec![2, 2, 1, 13, 10, 11, 11, 10]
     );
     assert_eq!(
-        hand_rank_vector(&parse_hand("T55J5")),
+        hand_rank_vector_p1(&parse_hand("T55J5")),
         vec![3, 1, 1, 10, 5, 5, 11, 5]
     );
 }
 
-fn winnings(input: Vec<(Vec<u8>, i32)>) -> i32 {
-    let mut input_mut = input;
+fn hand_rank_vector_p2(hand: &[u8]) -> Vec<usize> {
+    let mut tally = counts(hand);
+    if let Some((_, jokers)) = tally.remove_entry(&JOKER) {
+        if let Some((&use_for, _)) = tally.iter().max_by_key(|(_, count)| **count) {
+            tally.entry(use_for).and_modify(|e| *e += jokers);
+        } else {
+            tally.insert(JOKER, jokers);
+        }
+    }
+
+    let mut counts = tally
+        .into_iter()
+        .map(|(_, count)| count)
+        .collect::<Vec<_>>();
+    counts.sort();
+    counts.reverse();
+    counts
+        .into_iter()
+        .chain(
+            hand.iter()
+                .map(|&e| if e == JOKER { 1 } else { usize::from(e) }),
+        )
+        .collect()
+}
+
+#[test]
+fn check_hand_rank_vector_p2() {
+    assert_eq!(
+        hand_rank_vector_p2(&parse_hand("32T3K")),
+        vec![2, 1, 1, 1, 3, 2, 10, 3, 13]
+    );
+    assert_eq!(
+        hand_rank_vector_p2(&parse_hand("KK677")),
+        vec![2, 2, 1, 13, 13, 6, 7, 7]
+    );
+    assert_eq!(
+        hand_rank_vector_p2(&parse_hand("KTJJT")),
+        vec![4, 1, 13, 10, 1, 1, 10]
+    );
+    assert_eq!(
+        hand_rank_vector_p2(&parse_hand("T55J5")),
+        vec![4, 1, 10, 5, 5, 1, 5]
+    );
+    assert_eq!(
+        hand_rank_vector_p2(&parse_hand("JJJJJ")),
+        vec![5, 1, 1, 1, 1, 1]
+    );
+}
+
+fn winnings(input: &[(Vec<u8>, i32)], hand_rank_vector: &dyn Fn(&[u8]) -> Vec<usize>) -> i32 {
+    let mut input_mut = input.to_vec();
     input_mut.sort_by_key(|(hand, _)| hand_rank_vector(hand));
     input_mut
         .iter()
@@ -102,14 +153,16 @@ fn check_winnings() {
         (parse_hand("KTJJT"), 220),
         (parse_hand("QQQJA"), 483),
     ];
-    assert_eq!(winnings(example), 6440);
+    assert_eq!(winnings(&example, &hand_rank_vector_p1), 6440);
+    assert_eq!(winnings(&example, &hand_rank_vector_p2), 5905);
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day07/input.txt")?;
     let hands = parse_hands(&file);
 
-    println!("Part 1: {:?}", winnings(hands));
+    println!("Part 1: {:?}", winnings(&hands, &hand_rank_vector_p1));
+    println!("Part 2: {:?}", winnings(&hands, &hand_rank_vector_p2));
 
     Ok(())
 }
