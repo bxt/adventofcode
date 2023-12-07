@@ -39,3 +39,7 @@ adventofcode2022 = { path = "../2022" }
 [[bin]]
 name = "adventofcode2023day06"
 path = "day06/main.rs"
+
+[[bin]]
+name = "adventofcode2023day07"
+path = "day07/main.rs"
