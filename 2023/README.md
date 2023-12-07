@@ -62,6 +62,7 @@ year I follow (A-Z):
 * [glguy](https://github.com/glguy/advent/tree/main/solutions/src/2023) (Haskell)
 * [jamincan](https://www.reddit.com/user/jamincan) (Rust)
 * [jchevertonwynne](https://github.com/jchevertonwynne/advent-of-code-2023) (Rust)
+* [jonathanpaulson](https://github.com/jonathanpaulson/AdventOfCode/tree/master/2023) (Python)
 * [lvaroqui](https://github.com/lvaroqui/advent-of-code-2023-rust) (Rust)
 * [mikededo](https://github.com/mikededo/aoc-2023) (Rust)
 * [sirstrahd](https://github.com/sirstrahd/advent-of-code-2023) (Kotlin)
