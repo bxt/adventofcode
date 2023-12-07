@@ -52,14 +52,15 @@ fn check_counts() {
     );
 }
 
-fn hand_rank_vector_p1(hand: &[u8]) -> Vec<usize> {
-    let mut counts = counts(hand)
-        .into_iter()
-        .map(|(_, count)| count)
-        .collect::<Vec<_>>();
+fn tally_top_list(tally: HashMap<u8, usize>) -> Vec<usize> {
+    let mut counts = tally.into_iter().map(|e| e.1).collect::<Vec<_>>();
     counts.sort();
     counts.reverse();
     counts
+}
+
+fn hand_rank_vector_p1(hand: &[u8]) -> Vec<usize> {
+    tally_top_list(counts(hand))
         .into_iter()
         .chain(hand.iter().map(|e| usize::from(*e)))
         .collect()
@@ -95,13 +96,7 @@ fn hand_rank_vector_p2(hand: &[u8]) -> Vec<usize> {
         }
     }
 
-    let mut counts = tally
-        .into_iter()
-        .map(|(_, count)| count)
-        .collect::<Vec<_>>();
-    counts.sort();
-    counts.reverse();
-    counts
+    tally_top_list(tally)
         .into_iter()
         .chain(
             hand.iter()
