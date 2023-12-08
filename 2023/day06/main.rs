@@ -10,17 +10,15 @@ fn parse_big_number(input: &str) -> u64 {
     *parse_number_list(&input.replace(" ", "")).first().unwrap()
 }
 
-fn count_win_options((time, distance): (u64, u64)) -> u64 {
-    let mut count = 0;
-    for button_time in 0..time {
-        let speed = button_time;
-        let drive_time = time - button_time;
-        let reached_distance = drive_time * speed;
-        if reached_distance > distance {
-            count += 1;
-        }
-    }
-    count
+fn count_win_options((time, distance): (u64, u64)) -> usize {
+    (0..time)
+        .filter(|button_time| {
+            let speed = button_time;
+            let drive_time = time - button_time;
+            let reached_distance = drive_time * speed;
+            reached_distance > distance
+        })
+        .count()
 }
 
 #[test]
@@ -41,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let distances = parse_number_list(distances_str);
     let input = times.into_iter().zip(distances).collect::<Vec<_>>();
 
-    let part1 = input.into_iter().map(count_win_options).product::<u64>();
+    let part1 = input.into_iter().map(count_win_options).product::<usize>();
     println!("Part 1: {:?}", part1);
 
     let time = parse_big_number(times_str);
