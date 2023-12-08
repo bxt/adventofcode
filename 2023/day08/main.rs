@@ -62,5 +62,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", step_count);
 
+    let mut current_nodes = nodes
+        .keys()
+        .map(|&s| s)
+        .filter(|node| node.bytes().nth(2).unwrap() == b'A')
+        .collect::<Vec<_>>();
+    let mut step_count = 0;
+
+    while !current_nodes
+        .iter()
+        .all(|node| node.bytes().nth(2).unwrap() == b'Z')
+    {
+        for i in 0..current_nodes.len() {
+            let go_right = instructions[step_count % instructions.len()];
+            current_nodes[i] = if go_right {
+                nodes[current_nodes[i]].1
+            } else {
+                nodes[current_nodes[i]].0
+            };
+        }
+        if (step_count % 10000000 == 0) {
+            dbg!(step_count, current_nodes.len(), &current_nodes);
+        }
+        step_count += 1;
+    }
+
+    println!("Part 2: {:?}", step_count);
+
     Ok(())
 }
