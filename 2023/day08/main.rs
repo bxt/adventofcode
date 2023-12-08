@@ -1,4 +1,19 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Index};
+
+#[derive(Debug, PartialEq)]
+struct Crossroads<T>(T, T);
+
+impl<T> Index<bool> for Crossroads<T> {
+    type Output = T;
+
+    fn index(&self, index: bool) -> &Self::Output {
+        if index {
+            &self.1
+        } else {
+            &self.0
+        }
+    }
+}
 
 fn parse_instructions(input: &str) -> Vec<bool> {
     input
@@ -19,7 +34,7 @@ fn check_parse_instructions() {
     );
 }
 
-fn parse_nodes(input: &str) -> HashMap<&str, (&str, &str)> {
+fn parse_nodes(input: &str) -> HashMap<&str, Crossroads<&str>> {
     input
         .split("\n")
         .map(|l| l.trim())
@@ -27,7 +42,7 @@ fn parse_nodes(input: &str) -> HashMap<&str, (&str, &str)> {
         .map(|l| {
             let (start, to_str) = l.split_once(" = (").expect(&format!("no equals in '{l}'"));
             let (left, right) = to_str.split_once(", ").expect(&format!("comma in '{l}'?"));
-            (start, (left, right.strip_suffix(")").unwrap()))
+            (start, Crossroads(left, right.strip_suffix(")").unwrap()))
         })
         .collect()
 }
@@ -36,7 +51,10 @@ fn parse_nodes(input: &str) -> HashMap<&str, (&str, &str)> {
 fn check_parse_nodes() {
     assert_eq!(
         parse_nodes("AAA = (BBB, BBB)\nBBB = (AAA, ZZZ)\n"),
-        HashMap::from([("AAA", ("BBB", "BBB")), ("BBB", ("AAA", "ZZZ"))])
+        HashMap::from([
+            ("AAA", Crossroads("BBB", "BBB")),
+            ("BBB", Crossroads("AAA", "ZZZ"))
+        ])
     );
 }
 
@@ -74,11 +92,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     while current_node != "ZZZ" {
         let go_right = instructions[step_count % instructions.len()];
-        current_node = if go_right {
-            nodes[current_node].1
-        } else {
-            nodes[current_node].0
-        };
+        current_node = nodes[current_node][go_right];
         step_count += 1;
     }
 
@@ -111,12 +125,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             seen.insert((instruction_index, current_node), step_count);
 
             let go_right = instructions[instruction_index];
-            current_node = if go_right {
-                nodes[current_node].1
-            } else {
-                nodes[current_node].0
-            };
-
+            current_node = nodes[current_node][go_right];
             step_count += 1;
 
             if is_end_node(current_node) {
