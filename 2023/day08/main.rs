@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::hash::Hash;
 
 fn parse_instructions(input: &str) -> Vec<bool> {
     input
@@ -41,6 +40,29 @@ fn check_parse_nodes() {
     );
 }
 
+fn is_start_node(node: &str) -> bool {
+    node.bytes().last().unwrap() == b'A'
+}
+
+fn is_end_node(node: &str) -> bool {
+    node.bytes().last().unwrap() == b'Z'
+}
+
+fn least_common_multiple(numbers: Vec<usize>) -> usize {
+    numbers
+        .into_iter()
+        .reduce(|a, b| a * b / greatest_common_divisor(a, b))
+        .unwrap()
+}
+
+fn greatest_common_divisor(a: usize, b: usize) -> usize {
+    if b == 0 {
+        a
+    } else {
+        greatest_common_divisor(b, a % b)
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read_to_string("day08/input.txt")?;
     let (instructions_str, nodes_str) = file.split_once("\n\n").unwrap();
@@ -62,32 +84,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", step_count);
 
-    let mut current_nodes = nodes
+    let start_nodes = nodes
         .keys()
         .map(|&s| s)
-        .filter(|node| node.bytes().nth(2).unwrap() == b'A')
+        .filter(|node| is_start_node(node))
         .collect::<Vec<_>>();
-    let mut step_count = 0;
 
-    while !current_nodes
-        .iter()
-        .all(|node| node.bytes().nth(2).unwrap() == b'Z')
-    {
-        for i in 0..current_nodes.len() {
-            let go_right = instructions[step_count % instructions.len()];
-            current_nodes[i] = if go_right {
-                nodes[current_nodes[i]].1
+    let mut cycle_times = vec![];
+    let mut end_offset_lists = vec![];
+
+    for start_node in start_nodes {
+        let mut current_node = start_node;
+        let mut end_offsets = vec![];
+        let mut seen = HashMap::new();
+
+        let mut step_count = 0;
+
+        loop {
+            let instruction_index = step_count % instructions.len();
+
+            if let Some(&cycle_offset) = seen.get(&(instruction_index, current_node)) {
+                cycle_times.push(step_count - cycle_offset);
+                end_offset_lists.push(end_offsets);
+                break;
+            }
+            seen.insert((instruction_index, current_node), step_count);
+
+            let go_right = instructions[instruction_index];
+            current_node = if go_right {
+                nodes[current_node].1
             } else {
-                nodes[current_nodes[i]].0
+                nodes[current_node].0
             };
+
+            step_count += 1;
+
+            if is_end_node(current_node) {
+                end_offsets.push(step_count)
+            }
         }
-        if (step_count % 10000000 == 0) {
-            dbg!(step_count, current_nodes.len(), &current_nodes);
-        }
-        step_count += 1;
     }
 
-    println!("Part 2: {:?}", step_count);
+    for i in 0..cycle_times.len() {
+        assert_eq!(vec![cycle_times[i]], end_offset_lists[i]);
+    }
+
+    println!("Part 2: {:?}", least_common_multiple(cycle_times));
 
     Ok(())
 }
