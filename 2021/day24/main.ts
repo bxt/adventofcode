@@ -1,62 +1,55 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { matchGroups } from "../../2020/utils.ts";
 
-const offsets = [13, 12, 10, -11, 14, 13, 12, -5, 10, 0, -11, -13, -13, -11];
+const matchCodeSection = matchGroups(
+  /mul x 0\nadd x z\nmod x 26\ndiv z (?<divZ>1|26)\nadd x (?<offset>-?[0-9]+)\neql x w\neql x 0\nmul y 0\nadd y 25\nmul y x\nadd y 1\nmul z y\nmul y 0\nadd y w\nadd y (?<summand>-?[0-9]+)\nmul y x\nadd z y/,
+);
 
-const summands = [8, 16, 4, 1, 13, 5, 0, 10, 7, 2, 13, 15, 14, 9];
+function parseInput(input: string): [number[], number[]] {
+  const blocks = input.split("inp w").map((s) => s.trim()).filter((s) => s);
+  const parsedBlocks = blocks.map(matchCodeSection);
 
-const stack = [];
-const inputsP1 = new Array(14);
-const inputsP2 = new Array(14);
+  return [
+    parsedBlocks.map((b) => parseInt(b.offset, 10)),
+    parsedBlocks.map((b) => parseInt(b.summand, 10)),
+  ];
+}
 
-for (let i = 0; i < 14; i++) {
+const text = await Deno.readTextFile("input.txt");
+
+export const input = parseInput(text);
+
+assertEquals(input, [
+  [13, 12, 10, -11, 14, 13, 12, -5, 10, 0, -11, -13, -13, -11],
+  [8, 16, 4, 1, 13, 5, 0, 10, 7, 2, 13, 15, 14, 9],
+]);
+
+const [offsets, summands] = input;
+const digits = offsets.length;
+
+const results: [number[], number[]] = [new Array(digits), new Array(digits)];
+
+const stack: number[] = [];
+
+for (let i = 0; i < digits; i++) {
   if (offsets[i] > 0) {
     stack.push(i);
   } else {
     const iOld = stack.pop();
     if (iOld === undefined) throw new Error(`Pop on empty stack!? At i=${i}.`);
     const diff = summands[iOld] + offsets[i];
-    if (diff < 0) {
-      inputsP1[i] = 9 + diff;
-      inputsP1[iOld] = 9;
-      inputsP2[i] = 1;
-      inputsP2[iOld] = 1 - diff;
-    } else {
-      inputsP1[i] = 9;
-      inputsP1[iOld] = 9 - diff;
-      inputsP2[i] = 1 + diff;
-      inputsP2[iOld] = 1;
-    }
+    results[0][i] = 9 + Math.min(0, diff);
+    results[0][iOld] = 9 - Math.max(0, diff);
+    results[1][i] = 1 + Math.max(0, diff);
+    results[1][iOld] = 1 - Math.min(0, diff);
   }
 }
 
-const inputsDebug = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5];
+const expectedResults = ["96929994293996", "41811761181141"];
 
-const inputs = inputsP2;
-
-let z = 0;
-
-for (let i = 0; i < 14; i++) {
-  const input = inputs[i];
-
-  const checkW = z % 26 + offsets[i] !== input;
-  // ^^^ can also only ever be true if (offsets[i] <= 0)
-
-  const divZ = offsets[i] <= 0 ? 26 : 1;
-  z = Math.floor(z / divZ);
-
-  const factor = (checkW ? 1 : 26);
-  z *= factor;
-
-  if (checkW) {
-    const summand = input + summands[i];
-
-    z += summand;
-  }
-
-  console.log({ input, checkW, factor, z });
+for (const [partNumber, result] of results.entries()) {
+  const stringResult = result.join("");
+  assertEquals(stringResult, expectedResults[partNumber]);
+  console.log(`Result part ${partNumber + 1}: ${stringResult}`);
 }
-
-assertEquals(z, 0);
-
-console.log(inputs.join(""));
