@@ -25,14 +25,9 @@ fn derivatives(sequence: Vec<i64>) -> Vec<Vec<i64>> {
     while !pyramid.last().unwrap().iter().all(|&n| n == 0) {
         let last_sequence = pyramid.last().unwrap();
         let next_sequence = last_sequence
-            .windows(2)
-            .map(|pair| {
-                if let [a, b] = pair {
-                    b - a
-                } else {
-                    panic!("huh?");
-                }
-            })
+            .iter()
+            .zip(last_sequence.iter().skip(1))
+            .map(|(a, b)| b - a)
             .collect::<Vec<_>>();
         pyramid.push(next_sequence);
     }
