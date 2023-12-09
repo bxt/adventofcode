@@ -7,6 +7,7 @@ const summands = [8, 16, 4, 1, 13, 5, 0, 10, 7, 2, 13, 15, 14, 9];
 
 const stack = [];
 const inputsP1 = new Array(14);
+const inputsP2 = new Array(14);
 
 for (let i = 0; i < 14; i++) {
   if (offsets[i] > 0) {
@@ -18,16 +19,20 @@ for (let i = 0; i < 14; i++) {
     if (diff < 0) {
       inputsP1[i] = 9 + diff;
       inputsP1[iOld] = 9;
+      inputsP2[i] = 1;
+      inputsP2[iOld] = 1 - diff;
     } else {
       inputsP1[i] = 9;
       inputsP1[iOld] = 9 - diff;
+      inputsP2[i] = 1 + diff;
+      inputsP2[iOld] = 1;
     }
   }
 }
 
 const inputsDebug = [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5];
 
-const inputs = inputsP1;
+const inputs = inputsP2;
 
 let z = 0;
 
