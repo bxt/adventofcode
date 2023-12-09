@@ -3,7 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
 /**
  * 2020 TypeScript Utilities
  *
- * This contains a bunch of utilities I used for solivng the 2020 riddles.
+ * This contains a bunch of utilities I used for solving the 2020 riddles.
  */
 
 /**
@@ -66,7 +66,7 @@ export function scaleCoord([x, y]: Coord, s: number): Coord {
 }
 
 /**
- * Calculates the manhatten distance form the coord to the origin `(0,0)`.
+ * Calculates the manhattan distance form the coord to the origin `(0,0)`.
  */
 export function manhattanNormCoord([x, y]: Coord): number {
   return Math.abs(x) + Math.abs(y);
@@ -82,7 +82,7 @@ export function rotateLeftNinetyDegreesCoord([x, y]: Coord): Coord {
 }
 
 /**
- * Finds the element at the specfied coords in a
+ * Finds the element at the specified coords in a
  * `CoordArray` or `SparseCoordArray`.
  *
  * This again assumes that the indexing happens by y first, then x.
@@ -117,7 +117,7 @@ export function rangeCoords(extend: Coord): Coord[] {
 }
 
 /**
- * Can contain a value or not, usesed to make assertMaybe more semantic.
+ * Can contain a value or not, used to make assertMaybe more semantic.
  */
 export type Maybe<T> = T | null;
 
@@ -160,10 +160,10 @@ export function ensureElementOf<A, B extends A>(
 }
 
 /**
- * Matches a string agains a regex and returns the match groups, or throws
+ * Matches a string against a regex and returns the match groups, or throws
  * and exception if it did not match. Useful for validating inputs.
  *
- * The seond parameter for the string input is curried for convenience.
+ * The second parameter for the string input is curried for convenience.
  */
 export function matchGroups(
   regexp: RegExp,
@@ -185,7 +185,7 @@ export function intersectSets<T>(
   ...otherSets: Set<T>[]
 ): Set<T>;
 /**
- * Caluclates the intersection (∩) of a bunch of sets, that is creates a new
+ * Calculates the intersection (∩) of a bunch of sets, that is creates a new
  * set with the elements that are in every one of the input sets.
  */
 export function intersectSets<T>(
@@ -198,8 +198,8 @@ export function intersectSets<T>(
 }
 
 /**
- * Caluclates the set difference (∖, relative complement) of two sets, that
- * is creates a new set with the elements of the first set withut those
+ * Calculates the set difference (∖, relative complement) of two sets, that
+ * is creates a new set with the elements of the first set without those
  * form the second set.
  */
 export function minusSets<T>(as: Iterable<T>, bs: Set<T>): Set<T> {
@@ -262,7 +262,7 @@ export abstract class StringifySinkSet<T> {
  * representation and back. Overwrite the `parse` method in a subclass to make it
  * work for your type, e.g. `JSON.parse` can be used if `stringify` was also
  * implemented accordingly. This extends `StringifySinkSet` adding the `Set`
- * methods for reading the elements of the set, so that it implments the whole
+ * methods for reading the elements of the set, so that it implements the whole
  * `Set` interface.
  */
 export abstract class StringifySet<T> extends StringifySinkSet<T>
