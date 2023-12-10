@@ -56,7 +56,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn opposite(self) -> Self {
+    fn opposite(&self) -> Self {
         match self {
             Direction::N => Direction::S,
             Direction::W => Direction::E,
@@ -88,7 +88,7 @@ impl Connector for u8 {
             b'-' => vec![Direction::W, Direction::E],
             b'L' => vec![Direction::N, Direction::E],
             b'J' => vec![Direction::N, Direction::W],
-            b'7' => vec![Direction::S, Direction::W],
+            b'7' => vec![Direction::W, Direction::S],
             b'F' => vec![Direction::S, Direction::E],
             b'.' => vec![],
             b'S' => vec![Direction::N, Direction::W, Direction::S, Direction::E],
@@ -113,7 +113,7 @@ fn main() -> () {
         .collect::<Vec<_>>();
 
     let start_position = find_field_index(&field, |&b| b == b'S').expect("No start?");
-    let mut seen_positions = HashSet::from([start_position]);
+    let mut on_loop_positions = HashSet::from([start_position]);
 
     let mut distances = 0..;
     distances.try_fold(vec![start_position], |previous_positions, _| {
@@ -126,7 +126,7 @@ fn main() -> () {
                     .into_iter()
                     .filter_map(|direction| {
                         let coord = position + Coord::from(&direction);
-                        if seen_positions.contains(&coord) {
+                        if on_loop_positions.contains(&coord) {
                             return None;
                         }
                         if !coord
@@ -136,7 +136,7 @@ fn main() -> () {
                         {
                             return None;
                         }
-                        seen_positions.insert(coord);
+                        on_loop_positions.insert(coord);
                         Some(coord)
                     })
                     .collect::<Vec<_>>()
@@ -149,5 +149,71 @@ fn main() -> () {
     let furthest_distance = distances.next().unwrap() - 1;
 
     println!("Part 1: {:?}", furthest_distance);
-    // 6801 too high
+
+    let mut enclosed_count = 0;
+    let mut is_inside_loop;
+    let mut got_onto_loop_by;
+
+    for (line_index, line_length) in enumerate_field(&field) {
+        is_inside_loop = false;
+        got_onto_loop_by = None;
+
+        for index in 0..line_length {
+            let position = Coord(line_index, index);
+            let mut value = *position.on(&field).unwrap();
+
+            if value == b'S' {
+                let connected_directions = value
+                    .directions()
+                    .into_iter()
+                    .filter(|direction| {
+                        let coord = position + Coord::from(direction);
+                        coord
+                            .on(&field)
+                            .directions()
+                            .contains(&direction.opposite())
+                    })
+                    .collect::<Vec<_>>();
+                value = [b'|', b'-', b'L', b'J', b'7', b'F']
+                    .into_iter()
+                    .find(|b| b.directions() == connected_directions)
+                    .expect("No match for start point found");
+            }
+
+            if on_loop_positions.contains(&position) {
+                match (got_onto_loop_by, value) {
+                    (None, b'|') => {
+                        is_inside_loop = !is_inside_loop;
+                    }
+                    (Some(_), b'|') => {
+                        panic!("Encountered | on the loop at {:?}!", position);
+                    }
+
+                    (Some(_), b'-') => {}
+                    (None, b'L' | b'F') => {
+                        got_onto_loop_by = Some(value);
+                    }
+                    (Some(b'L'), b'J') | (Some(b'F'), b'7') => {
+                        got_onto_loop_by = None;
+                    }
+                    (Some(b'L'), b'7') | (Some(b'F'), b'J') => {
+                        got_onto_loop_by = None;
+                        is_inside_loop = !is_inside_loop;
+                    }
+                    (on, off) => {
+                        panic!(
+                            "Came onto loop with {:?} and went off with {:?} at {:?}!",
+                            on, off, position
+                        );
+                    }
+                }
+            } else {
+                if is_inside_loop {
+                    enclosed_count += 1;
+                }
+            }
+        }
+    }
+
+    println!("Part 2: {:?}", enclosed_count);
 }
