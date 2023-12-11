@@ -104,20 +104,6 @@ impl Connector for Option<&u8> {
     }
 }
 
-fn infer_value(field: &Vec<&[u8]>, position: Coord<isize>) -> Option<u8> {
-    let connected_directions = b'S'
-        .directions()
-        .into_iter()
-        .filter(|direction| {
-            let coord = position + Coord::from(direction);
-            coord.on(field).directions().contains(&direction.opposite())
-        })
-        .collect::<Vec<_>>();
-    [b'|', b'-', b'L', b'J', b'7', b'F']
-        .into_iter()
-        .find(|b| b.directions() == connected_directions)
-}
-
 fn advance_positions(
     positions: Vec<Coord<isize>>,
     field: &Vec<&[u8]>,
@@ -151,12 +137,9 @@ fn find_enclosed_positions(
     on_loop_positions: HashSet<Coord<isize>>,
 ) -> Vec<Coord<isize>> {
     let mut enclosed_positions = vec![];
-    let mut is_inside_loop;
-    let mut got_onto_loop_by;
 
     for (line_index, line_length) in enumerate_field(&field) {
-        is_inside_loop = false;
-        got_onto_loop_by = None;
+        let mut is_inside_loop = false;
 
         for index in 0..line_length {
             let position = Coord(line_index, index);
@@ -168,36 +151,14 @@ fn find_enclosed_positions(
                 continue;
             }
 
-            let mut value = *position.on(&field).unwrap();
+            let value = *position.on(&field).unwrap();
             if value == b'S' {
-                value = infer_value(&field, position).expect("No match for start point found");
-            }
-
-            match (got_onto_loop_by, value) {
-                (None, b'|') => {
+                let coord = position + Coord::from(&Direction::N);
+                if coord.on(&field).directions().contains(&Direction::S) {
                     is_inside_loop = !is_inside_loop;
                 }
-                (Some(_), b'|') => {
-                    panic!("Encountered | on the loop at {:?}!", position);
-                }
-
-                (Some(_), b'-') => {}
-                (None, b'L' | b'F') => {
-                    got_onto_loop_by = Some(value);
-                }
-                (Some(b'L'), b'J') | (Some(b'F'), b'7') => {
-                    got_onto_loop_by = None;
-                }
-                (Some(b'L'), b'7') | (Some(b'F'), b'J') => {
-                    got_onto_loop_by = None;
-                    is_inside_loop = !is_inside_loop;
-                }
-                (on, off) => {
-                    panic!(
-                        "Came onto loop with {:?} and went off with {:?} at {:?}!",
-                        on, off, position
-                    );
-                }
+            } else if value.directions().contains(&Direction::N) {
+                is_inside_loop = !is_inside_loop;
             }
         }
     }
