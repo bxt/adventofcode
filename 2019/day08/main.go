@@ -23,9 +23,11 @@ func assertEquals(expected interface{}, actual interface{}) {
 	}
 }
 
+const width = 25
+const height = 6
+
 func main() {
-	width := 25
-	height := 6
+	var image [width][height]int
 
 	file, err := os.Open("input.txt")
 	check(err)
@@ -43,8 +45,8 @@ reading_layers:
 		number_of_ones := 0
 		number_of_twos := 0
 
-		for i := 0; i < height; i++ {
-			for i := 0; i < width; i++ {
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
 				b, err := reader.ReadByte()
 				if errors.Is(err, io.EOF) {
 					break reading_layers
@@ -52,21 +54,24 @@ reading_layers:
 					check(err)
 				}
 
-				if b == '0' {
+				if b == '0' { // black
 					number_of_zeros += 1
+					if image[x][y] == 0 {
+						image[x][y] = 3 // output black
+					}
 				}
-				if b == '1' {
+				if b == '1' { // white
 					number_of_ones += 1
+					if image[x][y] == 0 {
+						image[x][y] = 4 // output white
+					}
 				}
-				if b == '2' {
+				if b == '2' { // transparent
 					number_of_twos += 1
 				}
 
-				// fmt.Printf("-%s-\n", string(b))
 			}
 		}
-
-		// fmt.Printf("0: %d, 1: %d, 2: %d\n", number_of_zeros, number_of_ones, number_of_twos)
 
 		if min_number_of_zeros == -1 || number_of_zeros < min_number_of_zeros {
 			min_number_of_zeros = number_of_zeros
@@ -76,4 +81,20 @@ reading_layers:
 	}
 
 	fmt.Printf("Part 1: %d\n", result)
+	fmt.Printf("Part 2:\n")
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			if image[x][y] == 3 {
+				fmt.Printf(".")
+			} else if image[x][y] == 4 {
+				fmt.Printf("#")
+			} else if image[x][y] == 0 {
+				fmt.Printf("?")
+			} else {
+				panic("Yikes!")
+			}
+		}
+		fmt.Printf("\n")
+	}
 }
