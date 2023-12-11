@@ -40,9 +40,10 @@ fn find_field_index<'a, T, P: Fn(&T) -> bool>(
     predicate: P,
 ) -> Option<Coord<isize>> {
     for (line_index, line_length) in enumerate_field(&field) {
-        for index in 0..line_length + 1 {
+        for index in 0..line_length {
             let coord = Coord(line_index, index);
-            if coord.on(&field).is_some_and(|v| predicate(v)) {
+            let value = coord.on(&field).unwrap();
+            if predicate(value) {
                 return Some(coord);
             }
         }
