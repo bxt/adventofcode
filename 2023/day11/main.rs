@@ -105,7 +105,7 @@ fn main() -> () {
         }
     }
 
-    println!("Part 1: {:?}", total_distances);
+    println!("Part 1: {:?}", total_distances / 2);
 
     // println!("Part 2: {:?}", 0);
 }
