@@ -51,8 +51,8 @@ ffmpeg \
   $(echo "$LIST" | jq -r '.[] | "-i \(.year|@sh)/day\(.day)/\(.file)"') \
   -movflags faststart -pix_fmt yuv420p \
   -filter_complex "$(
-      echo "$LIST" | jq -jr '.[] | "loop=loop=20:size=1,scale=iw*5:-1:flags=neighbor,pad=2560:1600:-1:-1:001122 [d\(.year)\(.day)],"'
-      echo "$LIST" | jq -jr '.[] | "scale=iw*\(.scale):-1:flags=neighbor,pad=2560:1600:-1:-1:001122 [v\(.year)\(.day)],"'
+      echo "$LIST" | jq -jr '.[] | "loop=loop=60:size=1,setpts=N/(30*TB),scale=iw*5:-1:flags=neighbor,pad=2560:1600:-1:-1:001122 [d\(.year)\(.day)],"'
+      echo "$LIST" | jq -jr '.[] | "setpts=N/(30*TB),scale=iw*\(.scale):-1:flags=neighbor,pad=2560:1600:-1:-1:001122 [v\(.year)\(.day)],"'
       echo "$LIST" | jq -jr '.[] | "[d\(.year)\(.day)] [v\(.year)\(.day)] "'
       echo "$LIST" | jq -jr 'length | . * 2 | "concat=n=\(.)"'
     )" \
