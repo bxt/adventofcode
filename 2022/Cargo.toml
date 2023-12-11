@@ -125,6 +125,10 @@ path = "day24/vis.rs"
 name = "adventofcode2022day25"
 path = "day25/main.rs"
 
+[[bin]]
+name = "adventofcode2022drawtitle"
+path = "visualisation_utils/draw_title.rs"
+
 [dependencies]
 strum = "0.24"
 strum_macros = "0.24"
