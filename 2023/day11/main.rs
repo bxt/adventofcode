@@ -81,6 +81,18 @@ fn main() -> () {
         }
     }
 
+    let part1 = expanded_distances(&field, &expanded_lines, &expanded_columns, 2);
+    println!("Part 1: {:?}", part1);
+    let part2 = expanded_distances(&field, &expanded_lines, &expanded_columns, 1000000);
+    println!("Part 2: {:?}", part2);
+}
+
+fn expanded_distances(
+    field: &Vec<Vec<bool>>,
+    expanded_lines: &HashSet<isize>,
+    expanded_columns: &HashSet<isize>,
+    times: isize,
+) -> isize {
     let mut galaxy_positions = vec![];
     for (line_index, line_length) in enumerate_field(&field) {
         for index in 0..line_length {
@@ -89,23 +101,25 @@ fn main() -> () {
             if value {
                 let expansion = Coord(
                     isize::try_from(expanded_lines.iter().filter(|&&l| l < line_index).count())
-                        .unwrap(),
+                        .unwrap()
+                        * (times - 1),
                     isize::try_from(expanded_columns.iter().filter(|&&c| c < index).count())
-                        .unwrap(),
+                        .unwrap()
+                        * (times - 1),
                 );
                 galaxy_positions.push(coord + expansion)
             }
         }
     }
 
-    let mut total_distances = 0;
-    for &g1 in &galaxy_positions {
-        for &g2 in &galaxy_positions {
-            total_distances += manhattan_distance(g1, g2)
-        }
-    }
-
-    println!("Part 1: {:?}", total_distances / 2);
-
-    // println!("Part 2: {:?}", 0);
+    let total_distances = galaxy_positions
+        .iter()
+        .flat_map(|&g1| {
+            galaxy_positions
+                .iter()
+                .map(move |&g2| manhattan_distance(g1, g2))
+        })
+        .sum::<isize>()
+        / 2;
+    total_distances
 }
