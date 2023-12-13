@@ -1,4 +1,4 @@
-use std::vec;
+use std::{collections::HashMap, iter::once, vec};
 
 fn parse_springs(input: &str) -> Vec<(&str, Vec<usize>)> {
     input
@@ -14,97 +14,33 @@ fn parse_springs(input: &str) -> Vec<(&str, Vec<usize>)> {
 }
 
 fn count_possibilities(record: &(&str, Vec<usize>)) -> usize {
-    dbg!(record);
     let (mask, lengths) = record;
-    let total_space = mask.len() - lengths.iter().sum::<usize>();
-    let mut possibilities = vec![vec![]];
-    for index in 0..=lengths.len() {
-        possibilities = possibilities
-            .iter()
-            .flat_map(|spaces: &Vec<usize>| {
-                let space_left = total_space - spaces.iter().sum::<usize>();
-                let is_last_space = index == lengths.len();
-                let range = if is_last_space {
-                    space_left..=space_left
-                } else {
-                    let reserved_for_rest = match index {
-                        0 => lengths.len() - 1,
-                        _ if is_last_space => 0,
-                        _ => lengths.len() - index - 1,
-                    };
-                    let min_size = match index {
-                        0 => 0,
-                        _ if is_last_space => 0,
-                        _ => 1,
-                    };
-                    let max_size = space_left - reserved_for_rest;
-                    min_size..=max_size
-                };
-                // dbg!(spaces);
-                // dbg!(space_left);
-                // dbg!(is_last_space);
-                // dbg!(reserved_for_rest);
-                // dbg!(min_size);
-                range
-                    .map(|space| {
-                        let mut new_spaces = vec![];
-                        new_spaces.extend(spaces);
-                        new_spaces.push(space);
-                        new_spaces
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .collect();
+
+    let mut options = HashMap::from([((0, 0), 1)]);
+
+    for mask_byte in mask.bytes().chain(once(b'.')) {
+        let mut new_options = HashMap::new();
+        for (option, count) in options {
+            let (mask_index, length_index) = option;
+            if mask_byte == b'#' || mask_byte == b'?' {
+                if length_index < lengths.len() && mask_index < lengths[length_index] {
+                    let next_option = (mask_index + 1, length_index);
+                    *new_options.entry(next_option).or_insert(0) += count;
+                } // else we ate too much, discard option
+            }
+            if mask_byte == b'.' || mask_byte == b'?' {
+                if mask_index == 0 {
+                    *new_options.entry(option).or_insert(0) += count;
+                } else if length_index < lengths.len() && mask_index == lengths[length_index] {
+                    let next_option = (0, length_index + 1);
+                    *new_options.entry(next_option).or_insert(0) += count;
+                } // else we found a space in the middle of the length, discard option
+            }
+        }
+        options = new_options;
     }
-    dbg!(possibilities.len());
-    // dbg!(&possibilities);
 
-    let valid_possibilities = possibilities
-        .iter()
-        .filter(|spaces| {
-            // [4, 1, 1]
-            // if spaces.to_vec() != vec![0, 1, 3, 3] {
-            //     return false;
-            // }
-            // dbg!("all space?");
-            let spaces_are_valid = spaces.iter().enumerate().all(|(index, space)| {
-                let space_before = spaces.iter().take(index).sum::<usize>();
-                let hashes_before = lengths.iter().take(index).sum::<usize>();
-                let start = space_before + hashes_before;
-                // dbg!(index);
-                // dbg!(space);
-                // dbg!(space_before);
-                // dbg!(hashes_before);
-                // dbg!(start);
-                (0..*space).all(|offset| {
-                    let index = start + offset;
-                    let byte = mask.as_bytes()[index];
-                    // dbg!((index, byte));
-                    byte == b'?' || byte == b'.'
-                })
-            });
-
-            // dbg!("all occ?");
-
-            let hashes_are_valid = lengths.iter().enumerate().all(|(index, length)| {
-                let space_before = spaces.iter().take(index + 1).sum::<usize>();
-                let hashes_before = lengths.iter().take(index).sum::<usize>();
-                let start = space_before + hashes_before;
-                (0..*length).all(|offset| {
-                    let index = start + offset;
-                    let byte = mask.as_bytes()[index];
-                    // dbg!((index, byte));
-                    byte == b'?' || byte == b'#'
-                })
-            });
-
-            spaces_are_valid && hashes_are_valid
-        })
-        .collect::<Vec<_>>();
-
-    // dbg!(&valid_possibilities);
-
-    valid_possibilities.len()
+    *options.get(&(0, lengths.len())).unwrap_or(&0)
 }
 
 #[test]
@@ -119,10 +55,45 @@ fn check_count_possibilities() {
     assert_eq!(count_possibilities(&("?###????????", vec![3, 2, 1])), 10);
 }
 
+fn unfold(record: &(&str, Vec<usize>)) -> (String, Vec<usize>) {
+    let (mask, lengths) = record;
+    let new_mask = format!("{}?{0}?{0}?{0}?{0}", mask);
+    let mut new_lengths = vec![];
+    for _ in 0..5 {
+        new_lengths.extend(lengths);
+    }
+    (new_mask, new_lengths)
+}
+
+fn count_unfolded_possibilities(record: &(&str, Vec<usize>)) -> usize {
+    let (mask, lengths) = unfold(record);
+    count_possibilities(&(&mask, lengths))
+}
+
+#[test]
+fn check_count_unfolded_possibilities() {
+    assert_eq!(count_unfolded_possibilities(&("???.###", vec![1, 1, 3])), 1);
+    let mask2 = ".??..??...?##.";
+    assert_eq!(count_unfolded_possibilities(&(mask2, vec![1, 1, 3])), 16384);
+    let mask3 = "?#?#?#?#?#?#?#?";
+    assert_eq!(count_unfolded_possibilities(&(mask3, vec![1, 3, 1, 6])), 1);
+    let mask4 = "????.#...#...";
+    assert_eq!(count_unfolded_possibilities(&(mask4, vec![4, 1, 1])), 16);
+    let mask5 = "????.######..#####.";
+    assert_eq!(count_unfolded_possibilities(&(mask5, vec![1, 6, 5])), 2500);
+    let mask6 = "?###????????";
+    let r6 = 506250;
+    assert_eq!(count_unfolded_possibilities(&(mask6, vec![3, 2, 1])), r6);
+}
+
 fn main() -> () {
     let file = std::fs::read_to_string("day12/input.txt").unwrap();
 
     let data = parse_springs(&file);
+
     let part1 = data.iter().map(count_possibilities).sum::<usize>();
     println!("Part 1: {:?}", part1);
+
+    let part2 = data.iter().map(count_unfolded_possibilities).sum::<usize>();
+    println!("Part 2: {:?}", part2);
 }
