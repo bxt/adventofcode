@@ -13,44 +13,71 @@ fn parse_springs(input: &str) -> Vec<(&str, Vec<usize>)> {
         .collect()
 }
 
-fn push_option(options: &mut HashMap<(usize, usize), usize>, state: (usize, usize), count: usize) {
+fn push_option(options: &mut HashMap<State, usize>, state: State, count: usize) {
     *options.entry(state).or_insert(0) += count;
 }
 
-fn eat((mask_index, length_index): (usize, usize)) -> (usize, usize) {
-    (mask_index + 1, length_index)
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default)]
+struct State {
+    mask_index: usize,
+    length_index: usize,
 }
 
-fn jump((_, length_index): (usize, usize)) -> (usize, usize) {
-    (0, length_index + 1)
+impl State {
+    fn final_on(lengths: &Vec<usize>) -> State {
+        State {
+            mask_index: 0,
+            length_index: lengths.len(),
+        }
+    }
+    fn did_not_eat_yet(&self) -> bool {
+        self.mask_index == 0
+    }
+    fn can_eat_on(&self, lengths: &Vec<usize>) -> bool {
+        self.length_index < lengths.len() && self.mask_index < lengths[self.length_index]
+    }
+    fn eat(self) -> Self {
+        State {
+            mask_index: self.mask_index + 1,
+            length_index: self.length_index,
+        }
+    }
+    fn can_jump_on(&self, lengths: &Vec<usize>) -> bool {
+        self.length_index < lengths.len() && self.mask_index == lengths[self.length_index]
+    }
+    fn jump(self) -> Self {
+        State {
+            mask_index: 0,
+            length_index: self.length_index + 1,
+        }
+    }
 }
 
 fn count_possibilities(record: &(&str, Vec<usize>)) -> usize {
     let (mask, lengths) = record;
 
-    let mut options = HashMap::from([((0, 0), 1)]);
+    let mut options = HashMap::from([(State::default(), 1)]);
 
     for mask_byte in mask.bytes().chain(once(b'.')) {
         let mut new_options = HashMap::new();
         for (state, count) in options {
-            let (mask_index, length_index) = state;
             if mask_byte == b'#' || mask_byte == b'?' {
-                if length_index < lengths.len() && mask_index < lengths[length_index] {
-                    push_option(&mut new_options, eat(state), count);
+                if state.can_eat_on(&lengths) {
+                    push_option(&mut new_options, state.eat(), count);
                 } // else we ate too much, discard option
             }
             if mask_byte == b'.' || mask_byte == b'?' {
-                if mask_index == 0 {
+                if state.did_not_eat_yet() {
                     push_option(&mut new_options, state, count);
-                } else if length_index < lengths.len() && mask_index == lengths[length_index] {
-                    push_option(&mut new_options, jump(state), count);
+                } else if state.can_jump_on(&lengths) {
+                    push_option(&mut new_options, state.jump(), count);
                 } // else we found a space in the middle of the length, discard option
             }
         }
         options = new_options;
     }
 
-    *options.get(&(0, lengths.len())).unwrap_or(&0)
+    *options.get(&State::final_on(lengths)).unwrap_or(&0)
 }
 
 #[test]
