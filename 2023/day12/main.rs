@@ -1,4 +1,4 @@
-use std::{collections::HashMap, iter::once, vec};
+use std::{collections::HashMap, iter::once};
 
 fn parse_springs(input: &str) -> Vec<(&str, Vec<usize>)> {
     input
@@ -13,6 +13,18 @@ fn parse_springs(input: &str) -> Vec<(&str, Vec<usize>)> {
         .collect()
 }
 
+fn push_option(options: &mut HashMap<(usize, usize), usize>, state: (usize, usize), count: usize) {
+    *options.entry(state).or_insert(0) += count;
+}
+
+fn eat((mask_index, length_index): (usize, usize)) -> (usize, usize) {
+    (mask_index + 1, length_index)
+}
+
+fn jump((_, length_index): (usize, usize)) -> (usize, usize) {
+    (0, length_index + 1)
+}
+
 fn count_possibilities(record: &(&str, Vec<usize>)) -> usize {
     let (mask, lengths) = record;
 
@@ -20,20 +32,18 @@ fn count_possibilities(record: &(&str, Vec<usize>)) -> usize {
 
     for mask_byte in mask.bytes().chain(once(b'.')) {
         let mut new_options = HashMap::new();
-        for (option, count) in options {
-            let (mask_index, length_index) = option;
+        for (state, count) in options {
+            let (mask_index, length_index) = state;
             if mask_byte == b'#' || mask_byte == b'?' {
                 if length_index < lengths.len() && mask_index < lengths[length_index] {
-                    let next_option = (mask_index + 1, length_index);
-                    *new_options.entry(next_option).or_insert(0) += count;
+                    push_option(&mut new_options, eat(state), count);
                 } // else we ate too much, discard option
             }
             if mask_byte == b'.' || mask_byte == b'?' {
                 if mask_index == 0 {
-                    *new_options.entry(option).or_insert(0) += count;
+                    push_option(&mut new_options, state, count);
                 } else if length_index < lengths.len() && mask_index == lengths[length_index] {
-                    let next_option = (0, length_index + 1);
-                    *new_options.entry(next_option).or_insert(0) += count;
+                    push_option(&mut new_options, jump(state), count);
                 } // else we found a space in the middle of the length, discard option
             }
         }
@@ -58,10 +68,7 @@ fn check_count_possibilities() {
 fn unfold(record: &(&str, Vec<usize>)) -> (String, Vec<usize>) {
     let (mask, lengths) = record;
     let new_mask = format!("{}?{0}?{0}?{0}?{0}", mask);
-    let mut new_lengths = vec![];
-    for _ in 0..5 {
-        new_lengths.extend(lengths);
-    }
+    let new_lengths = lengths.repeat(5);
     (new_mask, new_lengths)
 }
 
