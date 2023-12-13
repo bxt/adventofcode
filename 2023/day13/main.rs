@@ -51,22 +51,37 @@ fn check_potential_mirroring() {
     );
 }
 
-fn horizontal_mirror_position(pattern: &Vec<&str>) -> Option<usize> {
+fn horizontal_mirror_position(pattern: &Vec<&str>, expected_smudges: usize) -> Option<usize> {
     for (center_minus_one, checks) in potential_mirroring(pattern.len()).enumerate() {
-        if checks.into_iter().all(|(a, b)| pattern[a] == pattern[b]) {
+        let smudges = checks
+            .into_iter()
+            .map(|(a, b)| {
+                pattern[a]
+                    .bytes()
+                    .zip(pattern[b].bytes())
+                    .filter(|(a, b)| a != b)
+                    .count()
+            })
+            .sum::<usize>();
+        if smudges == expected_smudges {
             return Some(center_minus_one + 1);
         }
     }
     None
 }
 
-fn vertical_mirror_position(pattern: &Vec<&str>) -> Option<usize> {
+fn vertical_mirror_position(pattern: &Vec<&str>, expected_smudges: usize) -> Option<usize> {
     for (center_minus_one, checks) in potential_mirroring(pattern[0].len()).enumerate() {
-        if checks.into_iter().all(|(a, b)| {
-            pattern
-                .iter()
-                .all(|line| line.bytes().nth(a) == line.bytes().nth(b))
-        }) {
+        let smudges = checks
+            .into_iter()
+            .map(|(a, b)| {
+                pattern
+                    .iter()
+                    .filter(|line| line.bytes().nth(a) != line.bytes().nth(b))
+                    .count()
+            })
+            .sum::<usize>();
+        if smudges == expected_smudges {
             return Some(center_minus_one + 1);
         }
     }
@@ -75,15 +90,16 @@ fn vertical_mirror_position(pattern: &Vec<&str>) -> Option<usize> {
 
 #[test]
 fn check_mirror_positions() {
-    let pattern1 = "#.##..##.\n..#.##.#.\n##......#\n##......#\n..#.##.#.\n..##..##.\n#.#.##.#.";
-    let pattern2 = "#...##..#\n#....#..#\n..##..###\n#####.##.\n#####.##.\n..##..###\n#....#..#";
-    assert_eq!(horizontal_mirror_position(&parse_pattern(pattern1)), None);
-    assert_eq!(
-        horizontal_mirror_position(&parse_pattern(pattern2)),
-        Some(4)
-    );
-    assert_eq!(vertical_mirror_position(&parse_pattern(pattern1)), Some(5));
-    assert_eq!(vertical_mirror_position(&parse_pattern(pattern2)), None);
+    let str1 = "#.##..##.\n..#.##.#.\n##......#\n##......#\n..#.##.#.\n..##..##.\n#.#.##.#.";
+    let pattern1 = parse_pattern(str1);
+    let str2 = "#...##..#\n#....#..#\n..##..###\n#####.##.\n#####.##.\n..##..###\n#....#..#";
+    let pattern2 = parse_pattern(str2);
+    assert_eq!(horizontal_mirror_position(&pattern1, 0), None);
+    assert_eq!(horizontal_mirror_position(&pattern2, 0), Some(4));
+    assert_eq!(vertical_mirror_position(&pattern1, 0), Some(5));
+    assert_eq!(vertical_mirror_position(&pattern2, 0), None);
+    assert_eq!(horizontal_mirror_position(&pattern1, 1), Some(3));
+    assert_eq!(horizontal_mirror_position(&pattern2, 1), Some(1));
 }
 
 fn main() -> () {
@@ -96,16 +112,31 @@ fn main() -> () {
 
     let horizontal_mirror_sum = data
         .iter()
-        .map(horizontal_mirror_position)
+        .map(|pattern| horizontal_mirror_position(pattern, 0))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
     let vertical_mirror_sum = data
         .iter()
-        .map(vertical_mirror_position)
+        .map(|pattern| vertical_mirror_position(pattern, 0))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
     let part1 = vertical_mirror_sum + 100 * horizontal_mirror_sum;
     println!("Part 1: {:?}", part1);
+
+    let horizontal_mirror_sum = data
+        .iter()
+        .map(|pattern| horizontal_mirror_position(pattern, 1))
+        .map(Option::unwrap_or_default)
+        .sum::<usize>();
+
+    let vertical_mirror_sum = data
+        .iter()
+        .map(|pattern| vertical_mirror_position(pattern, 1))
+        .map(Option::unwrap_or_default)
+        .sum::<usize>();
+
+    let part2 = vertical_mirror_sum + 100 * horizontal_mirror_sum;
+    println!("Part 2: {:?}", part2);
 }
