@@ -51,35 +51,47 @@ fn check_potential_mirroring() {
     );
 }
 
-fn horizontal_mirror_position(pattern: &Vec<&str>, expected_smudges: usize) -> Option<usize> {
+trait Pattern {
+    fn len(&self) -> usize;
+    fn count_smudges_between(&self, positions: (usize, usize)) -> usize;
+}
+
+struct HorizontalPattern<'a>(&'a Vec<&'a str>);
+
+impl Pattern for HorizontalPattern<'_> {
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    fn count_smudges_between(&self, (a, b): (usize, usize)) -> usize {
+        self.0[a]
+            .bytes()
+            .zip(self.0[b].bytes())
+            .filter(|(a, b)| a != b)
+            .count()
+    }
+}
+
+struct VerticalPattern<'a>(&'a Vec<&'a str>);
+
+impl Pattern for VerticalPattern<'_> {
+    fn len(&self) -> usize {
+        self.0[0].len()
+    }
+
+    fn count_smudges_between(&self, (a, b): (usize, usize)) -> usize {
+        self.0
+            .iter()
+            .filter(|line| line.bytes().nth(a) != line.bytes().nth(b))
+            .count()
+    }
+}
+
+fn mirror_position(pattern: &impl Pattern, expected_smudges: usize) -> Option<usize> {
     for (center_minus_one, checks) in potential_mirroring(pattern.len()).enumerate() {
         let smudges = checks
             .into_iter()
-            .map(|(a, b)| {
-                pattern[a]
-                    .bytes()
-                    .zip(pattern[b].bytes())
-                    .filter(|(a, b)| a != b)
-                    .count()
-            })
-            .sum::<usize>();
-        if smudges == expected_smudges {
-            return Some(center_minus_one + 1);
-        }
-    }
-    None
-}
-
-fn vertical_mirror_position(pattern: &Vec<&str>, expected_smudges: usize) -> Option<usize> {
-    for (center_minus_one, checks) in potential_mirroring(pattern[0].len()).enumerate() {
-        let smudges = checks
-            .into_iter()
-            .map(|(a, b)| {
-                pattern
-                    .iter()
-                    .filter(|line| line.bytes().nth(a) != line.bytes().nth(b))
-                    .count()
-            })
+            .map(|positions| pattern.count_smudges_between(positions))
             .sum::<usize>();
         if smudges == expected_smudges {
             return Some(center_minus_one + 1);
@@ -94,12 +106,12 @@ fn check_mirror_positions() {
     let pattern1 = parse_pattern(str1);
     let str2 = "#...##..#\n#....#..#\n..##..###\n#####.##.\n#####.##.\n..##..###\n#....#..#";
     let pattern2 = parse_pattern(str2);
-    assert_eq!(horizontal_mirror_position(&pattern1, 0), None);
-    assert_eq!(horizontal_mirror_position(&pattern2, 0), Some(4));
-    assert_eq!(vertical_mirror_position(&pattern1, 0), Some(5));
-    assert_eq!(vertical_mirror_position(&pattern2, 0), None);
-    assert_eq!(horizontal_mirror_position(&pattern1, 1), Some(3));
-    assert_eq!(horizontal_mirror_position(&pattern2, 1), Some(1));
+    assert_eq!(mirror_position(&HorizontalPattern(&pattern1), 0), None);
+    assert_eq!(mirror_position(&HorizontalPattern(&pattern2), 0), Some(4));
+    assert_eq!(mirror_position(&VerticalPattern(&pattern1), 0), Some(5));
+    assert_eq!(mirror_position(&VerticalPattern(&pattern2), 0), None);
+    assert_eq!(mirror_position(&HorizontalPattern(&pattern1), 1), Some(3));
+    assert_eq!(mirror_position(&HorizontalPattern(&pattern2), 1), Some(1));
 }
 
 fn main() -> () {
@@ -112,13 +124,13 @@ fn main() -> () {
 
     let horizontal_mirror_sum = data
         .iter()
-        .map(|pattern| horizontal_mirror_position(pattern, 0))
+        .map(|pattern| mirror_position(&HorizontalPattern(pattern), 0))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
     let vertical_mirror_sum = data
         .iter()
-        .map(|pattern| vertical_mirror_position(pattern, 0))
+        .map(|pattern| mirror_position(&VerticalPattern(pattern), 0))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
@@ -127,13 +139,13 @@ fn main() -> () {
 
     let horizontal_mirror_sum = data
         .iter()
-        .map(|pattern| horizontal_mirror_position(pattern, 1))
+        .map(|pattern| mirror_position(&HorizontalPattern(pattern), 1))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
     let vertical_mirror_sum = data
         .iter()
-        .map(|pattern| vertical_mirror_position(pattern, 1))
+        .map(|pattern| mirror_position(&VerticalPattern(pattern), 1))
         .map(Option::unwrap_or_default)
         .sum::<usize>();
 
