@@ -3,6 +3,7 @@ use std::{collections::HashMap, iter::repeat};
 struct BitField {
     store: Vec<u64>,
     width: usize,
+    height: usize,
 }
 
 impl BitField {
@@ -10,6 +11,7 @@ impl BitField {
         let mut bit_field = BitField {
             store: Vec::new(),
             width,
+            height,
         };
 
         let (store_index, _) = bit_field.transform_index(width - 1, height - 1);
@@ -42,11 +44,11 @@ impl BitField {
     }
 }
 
-fn tilt_north(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
-    for x in 0..width {
+fn tilt_north(square_rocks: &BitField, rolling_rocks: &mut BitField) {
+    for x in 0..square_rocks.width {
         let mut next_free_spot = 0;
-        for y in 0..height {
-            if lines[y].bytes().nth(x).unwrap() == b'#' {
+        for y in 0..square_rocks.height {
+            if square_rocks.is_set(x, y) {
                 next_free_spot = y + 1;
             } else {
                 if rolling_rocks.is_set(x, y) {
@@ -61,11 +63,11 @@ fn tilt_north(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mu
     }
 }
 
-fn tilt_west(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
-    for y in 0..height {
+fn tilt_west(square_rocks: &BitField, rolling_rocks: &mut BitField) {
+    for y in 0..square_rocks.height {
         let mut next_free_spot = 0;
-        for x in 0..width {
-            if lines[y].bytes().nth(x).unwrap() == b'#' {
+        for x in 0..square_rocks.width {
+            if square_rocks.is_set(x, y) {
                 next_free_spot = x + 1;
             } else {
                 if rolling_rocks.is_set(x, y) {
@@ -80,11 +82,11 @@ fn tilt_west(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut
     }
 }
 
-fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
-    for x in 0..width {
-        let mut next_free_spot = height - 1;
-        for y in (0..height).rev() {
-            if lines[y].bytes().nth(x).unwrap() == b'#' {
+fn tilt_south(square_rocks: &BitField, rolling_rocks: &mut BitField) {
+    for x in 0..square_rocks.width {
+        let mut next_free_spot = square_rocks.height - 1;
+        for y in (0..square_rocks.height).rev() {
+            if square_rocks.is_set(x, y) {
                 if y != 0 {
                     next_free_spot = y - 1;
                 }
@@ -107,11 +109,11 @@ fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mu
     }
 }
 
-fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
-    for y in 0..height {
-        let mut next_free_spot = width - 1;
-        for x in (0..width).rev() {
-            if lines[y].bytes().nth(x).unwrap() == b'#' {
+fn tilt_east(square_rocks: &BitField, rolling_rocks: &mut BitField) {
+    for y in 0..square_rocks.height {
+        let mut next_free_spot = square_rocks.width - 1;
+        for x in (0..square_rocks.width).rev() {
+            if square_rocks.is_set(x, y) {
                 if x != 0 {
                     next_free_spot = x - 1;
                 }
@@ -163,32 +165,36 @@ fn main() -> () {
     let height = lines.len();
 
     let mut rolling_rocks = BitField::new(width, height);
+    let mut square_rocks = BitField::new(width, height);
 
     for (y, line) in lines.iter().enumerate() {
         for (x, byte) in line.bytes().enumerate() {
-            if byte == b'O' {
-                rolling_rocks.set(x, y);
+            match byte {
+                b'O' => rolling_rocks.set(x, y),
+                b'#' => square_rocks.set(x, y),
+                b'.' => {}
+                _ => panic!("Not sure what to do with {byte}"),
             }
         }
     }
 
-    tilt_north(width, height, &lines, &mut rolling_rocks);
+    tilt_north(&square_rocks, &mut rolling_rocks);
 
     let part1 = sum_north_support_beam_load(height, width, &rolling_rocks);
     println!("Part 1: {:?}", part1);
 
-    tilt_west(width, height, &lines, &mut rolling_rocks);
-    tilt_south(width, height, &lines, &mut rolling_rocks);
-    tilt_east(width, height, &lines, &mut rolling_rocks);
+    tilt_west(&square_rocks, &mut rolling_rocks);
+    tilt_south(&square_rocks, &mut rolling_rocks);
+    tilt_east(&square_rocks, &mut rolling_rocks);
 
     let mut cycles_done = 1;
     let cycles_target = 1000000000;
 
     while cycles_done != cycles_target {
-        tilt_north(width, height, &lines, &mut rolling_rocks);
-        tilt_west(width, height, &lines, &mut rolling_rocks);
-        tilt_south(width, height, &lines, &mut rolling_rocks);
-        tilt_east(width, height, &lines, &mut rolling_rocks);
+        tilt_north(&square_rocks, &mut rolling_rocks);
+        tilt_west(&square_rocks, &mut rolling_rocks);
+        tilt_south(&square_rocks, &mut rolling_rocks);
+        tilt_east(&square_rocks, &mut rolling_rocks);
         cycles_done += 1;
 
         if let Some(previous_cycles_done) = seen.get(&rolling_rocks.store) {
