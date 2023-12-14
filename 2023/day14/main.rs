@@ -87,22 +87,14 @@ fn tilt_south(square_rocks: &BitField, rolling_rocks: &mut BitField) {
         let mut next_free_spot = square_rocks.height - 1;
         for y in (0..square_rocks.height).rev() {
             if square_rocks.is_set(x, y) {
-                if y != 0 {
-                    next_free_spot = y - 1;
-                }
+                next_free_spot = y.wrapping_sub(1);
             } else {
                 if rolling_rocks.is_set(x, y) {
                     if next_free_spot != y {
                         rolling_rocks.unset(x, y);
                         rolling_rocks.set(x, next_free_spot);
                     }
-                    if next_free_spot != 0 {
-                        next_free_spot -= 1;
-                    } else {
-                        if y != 0 {
-                            panic!("Yikes!");
-                        }
-                    }
+                    next_free_spot = next_free_spot.wrapping_sub(1);
                 }
             }
         }
@@ -114,22 +106,14 @@ fn tilt_east(square_rocks: &BitField, rolling_rocks: &mut BitField) {
         let mut next_free_spot = square_rocks.width - 1;
         for x in (0..square_rocks.width).rev() {
             if square_rocks.is_set(x, y) {
-                if x != 0 {
-                    next_free_spot = x - 1;
-                }
+                next_free_spot = x.wrapping_sub(1);
             } else {
                 if rolling_rocks.is_set(x, y) {
                     if next_free_spot != x {
                         rolling_rocks.unset(x, y);
                         rolling_rocks.set(next_free_spot, y);
                     }
-                    if next_free_spot != 0 {
-                        next_free_spot -= 1;
-                    } else {
-                        if x != 0 {
-                            panic!("Yikes!");
-                        }
-                    }
+                    next_free_spot = next_free_spot.wrapping_sub(1);
                 }
             }
         }
