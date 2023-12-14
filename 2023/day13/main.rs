@@ -57,6 +57,19 @@ trait Pattern {
     fn len(&self) -> usize;
     fn count_smudges_between(&self, positions: (usize, usize)) -> usize;
     fn smudges_match_expectation(&self, smudges: usize) -> bool;
+
+    fn mirror_position(&self) -> Option<usize> {
+        for (center_minus_one, checks) in potential_mirroring(self.len()).enumerate() {
+            let smudges = checks
+                .into_iter()
+                .map(|positions| self.count_smudges_between(positions))
+                .sum::<usize>();
+            if self.smudges_match_expectation(smudges) {
+                return Some(center_minus_one + 1);
+            }
+        }
+        None
+    }
 }
 
 struct HorizontalPattern<'a, const SMUDGES: usize>(&'a Data<'a>);
@@ -110,36 +123,23 @@ impl<'a, const SMUDGES: usize> Pattern for VerticalPattern<'_, SMUDGES> {
     }
 }
 
-fn mirror_position(pattern: impl Pattern) -> Option<usize> {
-    for (center_minus_one, checks) in potential_mirroring(pattern.len()).enumerate() {
-        let smudges = checks
-            .into_iter()
-            .map(|positions| pattern.count_smudges_between(positions))
-            .sum::<usize>();
-        if pattern.smudges_match_expectation(smudges) {
-            return Some(center_minus_one + 1);
-        }
-    }
-    None
-}
-
 #[test]
 fn check_mirror_positions() {
     let str1 = "#.##..##.\n..#.##.#.\n##......#\n##......#\n..#.##.#.\n..##..##.\n#.#.##.#.";
     let pattern1 = parse_data(str1);
     let str2 = "#...##..#\n#....#..#\n..##..###\n#####.##.\n#####.##.\n..##..###\n#....#..#";
     let pattern2 = parse_data(str2);
-    assert_eq!(mirror_position(HorizontalPattern::<0>(&pattern1)), None);
-    assert_eq!(mirror_position(HorizontalPattern::<0>(&pattern2)), Some(4));
-    assert_eq!(mirror_position(VerticalPattern::<0>(&pattern1)), Some(5));
-    assert_eq!(mirror_position(VerticalPattern::<0>(&pattern2)), None);
-    assert_eq!(mirror_position(HorizontalPattern::<1>(&pattern1)), Some(3));
-    assert_eq!(mirror_position(HorizontalPattern::<1>(&pattern2)), Some(1));
+    assert_eq!(HorizontalPattern::<0>(&pattern1).mirror_position(), None);
+    assert_eq!(HorizontalPattern::<0>(&pattern2).mirror_position(), Some(4));
+    assert_eq!(VerticalPattern::<0>(&pattern1).mirror_position(), Some(5));
+    assert_eq!(VerticalPattern::<0>(&pattern2).mirror_position(), None);
+    assert_eq!(HorizontalPattern::<1>(&pattern1).mirror_position(), Some(3));
+    assert_eq!(HorizontalPattern::<1>(&pattern2).mirror_position(), Some(1));
 }
 
 fn mirror_positions_sum<'a, P: Pattern + From<&'a Data<'a>>>(data: &'a Vec<Data>) -> usize {
     data.iter()
-        .map(|pattern| mirror_position(P::from(pattern)))
+        .map(|pattern| P::from(pattern).mirror_position())
         .map(Option::unwrap_or_default)
         .sum::<usize>()
 }
