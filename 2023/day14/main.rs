@@ -1,23 +1,58 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, iter::repeat};
 
-fn tilt_north(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut Vec<u64>) {
+struct BitField {
+    store: Vec<u64>,
+    width: usize,
+}
+
+impl BitField {
+    fn new(width: usize, height: usize) -> Self {
+        let mut bit_field = BitField {
+            store: Vec::new(),
+            width,
+        };
+
+        let (store_index, _) = bit_field.transform_index(width - 1, height - 1);
+        let store_size = store_index + 1;
+        bit_field.store.extend(repeat(0).take(store_size));
+
+        bit_field
+    }
+
+    fn transform_index(&self, x: usize, y: usize) -> (usize, usize) {
+        let index = y * self.width + x;
+        let store_index = index / 64;
+        let bytes_index = index % 64;
+        (store_index, bytes_index)
+    }
+
+    fn is_set(&self, x: usize, y: usize) -> bool {
+        let (store_index, bytes_index) = self.transform_index(x, y);
+        self.store[store_index] & (1 << bytes_index) > 0
+    }
+
+    fn set(&mut self, x: usize, y: usize) {
+        let (store_index, bytes_index) = self.transform_index(x, y);
+        self.store[store_index] |= 1 << bytes_index;
+    }
+
+    fn unset(&mut self, x: usize, y: usize) {
+        let (store_index, bytes_index) = self.transform_index(x, y);
+        self.store[store_index] &= !(1 << bytes_index);
+    }
+}
+
+fn tilt_north(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
     for x in 0..width {
         let mut next_free_spot = 0;
         for y in 0..height {
             if lines[y].bytes().nth(x).unwrap() == b'#' {
                 next_free_spot = y + 1;
             } else {
-                let index = y * width + x;
-                let rolling_rocks_index = index / 64;
-                let bytes_index = index % 64;
-                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                if rolling_rocks.is_set(x, y) {
                     if next_free_spot != y {
-                        rolling_rocks[rolling_rocks_index] &= !(1 << bytes_index);
-
-                        let index = next_free_spot * width + x;
-                        let rolling_rocks_index = index / 64;
-                        let bytes_index = index % 64;
-                        rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                        rolling_rocks.unset(x, y);
+                        rolling_rocks.set(x, next_free_spot);
                     }
                     next_free_spot += 1;
                 }
@@ -26,24 +61,17 @@ fn tilt_north(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mu
     }
 }
 
-fn tilt_west(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut Vec<u64>) {
+fn tilt_west(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
     for y in 0..height {
         let mut next_free_spot = 0;
         for x in 0..width {
             if lines[y].bytes().nth(x).unwrap() == b'#' {
                 next_free_spot = x + 1;
             } else {
-                let index = y * width + x;
-                let rolling_rocks_index = index / 64;
-                let bytes_index = index % 64;
-                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                if rolling_rocks.is_set(x, y) {
                     if next_free_spot != x {
-                        rolling_rocks[rolling_rocks_index] &= !(1 << bytes_index);
-
-                        let index = y * width + next_free_spot;
-                        let rolling_rocks_index = index / 64;
-                        let bytes_index = index % 64;
-                        rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                        rolling_rocks.unset(x, y);
+                        rolling_rocks.set(next_free_spot, y);
                     }
                     next_free_spot += 1;
                 }
@@ -52,7 +80,7 @@ fn tilt_west(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut
     }
 }
 
-fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut Vec<u64>) {
+fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
     for x in 0..width {
         let mut next_free_spot = height - 1;
         for y in (0..height).rev() {
@@ -61,17 +89,10 @@ fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mu
                     next_free_spot = y - 1;
                 }
             } else {
-                let index = y * width + x;
-                let rolling_rocks_index = index / 64;
-                let bytes_index = index % 64;
-                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                if rolling_rocks.is_set(x, y) {
                     if next_free_spot != y {
-                        rolling_rocks[rolling_rocks_index] &= !(1 << bytes_index);
-
-                        let index = next_free_spot * width + x;
-                        let rolling_rocks_index = index / 64;
-                        let bytes_index = index % 64;
-                        rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                        rolling_rocks.unset(x, y);
+                        rolling_rocks.set(x, next_free_spot);
                     }
                     if next_free_spot != 0 {
                         next_free_spot -= 1;
@@ -86,7 +107,7 @@ fn tilt_south(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mu
     }
 }
 
-fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut Vec<u64>) {
+fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut BitField) {
     for y in 0..height {
         let mut next_free_spot = width - 1;
         for x in (0..width).rev() {
@@ -95,17 +116,10 @@ fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut
                     next_free_spot = x - 1;
                 }
             } else {
-                let index = y * width + x;
-                let rolling_rocks_index = index / 64;
-                let bytes_index = index % 64;
-                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                if rolling_rocks.is_set(x, y) {
                     if next_free_spot != x {
-                        rolling_rocks[rolling_rocks_index] &= !(1 << bytes_index);
-
-                        let index = y * width + next_free_spot;
-                        let rolling_rocks_index = index / 64;
-                        let bytes_index = index % 64;
-                        rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                        rolling_rocks.unset(x, y);
+                        rolling_rocks.set(next_free_spot, y);
                     }
                     if next_free_spot != 0 {
                         next_free_spot -= 1;
@@ -120,15 +134,12 @@ fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut
     }
 }
 
-fn sum_north_support_beam_load(height: usize, width: usize, rolling_rocks: &Vec<u64>) -> usize {
+fn sum_north_support_beam_load(height: usize, width: usize, rolling_rocks: &BitField) -> usize {
     let mut north_support_beam_load = 0;
 
     for y in 0..height {
         for x in 0..width {
-            let index = y * width + x;
-            let rolling_rocks_index = index / 64;
-            let bytes_index = index % 64;
-            if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+            if rolling_rocks.is_set(x, y) {
                 north_support_beam_load += height - y;
             }
         }
@@ -151,18 +162,12 @@ fn main() -> () {
     let width = lines[0].len();
     let height = lines.len();
 
-    let mut rolling_rocks: Vec<u64> = vec![];
+    let mut rolling_rocks = BitField::new(width, height);
 
     for (y, line) in lines.iter().enumerate() {
         for (x, byte) in line.bytes().enumerate() {
-            let index = y * width + x;
-            let rolling_rocks_index = index / 64;
-            let bytes_index = index % 64;
-            if bytes_index == 0 {
-                rolling_rocks.push(0);
-            }
             if byte == b'O' {
-                rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                rolling_rocks.set(x, y);
             }
         }
     }
@@ -186,14 +191,14 @@ fn main() -> () {
         tilt_east(width, height, &lines, &mut rolling_rocks);
         cycles_done += 1;
 
-        if let Some(previous_cycles_done) = seen.get(&rolling_rocks) {
+        if let Some(previous_cycles_done) = seen.get(&rolling_rocks.store) {
             let loop_size = cycles_done - previous_cycles_done;
             let cycles_left = cycles_target - cycles_done;
             let skip_loops = cycles_left / loop_size;
             let skip_cycles = skip_loops * loop_size;
             cycles_done += skip_cycles;
         } else {
-            seen.insert(rolling_rocks.to_vec(), cycles_done);
+            seen.insert(rolling_rocks.store.to_vec(), cycles_done);
         }
     }
 
