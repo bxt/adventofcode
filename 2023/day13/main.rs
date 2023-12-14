@@ -1,4 +1,6 @@
-fn parse_data(input: &str) -> Vec<&str> {
+type Data<'a> = Vec<&'a str>;
+
+fn parse_data(input: &str) -> Data {
     input
         .lines()
         .map(|l| l.trim())
@@ -56,10 +58,10 @@ trait Pattern {
     fn count_smudges_between(&self, positions: (usize, usize)) -> usize;
 }
 
-struct HorizontalPattern<'a>(&'a Vec<&'a str>);
+struct HorizontalPattern<'a>(&'a Data<'a>);
 
-impl<'a> From<&'a Vec<&'a str>> for HorizontalPattern<'a> {
-    fn from(value: &'a Vec<&'a str>) -> Self {
+impl<'a> From<&'a Data<'a>> for HorizontalPattern<'a> {
+    fn from(value: &'a Data) -> Self {
         HorizontalPattern(value)
     }
 }
@@ -78,10 +80,10 @@ impl Pattern for HorizontalPattern<'_> {
     }
 }
 
-struct VerticalPattern<'a>(&'a Vec<&'a str>);
+struct VerticalPattern<'a>(&'a Data<'a>);
 
-impl<'a> From<&'a Vec<&'a str>> for VerticalPattern<'a> {
-    fn from(value: &'a Vec<&'a str>) -> Self {
+impl<'a> From<&'a Data<'a>> for VerticalPattern<'a> {
+    fn from(value: &'a Data) -> Self {
         VerticalPattern(value)
     }
 }
@@ -126,8 +128,8 @@ fn check_mirror_positions() {
     assert_eq!(mirror_position(HorizontalPattern(&pattern2), 1), Some(1));
 }
 
-fn mirror_positions_sum<'a, P: Pattern + From<&'a Vec<&'a str>>>(
-    data: &'a Vec<Vec<&str>>,
+fn mirror_positions_sum<'a, P: Pattern + From<&'a Data<'a>>>(
+    data: &'a Vec<Data>,
     expected_smudges: usize,
 ) -> usize {
     data.iter()
@@ -136,7 +138,7 @@ fn mirror_positions_sum<'a, P: Pattern + From<&'a Vec<&'a str>>>(
         .sum::<usize>()
 }
 
-fn combined_mirror_positions_sum<'a>(data: &Vec<Vec<&str>>, expected_smudges: usize) -> usize {
+fn combined_mirror_positions_sum<'a>(data: &Vec<Data>, expected_smudges: usize) -> usize {
     let horizontal_mirror_sum = mirror_positions_sum::<HorizontalPattern>(data, expected_smudges);
     let vertical_mirror_sum = mirror_positions_sum::<VerticalPattern>(data, expected_smudges);
     vertical_mirror_sum + 100 * horizontal_mirror_sum
