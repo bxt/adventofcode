@@ -152,12 +152,7 @@ fn combined_mirror_positions_sum<'a, const SMUDGES: usize>(data: &Vec<Data>) -> 
 
 fn main() -> () {
     let file = std::fs::read_to_string("day13/input.txt").unwrap();
-
     let data = file.split("\n\n").map(parse_data).collect::<Vec<Vec<_>>>();
-
-    let part1 = combined_mirror_positions_sum::<0>(&data);
-    println!("Part 1: {:?}", part1);
-
-    let part2 = combined_mirror_positions_sum::<1>(&data);
-    println!("Part 2: {:?}", part2);
+    println!("Part 1: {:?}", combined_mirror_positions_sum::<0>(&data));
+    println!("Part 2: {:?}", combined_mirror_positions_sum::<1>(&data));
 }
