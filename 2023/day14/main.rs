@@ -120,26 +120,6 @@ fn tilt_east(width: usize, height: usize, lines: &Vec<&str>, rolling_rocks: &mut
     }
 }
 
-fn print_rocks(height: usize, width: usize, lines: &Vec<&str>, rolling_rocks: &Vec<u64>) {
-    for y in 0..height {
-        for x in 0..width {
-            if lines[y].bytes().nth(x).unwrap() == b'#' {
-                print!("#")
-            } else {
-                let index = y * width + x;
-                let rolling_rocks_index = index / 64;
-                let bytes_index = index % 64;
-                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
-                    print!("O")
-                } else {
-                    print!(".")
-                }
-            }
-        }
-        println!();
-    }
-}
-
 fn sum_north_support_beam_load(height: usize, width: usize, rolling_rocks: &Vec<u64>) -> usize {
     let mut north_support_beam_load = 0;
 
@@ -187,62 +167,33 @@ fn main() -> () {
         }
     }
 
-    println!();
-    println!("Initial");
-    print_rocks(height, width, &lines, &rolling_rocks);
-
     tilt_north(width, height, &lines, &mut rolling_rocks);
 
     let part1 = sum_north_support_beam_load(height, width, &rolling_rocks);
     println!("Part 1: {:?}", part1);
 
-    println!();
-    println!("After north:");
-    print_rocks(height, width, &lines, &rolling_rocks);
-
     tilt_west(width, height, &lines, &mut rolling_rocks);
-
-    println!();
-    println!("After west:");
-    print_rocks(height, width, &lines, &rolling_rocks);
-
     tilt_south(width, height, &lines, &mut rolling_rocks);
-
-    println!();
-    println!("After south:");
-    print_rocks(height, width, &lines, &rolling_rocks);
-
     tilt_east(width, height, &lines, &mut rolling_rocks);
 
     let mut cycles_done = 1;
     let cycles_target = 1000000000;
 
     while cycles_done != cycles_target {
-        if cycles_done == 1 || cycles_done == 2 || cycles_done == 3 {
-            println!();
-            println!("After {cycles_done} cycles:");
-
-            print_rocks(height, width, &lines, &rolling_rocks);
-        }
-
         tilt_north(width, height, &lines, &mut rolling_rocks);
         tilt_west(width, height, &lines, &mut rolling_rocks);
         tilt_south(width, height, &lines, &mut rolling_rocks);
         tilt_east(width, height, &lines, &mut rolling_rocks);
         cycles_done += 1;
+
         if let Some(previous_cycles_done) = seen.get(&rolling_rocks) {
             let loop_size = cycles_done - previous_cycles_done;
             let cycles_left = cycles_target - cycles_done;
             let skip_loops = cycles_left / loop_size;
             let skip_cycles = skip_loops * loop_size;
             cycles_done += skip_cycles;
-            println!("Skipping {skip_loops} loops of {loop_size} for a total of {skip_cycles} cycles like a boss");
         } else {
             seen.insert(rolling_rocks.to_vec(), cycles_done);
-        }
-        if cycles_done % 10000 == 0 || (cycles_target - cycles_done < 100) {
-            dbg!(cycles_done);
-            dbg!(sum_north_support_beam_load(height, width, &rolling_rocks));
         }
     }
 
