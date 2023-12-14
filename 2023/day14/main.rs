@@ -1,50 +1,45 @@
-fn transpose_lines(lines: Vec<&str>) -> Vec<String> {
-    (0..(lines[0].len()))
-        .map(|index| {
-            String::from_utf8(
-                lines
-                    .iter()
-                    .map(|line| line.bytes().nth(index).unwrap())
-                    .collect(),
-            )
-            .unwrap()
-        })
-        .collect()
-}
+use std::collections::HashMap;
 
-fn weight_after_shift(input: &str) -> usize {
-    let mut total_weight = 0;
-    let mut next_weight = input.len();
-    for (index, byte) in input.bytes().enumerate() {
-        match byte {
-            b'O' => {
-                total_weight += next_weight;
-                next_weight -= 1;
-            }
-            b'#' => {
-                next_weight = input.len() - index - 1;
-            }
-            b'.' => {}
-            _ => {
-                panic!("Not sure what to do with {byte}")
+fn tilt_north(width: usize, height: usize, lines: Vec<&str>, rolling_rocks: &mut Vec<u64>) {
+    for x in 0..width {
+        let mut next_free_spot = 0;
+        for y in 0..height {
+            if lines[y].bytes().nth(x).unwrap() == b'#' {
+                next_free_spot = y + 1;
+            } else {
+                let index = y * width + x;
+                let rolling_rocks_index = index / 64;
+                let bytes_index = index % 64;
+                if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                    if next_free_spot != y {
+                        rolling_rocks[rolling_rocks_index] &= !(1 << bytes_index);
+
+                        let index = next_free_spot * width + x;
+                        let rolling_rocks_index = index / 64;
+                        let bytes_index = index % 64;
+                        rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+                    }
+                    next_free_spot += 1;
+                }
             }
         }
     }
-    total_weight
 }
 
-#[test]
-fn check_weight_after_shift() {
-    assert_eq!(weight_after_shift("O...."), 5);
-    assert_eq!(weight_after_shift(".O..."), 5);
-    assert_eq!(weight_after_shift("OO..."), 9);
-    assert_eq!(weight_after_shift("...OO"), 9);
-    assert_eq!(weight_after_shift("..O#."), 5);
-    assert_eq!(weight_after_shift("..#O."), 2);
-    assert_eq!(weight_after_shift("..#OO"), 3);
-    assert_eq!(weight_after_shift("###OO"), 3);
-    assert_eq!(weight_after_shift(".#OO."), 5);
-    assert_eq!(weight_after_shift(".O#OO"), 8);
+fn sum_north_support_beam_load(height: usize, width: usize, rolling_rocks: &Vec<u64>) -> usize {
+    let mut north_support_beam_load = 0;
+
+    for y in 0..height {
+        for x in 0..width {
+            let index = y * width + x;
+            let rolling_rocks_index = index / 64;
+            let bytes_index = index % 64;
+            if (rolling_rocks[rolling_rocks_index] & (1 << bytes_index)) > 0 {
+                north_support_beam_load += height - y;
+            }
+        }
+    }
+    north_support_beam_load
 }
 
 fn main() -> () {
@@ -56,12 +51,29 @@ fn main() -> () {
         .filter(|l| !l.is_empty())
         .collect::<Vec<_>>();
 
-    let lines_transposed = transpose_lines(lines);
+    // let mut seen = HashMap::new();
 
-    let part1 = lines_transposed
-        .iter()
-        .map(|line| weight_after_shift(&line))
-        .sum::<usize>();
+    let width = lines[0].len();
+    let height = lines.len();
 
+    let mut rolling_rocks: Vec<u64> = vec![];
+
+    for (y, line) in lines.iter().enumerate() {
+        for (x, byte) in line.bytes().enumerate() {
+            let index = y * width + x;
+            let rolling_rocks_index = index / 64;
+            let bytes_index = index % 64;
+            if bytes_index == 0 {
+                rolling_rocks.push(0);
+            }
+            if byte == b'O' {
+                rolling_rocks[rolling_rocks_index] |= 1 << bytes_index;
+            }
+        }
+    }
+
+    tilt_north(width, height, lines, &mut rolling_rocks);
+
+    let part1 = sum_north_support_beam_load(height, width, &rolling_rocks);
     println!("Part 1: {:?}", part1);
 }
