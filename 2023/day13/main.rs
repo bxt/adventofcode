@@ -1,4 +1,4 @@
-fn parse_pattern(input: &str) -> Vec<&str> {
+fn parse_data(input: &str) -> Vec<&str> {
     input
         .lines()
         .map(|l| l.trim())
@@ -58,6 +58,12 @@ trait Pattern {
 
 struct HorizontalPattern<'a>(&'a Vec<&'a str>);
 
+impl<'a> From<&'a Vec<&'a str>> for HorizontalPattern<'a> {
+    fn from(value: &'a Vec<&'a str>) -> Self {
+        HorizontalPattern(value)
+    }
+}
+
 impl Pattern for HorizontalPattern<'_> {
     fn len(&self) -> usize {
         self.0.len()
@@ -73,6 +79,12 @@ impl Pattern for HorizontalPattern<'_> {
 }
 
 struct VerticalPattern<'a>(&'a Vec<&'a str>);
+
+impl<'a> From<&'a Vec<&'a str>> for VerticalPattern<'a> {
+    fn from(value: &'a Vec<&'a str>) -> Self {
+        VerticalPattern(value)
+    }
+}
 
 impl Pattern for VerticalPattern<'_> {
     fn len(&self) -> usize {
@@ -103,9 +115,9 @@ fn mirror_position(pattern: impl Pattern, expected_smudges: usize) -> Option<usi
 #[test]
 fn check_mirror_positions() {
     let str1 = "#.##..##.\n..#.##.#.\n##......#\n##......#\n..#.##.#.\n..##..##.\n#.#.##.#.";
-    let pattern1 = parse_pattern(str1);
+    let pattern1 = parse_data(str1);
     let str2 = "#...##..#\n#....#..#\n..##..###\n#####.##.\n#####.##.\n..##..###\n#....#..#";
-    let pattern2 = parse_pattern(str2);
+    let pattern2 = parse_data(str2);
     assert_eq!(mirror_position(HorizontalPattern(&pattern1), 0), None);
     assert_eq!(mirror_position(HorizontalPattern(&pattern2), 0), Some(4));
     assert_eq!(mirror_position(VerticalPattern(&pattern1), 0), Some(5));
@@ -114,37 +126,26 @@ fn check_mirror_positions() {
     assert_eq!(mirror_position(HorizontalPattern(&pattern2), 1), Some(1));
 }
 
-fn mirror_positions_sum<'a>(
-    patterns: impl Iterator<Item = (impl Pattern + 'a)>,
+fn mirror_positions_sum<'a, P: Pattern + From<&'a Vec<&'a str>>>(
+    data: &'a Vec<Vec<&str>>,
     expected_smudges: usize,
 ) -> usize {
-    patterns
-        .map(|pattern| mirror_position(pattern, expected_smudges))
+    data.iter()
+        .map(|pattern| mirror_position(P::from(pattern), expected_smudges))
         .map(Option::unwrap_or_default)
         .sum::<usize>()
 }
 
 fn combined_mirror_positions_sum<'a>(data: &Vec<Vec<&str>>, expected_smudges: usize) -> usize {
-    let horizontal_mirror_sum = mirror_positions_sum(
-        data.iter().map(|pattern| HorizontalPattern(pattern)),
-        expected_smudges,
-    );
-
-    let vertical_mirror_sum = mirror_positions_sum(
-        data.iter().map(|pattern| VerticalPattern(pattern)),
-        expected_smudges,
-    );
-
+    let horizontal_mirror_sum = mirror_positions_sum::<HorizontalPattern>(data, expected_smudges);
+    let vertical_mirror_sum = mirror_positions_sum::<VerticalPattern>(data, expected_smudges);
     vertical_mirror_sum + 100 * horizontal_mirror_sum
 }
 
 fn main() -> () {
     let file = std::fs::read_to_string("day13/input.txt").unwrap();
 
-    let data = file
-        .split("\n\n")
-        .map(parse_pattern)
-        .collect::<Vec<Vec<_>>>();
+    let data = file.split("\n\n").map(parse_data).collect::<Vec<Vec<_>>>();
 
     let part1 = combined_mirror_positions_sum(&data, 0);
     println!("Part 1: {:?}", part1);
