@@ -60,9 +60,8 @@ fn parse_instructions(input: &str) -> impl Iterator<Item = Instruction> {
 fn run_instructions<'a>(
     instructions: impl Iterator<Item = Instruction<'a>>,
 ) -> Vec<Vec<(&'a str, u64)>> {
-    let mut boxes = repeat(Vec::new()).take(256).collect::<Vec<_>>();
-
-    for instruction in instructions {
+    let boxes = repeat(Vec::new()).take(256).collect::<Vec<_>>();
+    instructions.fold(boxes, |mut boxes, instruction| {
         match instruction {
             Instruction::Remove(label) => {
                 let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
@@ -78,10 +77,9 @@ fn run_instructions<'a>(
                     the_box.push((label, value));
                 }
             }
-        }
-    }
-
-    boxes
+        };
+        boxes
+    })
 }
 
 fn parse_and_run_instructions(input: &str) -> Vec<Vec<(&str, u64)>> {
