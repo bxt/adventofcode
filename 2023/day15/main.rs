@@ -1,12 +1,11 @@
 use std::iter::repeat;
 
-fn hash(input: &str) -> u64 {
-    let mut value = 0;
+fn hash(input: &str) -> u8 {
+    let mut value = 0u8;
     for byte in input.bytes() {
         if byte != b'\n' {
-            value += u64::from(byte);
-            value *= 17;
-            value %= 256
+            value = value.wrapping_add(byte);
+            value = value.wrapping_mul(17);
         }
     }
     value
@@ -18,7 +17,7 @@ fn check_hash() {
 }
 
 fn hash_all(input: &str) -> u64 {
-    input.split(",").map(|s| hash(s)).sum::<u64>()
+    input.split(",").map(|s| u64::from(hash(s))).sum::<u64>()
 }
 
 #[test]
