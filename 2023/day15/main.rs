@@ -28,26 +28,31 @@ fn check_hash_all() {
     );
 }
 
-fn find_focus_power(input: &str) -> usize {
-    let mut boxes = repeat(Vec::<(&str, u64)>::new())
-        .take(256)
-        .collect::<Vec<_>>();
+fn find_lens_box_and_index<'a, 'b, 'c>(
+    boxes: &'a mut Vec<Vec<(&'b str, u64)>>,
+    label: &'c str,
+) -> (&'a mut Vec<(&'b str, u64)>, Option<usize>) {
+    let hash: u8 = hash(label);
+    let box_index = usize::try_from(hash).unwrap();
+    let the_box = &mut boxes[box_index];
+    let maybe_index = the_box.iter().position(|(l, _)| *l == label);
+    (the_box, maybe_index)
+}
+
+fn parse_and_run_instructions(input: &str) -> Vec<Vec<(&str, u64)>> {
+    let mut boxes = repeat(Vec::new()).take(256).collect::<Vec<_>>();
 
     for instruction_str in input.split(",").map(str::trim) {
         if instruction_str.ends_with("-") {
             let label = &instruction_str[0..instruction_str.len() - 1];
-            let hash = hash(label);
-            let the_box = &mut boxes[usize::try_from(hash).unwrap()];
-            let maybe_index = the_box.iter().position(|(l, _)| *l == label);
+            let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
             if let Some(index) = maybe_index {
                 the_box.remove(index);
             }
         } else {
             let (label, value_str) = instruction_str.split_once("=").unwrap();
             let value = value_str.parse::<u64>().unwrap();
-            let hash = hash(label);
-            let the_box = &mut boxes[usize::try_from(hash).unwrap()];
-            let maybe_index = the_box.iter().position(|(l, _)| *l == label);
+            let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
             if let Some(index) = maybe_index {
                 the_box[index].1 = value;
             } else {
@@ -56,8 +61,10 @@ fn find_focus_power(input: &str) -> usize {
         }
     }
 
-    // dbg!(&boxes);
+    boxes
+}
 
+fn calculate_focus_power(boxes: &Vec<Vec<(&str, u64)>>) -> usize {
     let mut focus_power = 0;
 
     for (box_index, the_box) in boxes.iter().enumerate() {
@@ -70,6 +77,11 @@ fn find_focus_power(input: &str) -> usize {
     focus_power
 }
 
+fn find_focus_power(input: &str) -> usize {
+    let boxes = parse_and_run_instructions(input);
+    calculate_focus_power(&boxes)
+}
+
 #[test]
 fn check_find_focus_power() {
     assert_eq!(
@@ -80,10 +92,6 @@ fn check_find_focus_power() {
 
 fn main() -> () {
     let file = std::fs::read_to_string("day15/input.txt").unwrap();
-
-    // let data = file.split(",").collect::<Vec<_>>();
-
     println!("Part 1: {:?}", hash_all(&file));
-
     println!("Part 2: {:?}", find_focus_power(&file));
 }
