@@ -39,29 +39,53 @@ fn find_lens_box_and_index<'a, 'b, 'c>(
     (the_box, maybe_index)
 }
 
-fn parse_and_run_instructions(input: &str) -> Vec<Vec<(&str, u64)>> {
-    let mut boxes = repeat(Vec::new()).take(256).collect::<Vec<_>>();
+enum Instruction<'a> {
+    Remove(&'a str),
+    Set(&'a str, u64),
+}
 
-    for instruction_str in input.split(",").map(str::trim) {
+fn parse_instructions(input: &str) -> impl Iterator<Item = Instruction> {
+    input.split(",").map(str::trim).map(|instruction_str| {
         if instruction_str.ends_with("-") {
             let label = &instruction_str[0..instruction_str.len() - 1];
-            let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
-            if let Some(index) = maybe_index {
-                the_box.remove(index);
-            }
+            Instruction::Remove(label)
         } else {
             let (label, value_str) = instruction_str.split_once("=").unwrap();
             let value = value_str.parse::<u64>().unwrap();
-            let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
-            if let Some(index) = maybe_index {
-                the_box[index].1 = value;
-            } else {
-                the_box.push((label, value));
+            Instruction::Set(label, value)
+        }
+    })
+}
+
+fn run_instructions<'a>(
+    instructions: impl Iterator<Item = Instruction<'a>>,
+) -> Vec<Vec<(&'a str, u64)>> {
+    let mut boxes = repeat(Vec::new()).take(256).collect::<Vec<_>>();
+
+    for instruction in instructions {
+        match instruction {
+            Instruction::Remove(label) => {
+                let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
+                if let Some(index) = maybe_index {
+                    the_box.remove(index);
+                }
+            }
+            Instruction::Set(label, value) => {
+                let (the_box, maybe_index) = find_lens_box_and_index(&mut boxes, label);
+                if let Some(index) = maybe_index {
+                    the_box[index].1 = value;
+                } else {
+                    the_box.push((label, value));
+                }
             }
         }
     }
 
     boxes
+}
+
+fn parse_and_run_instructions(input: &str) -> Vec<Vec<(&str, u64)>> {
+    run_instructions(parse_instructions(input))
 }
 
 fn calculate_focus_power(boxes: &Vec<Vec<(&str, u64)>>) -> usize {
