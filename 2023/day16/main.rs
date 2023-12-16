@@ -1,4 +1,4 @@
-use std::{collections::HashSet, ops::Add, vec};
+use std::{collections::HashSet, iter::empty, ops::Add, vec};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 struct Coord<T>(T, T);
@@ -19,6 +19,12 @@ impl Coord<isize> {
         let index0 = usize::try_from(self.0).unwrap();
         let index1 = usize::try_from(self.1).unwrap();
         (index0 < field.len() && index1 < field[index0].len()).then(|| &field[index0][index1])
+    }
+}
+
+impl From<Coord<usize>> for Coord<isize> {
+    fn from(Coord(y, x): Coord<usize>) -> Self {
+        Coord(isize::try_from(y).unwrap(), isize::try_from(x).unwrap())
     }
 }
 
@@ -121,4 +127,24 @@ fn main() -> () {
 
     let start_beam: (Coord<isize>, Direction) = (Coord(0, 0), Direction::E);
     println!("Part 1: {:?}", find_energized_positions(start_beam, &field));
+
+    let potential_start_beams = empty()
+        .chain((0..field[0].len()).flat_map(|x| {
+            [
+                (Coord(0, x).into(), Direction::S),
+                (Coord(field.len() - 1, x).into(), Direction::N),
+            ]
+        }))
+        .chain((0..field.len()).flat_map(|y| {
+            [
+                (Coord(y, 0).into(), Direction::E),
+                (Coord(y, field[0].len() - 1).into(), Direction::W),
+            ]
+        }));
+
+    let part2 = potential_start_beams
+        .map(|start_beam| find_energized_positions(start_beam, &field))
+        .max()
+        .unwrap();
+    println!("Part 2: {:?}", part2);
 }
