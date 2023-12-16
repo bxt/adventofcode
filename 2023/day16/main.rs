@@ -70,25 +70,21 @@ impl Splitter for u8 {
     }
 }
 
-fn advance_positions(
+fn advance_positions<'a>(
     beams: Vec<(Coord<isize>, Direction)>,
-    field: &Vec<&[u8]>,
-) -> Vec<(Coord<isize>, Direction)> {
-    beams
-        .into_iter()
-        .flat_map(|(position, direction)| {
-            let byte = position
-                .on(field)
-                .unwrap_or_else(|| panic!("Not on field? {position:?}"));
-            byte.split(direction)
-                .into_iter()
-                .filter_map(|direction| {
-                    let coord = position + Coord::from(&direction);
-                    coord.on(field).map(|_| (coord, direction))
-                })
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>()
+    field: &'a Vec<&'a [u8]>,
+) -> impl Iterator<Item = (Coord<isize>, Direction)> + 'a {
+    beams.into_iter().flat_map(move |(position, direction)| {
+        let byte = position
+            .on(field)
+            .unwrap_or_else(|| panic!("Not on field? {position:?}"));
+        byte.split(direction)
+            .into_iter()
+            .filter_map(move |direction| {
+                let coord = position + Coord::from(&direction);
+                coord.on(field).map(|_| (coord, direction))
+            })
+    })
 }
 
 fn main() -> () {
@@ -105,39 +101,12 @@ fn main() -> () {
 
     let mut cycles = 0..;
     cycles.try_fold(vec![start_beam], |previous_beams, _| {
-        let beams1 = advance_positions(previous_beams, &field);
-        let beams = beams1
-            .into_iter()
+        let beams = advance_positions(previous_beams, &field)
             .filter(|beam| !seen.contains(beam))
             .collect::<Vec<_>>();
         for beam in &beams {
             seen.insert(beam.to_owned());
         }
-        for y in 0..12 {
-            for x in 0..12 {
-                let position = Coord(y, x);
-                if let Some(byte) = position.on(&field) {
-                    let beams_here = beams
-                        .iter()
-                        .filter(|(c, _)| position == *c)
-                        .collect::<Vec<_>>();
-                    if beams_here.len() == 0 {
-                        print!("{}", std::str::from_utf8(&[*byte][0..1]).unwrap());
-                    } else if beams_here.len() == 1 {
-                        match beams_here[0].1 {
-                            Direction::N => print!("^"),
-                            Direction::W => print!("<"),
-                            Direction::S => print!("v"),
-                            Direction::E => print!(">"),
-                        }
-                    }
-                } else {
-                    print!(",")
-                }
-            }
-            println!("");
-        }
-        println!("");
 
         (beams.len() > 0).then_some(beams)
     });
@@ -148,5 +117,4 @@ fn main() -> () {
     }
 
     println!("Part 1: {:?}", energized_positions.len());
-    // 488 too low
 }
