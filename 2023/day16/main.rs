@@ -54,14 +54,10 @@ trait Splitter {
 impl Splitter for u8 {
     fn split(&self, previous_direction: Direction) -> Vec<Direction> {
         match (self, previous_direction) {
-            (b'|', Direction::N) => vec![Direction::N],
-            (b'|', Direction::W) => vec![Direction::N, Direction::S],
-            (b'|', Direction::S) => vec![Direction::S],
-            (b'|', Direction::E) => vec![Direction::N, Direction::S],
-            (b'-', Direction::N) => vec![Direction::W, Direction::E],
-            (b'-', Direction::W) => vec![Direction::W],
-            (b'-', Direction::S) => vec![Direction::W, Direction::E],
-            (b'-', Direction::E) => vec![Direction::E],
+            (b'|', Direction::N | Direction::S) => vec![previous_direction],
+            (b'|', Direction::W | Direction::E) => vec![Direction::N, Direction::S],
+            (b'-', Direction::N | Direction::S) => vec![Direction::W, Direction::E],
+            (b'-', Direction::W | Direction::E) => vec![previous_direction],
             (b'/', Direction::N) => vec![Direction::E],
             (b'/', Direction::W) => vec![Direction::S],
             (b'/', Direction::S) => vec![Direction::W],
@@ -70,7 +66,7 @@ impl Splitter for u8 {
             (b'\\', Direction::W) => vec![Direction::N],
             (b'\\', Direction::S) => vec![Direction::E],
             (b'\\', Direction::E) => vec![Direction::S],
-            (b'.', d) => vec![d],
+            (b'.', _) => vec![previous_direction],
             _ => panic!("Byte '{self}' is not a valid field entry!"),
         }
     }
@@ -81,10 +77,10 @@ fn advance_positions<'a>(
     field: &'a Vec<&'a [u8]>,
 ) -> impl Iterator<Item = (Coord<isize>, Direction)> + 'a {
     beams.into_iter().flat_map(move |(position, direction)| {
-        let byte = position
+        position
             .on(field)
-            .unwrap_or_else(|| panic!("Not on field? {position:?}"));
-        byte.split(direction)
+            .unwrap_or_else(|| panic!("Not on field? {position:?}"))
+            .split(direction)
             .into_iter()
             .filter_map(move |direction| {
                 let coord = position + Coord::from(&direction);
@@ -101,6 +97,7 @@ fn find_energized_positions(start_beam: (Coord<isize>, Direction), field: &Vec<&
         let beams = advance_positions(previous_beams, &field)
             .filter(|beam| !seen.contains(beam))
             .collect::<Vec<_>>();
+
         for beam in &beams {
             seen.insert(beam.to_owned());
         }
@@ -112,7 +109,6 @@ fn find_energized_positions(start_beam: (Coord<isize>, Direction), field: &Vec<&
     for (position, _) in seen {
         energized_positions.insert(position);
     }
-
     energized_positions.len()
 }
 
@@ -129,19 +125,10 @@ fn main() -> () {
     println!("Part 1: {:?}", find_energized_positions(start_beam, &field));
 
     let potential_start_beams = empty()
-        .chain((0..field[0].len()).flat_map(|x| {
-            [
-                (Coord(0, x).into(), Direction::S),
-                (Coord(field.len() - 1, x).into(), Direction::N),
-            ]
-        }))
-        .chain((0..field.len()).flat_map(|y| {
-            [
-                (Coord(y, 0).into(), Direction::E),
-                (Coord(y, field[0].len() - 1).into(), Direction::W),
-            ]
-        }));
-
+        .chain((0..field[0].len()).map(|x| (Coord(0, x).into(), Direction::S)))
+        .chain((0..field[0].len()).map(|x| (Coord(field.len() - 1, x).into(), Direction::N)))
+        .chain((0..field.len()).map(|y| (Coord(y, 0).into(), Direction::E)))
+        .chain((0..field.len()).map(|y| (Coord(y, field[0].len() - 1).into(), Direction::W)));
     let part2 = potential_start_beams
         .map(|start_beam| find_energized_positions(start_beam, &field))
         .max()
