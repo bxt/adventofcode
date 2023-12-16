@@ -87,16 +87,7 @@ fn advance_positions<'a>(
     })
 }
 
-fn main() -> () {
-    let file = std::fs::read_to_string("day16/input.txt").unwrap();
-
-    let field = file
-        .lines()
-        .map(|l| l.trim().as_bytes())
-        .filter(|l| !l.is_empty())
-        .collect::<Vec<_>>();
-
-    let start_beam = (Coord(0, 0), Direction::E);
+fn find_energized_positions(start_beam: (Coord<isize>, Direction), field: &Vec<&[u8]>) -> usize {
     let mut seen = HashSet::from([start_beam]);
 
     let mut cycles = 0..;
@@ -116,5 +107,18 @@ fn main() -> () {
         energized_positions.insert(position);
     }
 
-    println!("Part 1: {:?}", energized_positions.len());
+    energized_positions.len()
+}
+
+fn main() -> () {
+    let file = std::fs::read_to_string("day16/input.txt").unwrap();
+
+    let field = file
+        .lines()
+        .map(|l| l.trim().as_bytes())
+        .filter(|l| !l.is_empty())
+        .collect::<Vec<_>>();
+
+    let start_beam: (Coord<isize>, Direction) = (Coord(0, 0), Direction::E);
+    println!("Part 1: {:?}", find_energized_positions(start_beam, &field));
 }
