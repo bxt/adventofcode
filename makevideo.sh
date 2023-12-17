@@ -25,7 +25,8 @@ cat <<'EOF'
   { "year": 2022, "day": "22", "file": "output.gif", "scale": 6 },
   { "year": 2022, "day": "24", "file": "output.gif", "scale": 5 },
   { "year": 2023, "day": "05", "file": "output2.gif", "scale": 3 },
-  { "year": 2023, "day": "10", "file": "output.gif", "scale": 3 }
+  { "year": 2023, "day": "10", "file": "output.gif", "scale": 3 },
+  { "year": 2023, "day": "16", "file": "output.gif", "scale": 3 }
 ]
 EOF
 )
