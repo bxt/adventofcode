@@ -87,3 +87,7 @@ path = "day15/main.rs"
 [[bin]]
 name = "adventofcode2023day16"
 path = "day16/main.rs"
+
+[[bin]]
+name = "adventofcode2023day16vis"
+path = "day16/vis.rs"
