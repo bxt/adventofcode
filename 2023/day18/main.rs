@@ -17,6 +17,10 @@ impl FromStr for Direction {
             "L" => Ok(Direction::L),
             "D" => Ok(Direction::D),
             "R" => Ok(Direction::R),
+            "0" => Ok(Direction::R),
+            "1" => Ok(Direction::D),
+            "2" => Ok(Direction::L),
+            "3" => Ok(Direction::U),
             _ => Err("Not a valid direction: ".to_string() + s),
         }
     }
@@ -75,4 +79,20 @@ fn main() -> () {
         .collect::<Vec<_>>();
 
     println!("Part 1: {:?}", get_lagoon_size(instructions_part1));
+
+    let instructions_part2 = &file
+        .lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
+        .map(|line| {
+            let (_, hex_code) = line.split_once(" (#").unwrap();
+            let distance_str = &hex_code[0..5];
+            let direction_str = &hex_code[5..6];
+            let direction: Direction = direction_str.parse().unwrap();
+            let distance = isize::from_str_radix(distance_str, 16).unwrap();
+            (direction, distance)
+        })
+        .collect::<Vec<_>>();
+
+    println!("Part 2: {:?}", get_lagoon_size(instructions_part2));
 }
