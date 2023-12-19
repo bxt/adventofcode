@@ -36,22 +36,7 @@ fn check_is_counterclockwise() {
     assert_eq!(is_counterclockwise(Direction::R, Direction::D), false);
 }
 
-fn main() -> () {
-    let file = std::fs::read_to_string("day18/input.txt").unwrap();
-
-    let instructions = file
-        .lines()
-        .map(|l| l.trim())
-        .filter(|l| !l.is_empty())
-        .map(|line| {
-            let (direction_str, rest) = line.split_once(" ").unwrap();
-            let (distance_str, _) = rest.split_once(" ").unwrap();
-            let direction: Direction = direction_str.parse().unwrap();
-            let distance: isize = distance_str.parse().unwrap();
-            (direction, distance)
-        })
-        .collect::<Vec<_>>();
-
+fn get_lagoon_size(instructions: &Vec<(Direction, isize)>) -> isize {
     let mut x_position = 0;
     let mut lagoon_size = 0;
 
@@ -70,6 +55,24 @@ fn main() -> () {
             Direction::R => x_position -= outer_distance,
         }
     }
+    lagoon_size
+}
 
-    println!("Part 1: {:?}", lagoon_size);
+fn main() -> () {
+    let file = std::fs::read_to_string("day18/input.txt").unwrap();
+
+    let instructions_part1 = &file
+        .lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
+        .map(|line| {
+            let (direction_str, rest) = line.split_once(" ").unwrap();
+            let (distance_str, _) = rest.split_once(" ").unwrap();
+            let direction: Direction = direction_str.parse().unwrap();
+            let distance: isize = distance_str.parse().unwrap();
+            (direction, distance)
+        })
+        .collect::<Vec<_>>();
+
+    println!("Part 1: {:?}", get_lagoon_size(instructions_part1));
 }
