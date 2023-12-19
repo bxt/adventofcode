@@ -13,53 +13,30 @@ impl FromStr for Direction {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "U" => Ok(Direction::U),
-            "L" => Ok(Direction::L),
-            "D" => Ok(Direction::D),
-            "R" => Ok(Direction::R),
-            "0" => Ok(Direction::R),
-            "1" => Ok(Direction::D),
-            "2" => Ok(Direction::L),
-            "3" => Ok(Direction::U),
+            "U" | "3" => Ok(Direction::U),
+            "L" | "2" => Ok(Direction::L),
+            "D" | "1" => Ok(Direction::D),
+            "R" | "0" => Ok(Direction::R),
             _ => Err("Not a valid direction: ".to_string() + s),
         }
     }
 }
 
-fn is_counterclockwise(from: Direction, to: Direction) -> bool {
-    let all_directions = [Direction::U, Direction::L, Direction::D, Direction::R];
-    let direction_index = all_directions.iter().position(|&d| d == from).unwrap();
-    to == all_directions[(direction_index + 1) % all_directions.len()]
-}
-
-#[test]
-fn check_is_counterclockwise() {
-    assert_eq!(is_counterclockwise(Direction::L, Direction::D), true);
-    assert_eq!(is_counterclockwise(Direction::D, Direction::R), true);
-    assert_eq!(is_counterclockwise(Direction::D, Direction::L), false);
-    assert_eq!(is_counterclockwise(Direction::R, Direction::D), false);
-}
-
 fn get_lagoon_size(instructions: &Vec<(Direction, isize)>) -> isize {
     let mut x_position = 0;
     let mut lagoon_size = 0;
+    let mut trench_size = 0;
 
-    for index in 0..instructions.len() {
-        let (direction, distance) = instructions[index];
-        let (prev_direction, _) =
-            instructions[(index + instructions.len() - 1) % instructions.len()];
-        let (next_direction, _) = instructions[(index + 1) % instructions.len()];
-        let outer_distance = distance
-            + isize::from(!is_counterclockwise(prev_direction, direction))
-            - isize::from(is_counterclockwise(direction, next_direction));
+    for (direction, distance) in instructions {
+        trench_size += distance;
         match direction {
-            Direction::U => lagoon_size += outer_distance * x_position,
-            Direction::L => x_position += outer_distance,
-            Direction::D => lagoon_size -= outer_distance * x_position,
-            Direction::R => x_position -= outer_distance,
+            Direction::U => lagoon_size += distance * x_position,
+            Direction::L => x_position += distance,
+            Direction::D => lagoon_size -= distance * x_position,
+            Direction::R => x_position -= distance,
         }
     }
-    lagoon_size
+    lagoon_size + trench_size / 2 + 1
 }
 
 fn main() -> () {
@@ -67,8 +44,6 @@ fn main() -> () {
 
     let instructions_part1 = &file
         .lines()
-        .map(|l| l.trim())
-        .filter(|l| !l.is_empty())
         .map(|line| {
             let (direction_str, rest) = line.split_once(" ").unwrap();
             let (distance_str, _) = rest.split_once(" ").unwrap();
@@ -82,8 +57,6 @@ fn main() -> () {
 
     let instructions_part2 = &file
         .lines()
-        .map(|l| l.trim())
-        .filter(|l| !l.is_empty())
         .map(|line| {
             let (_, hex_code) = line.split_once(" (#").unwrap();
             let distance_str = &hex_code[0..5];
