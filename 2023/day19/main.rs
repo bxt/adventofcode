@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 enum Condition {
-    Bigger(usize, u64),
+    BiggerOrEqual(usize, u64),
     Smaller(usize, u64),
     True,
 }
@@ -10,7 +10,7 @@ enum Condition {
 impl Condition {
     fn matches(&self, part: &Vec<u64>) -> bool {
         match self {
-            &Condition::Bigger(register, value) => part[register] > value,
+            &Condition::BiggerOrEqual(register, value) => part[register] >= value,
             &Condition::Smaller(register, value) => part[register] < value,
             &Condition::True => true,
         }
@@ -40,7 +40,7 @@ fn main() -> () {
                         let value = condition_str[2..].parse().unwrap();
                         let condition = match &condition_str[1..=1] {
                             "<" => Condition::Smaller(register, value),
-                            ">" => Condition::Bigger(register, value),
+                            ">" => Condition::BiggerOrEqual(register, value + 1),
                             _ => panic!("welp: {}", condition_str),
                         };
                         (condition, target)
