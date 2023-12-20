@@ -1,55 +1,97 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
-enum Condition {
-    BiggerOrEqual(usize, u64),
-    Smaller(usize, u64),
+const KEYS: [&str; 4] = ["x", "m", "a", "s"];
+
+#[derive(Debug, Clone)]
+struct Smaller(usize, u64);
+
+#[derive(Debug, Clone)]
+enum Term {
+    Or(Vec<Box<Term>>),
+    And(Vec<Box<Term>>),
+    Not(Box<Term>),
+    NonTerminal(String),
+    Terminal(Smaller),
     True,
+    False,
 }
 
-impl Condition {
-    fn matches(&self, part: &Vec<u64>) -> bool {
-        match self {
-            &Condition::BiggerOrEqual(register, value) => part[register] >= value,
-            &Condition::Smaller(register, value) => part[register] < value,
-            &Condition::True => true,
-        }
+fn parse_terminal(s: &str) -> Term {
+    let register = KEYS.iter().position(|k| k == &&s[0..=0]).unwrap();
+    let value = s[2..].parse().unwrap();
+    match &s[1..=1] {
+        "<" => Term::Terminal(Smaller(register, value)),
+        ">" => Term::Not(Box::new(Term::Terminal(Smaller(register, value + 1)))),
+        _ => panic!("welp: {}", s),
+    }
+}
+
+fn parse_constant_or_non_terminal(s: &str) -> Term {
+    match s {
+        "R" => Term::False,
+        "A" => Term::True,
+        _ => Term::NonTerminal(s.to_string()),
+    }
+}
+
+fn implies(a: Term, b: Term) -> Term {
+    Term::Or(
+        [Term::Not(Box::new(a)), b]
+            .into_iter()
+            .map(Box::new)
+            .collect(),
+    )
+}
+
+fn evaluate(term: &Term, part: &Vec<u64>, non_terminals: &HashMap<String, Term>) -> bool {
+    match term {
+        Term::Or(terms) => terms
+            .into_iter()
+            .any(|term| evaluate(term, part, non_terminals)),
+        Term::And(terms) => terms
+            .into_iter()
+            .all(|term| evaluate(term, part, non_terminals)),
+        Term::Not(inner_term) => !evaluate(inner_term, part, non_terminals),
+        Term::NonTerminal(name) => evaluate(non_terminals.get(name).unwrap(), part, non_terminals),
+        Term::Terminal(Smaller(index, value)) => part[*index] < *value,
+        Term::True => true,
+        Term::False => false,
     }
 }
 
 fn main() -> () {
-    let keys = ["x", "m", "a", "s"];
-
     let file = std::fs::read_to_string("day19/input.txt").unwrap();
 
     let (workflows_str, parts_str) = file.split_once("\n\n").unwrap();
 
-    let workflows = workflows_str
+    let non_terminals = workflows_str
         .lines()
         .map(|line| {
             let (name, rules_str_with_postfix) = line.split_once("{").unwrap();
             let rules_str = rules_str_with_postfix.strip_suffix("}").unwrap();
-            let rules = rules_str
-                .split(",")
+
+            let mut rule_strs = rules_str.split(",").collect::<Vec<_>>();
+            let last = parse_constant_or_non_terminal(rule_strs.pop().unwrap());
+
+            let rules = rule_strs
+                .into_iter()
+                .rev()
                 .map(|rule_str| {
                     if let Some((condition_str, target)) = rule_str.split_once(":") {
-                        let register = keys
-                            .iter()
-                            .position(|k| k == &&condition_str[0..=0])
-                            .unwrap();
-                        let value = condition_str[2..].parse().unwrap();
-                        let condition = match &condition_str[1..=1] {
-                            "<" => Condition::Smaller(register, value),
-                            ">" => Condition::BiggerOrEqual(register, value + 1),
-                            _ => panic!("welp: {}", condition_str),
-                        };
-                        (condition, target)
+                        let condition = parse_terminal(condition_str);
+                        let implication = parse_constant_or_non_terminal(target);
+                        (condition, implication)
                     } else {
-                        (Condition::True, rule_str)
+                        panic!("dkgfh!")
                     }
                 })
-                .collect::<Vec<_>>();
-            (name, rules)
+                .fold(last, |c, (a, b)| {
+                    Term::And(vec![
+                        Box::new(implies(a.clone(), b)),
+                        Box::new(implies(Term::Not(Box::new(a)), c)),
+                    ])
+                });
+            (name.to_string(), rules)
         })
         .collect::<HashMap<_, _>>();
 
@@ -61,7 +103,7 @@ fn main() -> () {
                 .strip_suffix("}")
                 .unwrap()
                 .split(",")
-                .zip(keys)
+                .zip(KEYS)
                 .map(|(n, prefix)| {
                     n.strip_prefix(prefix)
                         .unwrap()
@@ -76,24 +118,7 @@ fn main() -> () {
 
     let accepted_parts = parts
         .iter()
-        .filter(|part| {
-            let mut workflow_name = "in";
-            loop {
-                let workflow = workflows.get(workflow_name).unwrap();
-                for (condition, target) in workflow {
-                    if condition.matches(part) {
-                        workflow_name = target;
-                        break;
-                    }
-                }
-                if workflow_name == "A" {
-                    return true;
-                }
-                if workflow_name == "R" {
-                    return false;
-                }
-            }
-        })
+        .filter(|part| evaluate(&Term::NonTerminal("in".to_string()), part, &non_terminals))
         .collect::<Vec<_>>();
 
     let accepted_parts_sum = accepted_parts
