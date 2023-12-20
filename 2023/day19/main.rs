@@ -133,6 +133,17 @@ fn resolve_non_terminals(term: Term, non_terminals: &HashMap<String, Term>) -> T
     }
 }
 
+fn count_subterms(term: &Term) -> usize {
+    match term {
+        Term::Or(terms) | Term::And(terms) => {
+            1 + terms.iter().map(|term| count_subterms(term)).sum::<usize>()
+        }
+
+        Term::Not(inner_term) => 1 + count_subterms(inner_term),
+        _ => 1,
+    }
+}
+
 fn evaluate(term: &Term, part: &Vec<u64>, non_terminals: &HashMap<String, Term>) -> bool {
     match term {
         Term::Or(terms) => terms
@@ -181,14 +192,39 @@ fn main() -> () {
                         Box::new(implies(Term::Not(Box::new(a)), c)),
                     ])
                 });
-            (name.to_string(), simplify(rules))
+            (name.to_string(), rules)
         })
         .collect::<HashMap<_, _>>();
+
+    // dbg!(&non_terminals);
+
+    dbg!(non_terminals
+        .values()
+        .map(|v| count_subterms(v))
+        .sum::<usize>());
+
+    let non_terminals = non_terminals
+        .into_iter()
+        .map(|(k, v)| (k, simplify(v)))
+        .collect::<HashMap<_, _>>();
+
+    dbg!(non_terminals
+        .values()
+        .map(|v| count_subterms(v))
+        .sum::<usize>());
 
     let main_term = simplify(resolve_non_terminals(
         non_terminals.get("in").unwrap().clone(),
         &non_terminals,
     ));
+
+    dbg!(count_subterms(&main_term));
+
+    let main_term = simplify(main_term);
+
+    dbg!(count_subterms(&main_term));
+
+    // dbg!(&main_term);
 
     let parts = parts_str
         .lines()
