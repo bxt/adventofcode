@@ -133,6 +133,191 @@ fn resolve_non_terminals(term: Term, non_terminals: &HashMap<String, Term>) -> T
     }
 }
 
+fn invert<X, Y>(r: Result<X, Y>) -> Result<Y, X> {
+    match r {
+        Ok(v) => Err(v),
+        Err(e) => Ok(e),
+    }
+}
+
+fn or_terminals(
+    a: &Result<Smaller, Smaller>,
+    b: &Result<Smaller, Smaller>,
+) -> Option<Result<Smaller, Smaller>> {
+    match (&a, &b) {
+        (Ok(Smaller(i_a, n_a)), Ok(Smaller(i_b, n_b))) => {
+            if i_a == i_b {
+                Some(Ok(Smaller(*i_a, std::cmp::max(*n_a, *n_b))))
+            } else {
+                None
+            }
+        }
+        (Err(Smaller(i_a, n_a)), Err(Smaller(i_b, n_b))) => {
+            if i_a == i_b {
+                Some(Err(Smaller(*i_a, std::cmp::min(*n_a, *n_b))))
+            } else {
+                None
+            }
+        }
+        // x >= n_a || x < n_b
+        (Err(Smaller(i_a, n_a)), Ok(Smaller(i_b, n_b))) => {
+            if i_a == i_b && n_a <= n_b {
+                Some(Err(Smaller(*i_a, 0)))
+            } else {
+                None
+            }
+        }
+        (Ok(Smaller(i_a, n_a)), Err(Smaller(i_b, n_b))) => {
+            if i_a == i_b && n_a >= n_b {
+                Some(Err(Smaller(*i_a, 0)))
+            } else {
+                None
+            }
+        }
+    }
+}
+
+fn and_terminals(
+    a: &Result<Smaller, Smaller>,
+    b: &Result<Smaller, Smaller>,
+) -> Option<Result<Smaller, Smaller>> {
+    match (&a, &b) {
+        (Ok(Smaller(i_a, n_a)), Ok(Smaller(i_b, n_b))) => {
+            if i_a == i_b {
+                Some(Ok(Smaller(*i_a, std::cmp::min(*n_a, *n_b))))
+            } else {
+                None
+            }
+        }
+        (Err(Smaller(i_a, n_a)), Err(Smaller(i_b, n_b))) => {
+            if i_a == i_b {
+                Some(Err(Smaller(*i_a, std::cmp::max(*n_a, *n_b))))
+            } else {
+                None
+            }
+        }
+        // x >= n_a && x < n_b
+        (Err(Smaller(i_a, n_a)), Ok(Smaller(i_b, n_b))) => {
+            if i_a == i_b && n_a >= n_b {
+                Some(Ok(Smaller(*i_a, 0)))
+            } else {
+                None
+            }
+        }
+        (Ok(Smaller(i_a, n_a)), Err(Smaller(i_b, n_b))) => {
+            if i_a == i_b && n_a <= n_b {
+                Some(Ok(Smaller(*i_a, 0)))
+            } else {
+                None
+            }
+        }
+    }
+}
+
+fn normalize_or(term: Term) -> Vec<Vec<Result<Smaller, Smaller>>> {
+    match term {
+        Term::Or(terms) => terms
+            .into_iter()
+            .flat_map(|term| normalize_or(*term))
+            .collect(),
+        // (a v b v c) & (-a v b v c) ==>  (a & -a) v (a & b) v (a & c) v (b & -a) v ...
+        term @ Term::And(_) => normalize_and(term).iter().fold(vec![vec![]], |a, b| {
+            b.iter()
+                .flat_map(|b_elem| {
+                    a.clone()
+                        .into_iter()
+                        .map(|mut a_list| {
+                            let merge_option =
+                                a_list.iter().enumerate().find_map(|(index, a_elem)| {
+                                    and_terminals(&a_elem, b_elem).map(|new| (index, new))
+                                });
+
+                            if let Some((index, elem)) = merge_option {
+                                a_list[index] = elem;
+                            } else {
+                                a_list.push(b_elem.clone());
+                            }
+                            a_list
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .collect()
+        }),
+        Term::Not(inner_term) => normalize_and(*inner_term)
+            .into_iter()
+            .map(|a| a.into_iter().map(|b| invert(b)).collect())
+            .collect(),
+        Term::NonTerminal(_) => panic!("Resolve non terminals before normalize"),
+        Term::Terminal(terminal) => vec![vec![Ok(terminal)]],
+        Term::True => vec![vec![]],
+        Term::False => vec![],
+    }
+}
+
+#[test]
+fn check_normalize_or() {
+    assert_eq!(
+        normalize_or(Term::And(vec![
+            Box::new(Term::Terminal(Smaller(0, 55))),
+            Box::new(Term::Not(Box::new(Term::Terminal(Smaller(0, 55))))),
+        ])),
+        vec![vec![Ok(Smaller(0, 0))]]
+    );
+    assert_eq!(
+        normalize_or(Term::And(vec![
+            Box::new(Term::Terminal(Smaller(0, 55))),
+            Box::new(Term::Not(Box::new(Term::Terminal(Smaller(1, 55))))),
+        ])),
+        vec![vec![Ok(Smaller(0, 55)), Err(Smaller(1, 55))]]
+    );
+    assert_eq!(
+        normalize_or(Term::And(vec![
+            Box::new(Term::Terminal(Smaller(0, 55))),
+            Box::new(Term::Terminal(Smaller(0, 44))),
+        ])),
+        vec![vec![Ok(Smaller(0, 44))]]
+    );
+}
+
+fn normalize_and(term: Term) -> Vec<Vec<Result<Smaller, Smaller>>> {
+    match term {
+        term @ Term::Or(_) => normalize_or(term).iter().fold(vec![vec![]], |a, b| {
+            b.iter()
+                .flat_map(|b_elem| {
+                    a.clone()
+                        .into_iter()
+                        .map(|mut a_list| {
+                            let merge_option =
+                                a_list.iter().enumerate().find_map(|(index, a_elem)| {
+                                    or_terminals(&a_elem, b_elem).map(|new| (index, new))
+                                });
+
+                            if let Some((index, elem)) = merge_option {
+                                a_list[index] = elem;
+                            } else {
+                                a_list.push(b_elem.clone());
+                            }
+                            a_list
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .collect()
+        }),
+        Term::And(terms) => terms
+            .into_iter()
+            .flat_map(|term| normalize_and(*term))
+            .collect(),
+        Term::Not(inner_term) => normalize_or(*inner_term)
+            .into_iter()
+            .map(|a| a.into_iter().map(|b| invert(b)).collect())
+            .collect(),
+        Term::NonTerminal(_) => panic!("Resolve non terminals before normalize"),
+        Term::Terminal(terminal) => vec![vec![Ok(terminal)]],
+        Term::True => vec![],
+        Term::False => vec![vec![]],
+    }
+}
+
 fn evaluate(term: &Term, part: &Vec<u64>, non_terminals: &HashMap<String, Term>) -> bool {
     match term {
         Term::Or(terms) => terms
@@ -150,7 +335,7 @@ fn evaluate(term: &Term, part: &Vec<u64>, non_terminals: &HashMap<String, Term>)
 }
 
 fn main() -> () {
-    let file = std::fs::read_to_string("day19/input.txt").unwrap();
+    let file = std::fs::read_to_string("day19/example.txt").unwrap();
 
     let (workflows_str, parts_str) = file.split_once("\n\n").unwrap();
 
@@ -221,6 +406,8 @@ fn main() -> () {
         .map(|part| part.iter())
         .flatten()
         .sum::<u64>();
+
+    dbg!(normalize_or(main_term));
 
     println!("Part 1: {:?}", accepted_parts_sum);
 }
