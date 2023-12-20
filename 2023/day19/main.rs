@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const KEYS: [&str; 4] = ["x", "m", "a", "s"];
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Smaller(usize, u64);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum Term {
     Or(Vec<Box<Term>>),
     And(Vec<Box<Term>>),
@@ -41,6 +41,84 @@ fn implies(a: Term, b: Term) -> Term {
             .map(Box::new)
             .collect(),
     )
+}
+
+fn simplify(term: Term) -> Term {
+    match term {
+        Term::Or(terms) => {
+            let unboxed_terms = terms.into_iter().map(|t| *t).collect::<Vec<Term>>();
+            if unboxed_terms.iter().any(|term| *term == Term::True) {
+                return Term::True;
+            }
+            let mut new_terms = HashSet::new();
+            for term in unboxed_terms {
+                let new_term = simplify(term);
+                if new_term == Term::True {
+                    return Term::True;
+                } else if new_term != Term::False {
+                    new_terms.insert(Box::new(new_term));
+                }
+            }
+            if new_terms.len() == 0 {
+                return Term::False;
+            }
+            if new_terms.len() == 1 {
+                return *new_terms.drain().next().unwrap();
+            }
+            Term::Or(new_terms.into_iter().collect())
+        }
+        Term::And(terms) => {
+            let unboxed_terms = terms.into_iter().map(|t| *t).collect::<Vec<Term>>();
+            if unboxed_terms.iter().any(|term| *term == Term::False) {
+                return Term::False;
+            }
+            let mut new_terms = HashSet::new();
+            for term in unboxed_terms {
+                let new_term = simplify(term);
+                if new_term == Term::False {
+                    return Term::False;
+                } else if new_term != Term::True {
+                    new_terms.insert(Box::new(new_term));
+                }
+            }
+            if new_terms.len() == 0 {
+                return Term::True;
+            }
+            if new_terms.len() == 1 {
+                return *new_terms.drain().next().unwrap();
+            }
+            Term::And(new_terms.into_iter().collect())
+        }
+        Term::Not(inner_term) => match simplify(*inner_term) {
+            Term::Not(inner_inner_term) => *inner_inner_term,
+            something_else => Term::Not(Box::new(something_else)),
+        },
+        other => other,
+    }
+}
+
+fn resolve_non_terminals(term: Term, non_terminals: &HashMap<String, Term>) -> Term {
+    match term {
+        Term::Or(terms) => Term::Or(
+            terms
+                .into_iter()
+                .map(|term| Box::new(resolve_non_terminals(*term, &non_terminals)))
+                .collect(),
+        ),
+        Term::And(terms) => Term::And(
+            terms
+                .into_iter()
+                .map(|term| Box::new(resolve_non_terminals(*term, &non_terminals)))
+                .collect(),
+        ),
+        Term::Not(inner_term) => {
+            Term::Not(Box::new(resolve_non_terminals(*inner_term, &non_terminals)))
+        }
+        Term::NonTerminal(name) => {
+            resolve_non_terminals(non_terminals.get(&name).unwrap().clone(), &non_terminals)
+        }
+        _ => term,
+    }
 }
 
 fn evaluate(term: &Term, part: &Vec<u64>, non_terminals: &HashMap<String, Term>) -> bool {
@@ -91,9 +169,14 @@ fn main() -> () {
                         Box::new(implies(Term::Not(Box::new(a)), c)),
                     ])
                 });
-            (name.to_string(), rules)
+            (name.to_string(), simplify(rules))
         })
         .collect::<HashMap<_, _>>();
+
+    let main_term = simplify(resolve_non_terminals(
+        non_terminals.get("in").unwrap().clone(),
+        &non_terminals,
+    ));
 
     let parts = parts_str
         .lines()
@@ -118,7 +201,7 @@ fn main() -> () {
 
     let accepted_parts = parts
         .iter()
-        .filter(|part| evaluate(&Term::NonTerminal("in".to_string()), part, &non_terminals))
+        .filter(|part| evaluate(&main_term, part, &non_terminals))
         .collect::<Vec<_>>();
 
     let accepted_parts_sum = accepted_parts
