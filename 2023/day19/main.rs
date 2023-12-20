@@ -53,10 +53,15 @@ fn simplify(term: Term) -> Term {
             let mut new_terms = HashSet::new();
             for term in unboxed_terms {
                 let new_term = simplify(term);
-                if new_term == Term::True {
-                    return Term::True;
-                } else if new_term != Term::False {
-                    new_terms.insert(Box::new(new_term));
+                match new_term {
+                    Term::True => return Term::True,
+                    Term::False => {}
+                    Term::Or(subterms) => {
+                        new_terms.extend(subterms);
+                    }
+                    _ => {
+                        new_terms.insert(Box::new(new_term));
+                    }
                 }
             }
             if new_terms.len() == 0 {
@@ -75,10 +80,15 @@ fn simplify(term: Term) -> Term {
             let mut new_terms = HashSet::new();
             for term in unboxed_terms {
                 let new_term = simplify(term);
-                if new_term == Term::False {
-                    return Term::False;
-                } else if new_term != Term::True {
-                    new_terms.insert(Box::new(new_term));
+                match new_term {
+                    Term::False => return Term::False,
+                    Term::True => {}
+                    Term::And(subterms) => {
+                        new_terms.extend(subterms);
+                    }
+                    _ => {
+                        new_terms.insert(Box::new(new_term));
+                    }
                 }
             }
             if new_terms.len() == 0 {
