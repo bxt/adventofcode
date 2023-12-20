@@ -100,6 +100,8 @@ fn simplify(term: Term) -> Term {
             Term::And(new_terms.into_iter().collect())
         }
         Term::Not(inner_term) => match simplify(*inner_term) {
+            Term::False => Term::True,
+            Term::True => Term::False,
             Term::Not(inner_inner_term) => *inner_inner_term,
             something_else => Term::Not(Box::new(something_else)),
         },
