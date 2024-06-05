@@ -212,7 +212,7 @@ export function minusSets<T>(as: Iterable<T>, bs: Set<T>): Set<T> {
  * work for your type, e.g. `JSON.stringify` can be used if you know that key
  * order does not change. The result of `stringify` should not change for an
  * object, so it works best with `readonly` objects. Implements all the set
- * objects that do not rely on taking the objects out of the set again, if you
+ * methods that do not rely on taking the objects out of the set again, if you
  * need to read the objects back use `StringifySet` which implements all set
  * methods.
  */
