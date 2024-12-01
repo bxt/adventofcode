@@ -5,7 +5,7 @@ Advent of Code 2023
 
 This directory contains the code I used to solve the challenges from [Advent of Code 2023](http://adventofcode.com/2023).
 
-This year I'm going with Rust. Solutins can be run with e.g. `cargo run --bin adventofcode2023day01`.
+This year I'm going with Rust. Solutions can be run with e.g. `cargo run --bin adventofcode2023day01`.
 
 Learnings
 ---------
