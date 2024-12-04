@@ -13,14 +13,17 @@ const fourDirections = [
   [0, -1],
 ];
 
-const diagonalDirections = [
+const diagonalA = [
   [1, 1],
-  [-1, 1],
-  [1, -1],
   [-1, -1],
 ];
 
-const eightDirections = [...fourDirections, ...diagonalDirections];
+const diagonalB = [
+  [1, -1],
+  [-1, 1],
+];
+
+const eightDirections = [...fourDirections, ...diagonalA, ...diagonalB];
 
 let part1 = 0;
 
@@ -46,12 +49,14 @@ let part2 = 0;
 for (let line = 0; line < lines.length; line++) {
   for (let index = 0; index < lines[line].length; index++) {
     if (lines[line][index] !== "A") continue;
-    const [se, ne, sw, nw] = diagonalDirections.map(([dl, di]) => {
-      return lines[line + dl]?.[index + di];
-    });
-    if (!((se === "M" && nw === "S") || (se === "S" && nw === "M"))) continue;
-    if (!((ne === "M" && sw === "S") || (ne === "S" && sw === "M"))) continue;
-    part2++;
+    const isX = [diagonalA, diagonalB].every(
+      (diagonalDirections) =>
+        diagonalDirections
+          .map(([dl, di]) => lines[line + dl]?.[index + di])
+          .sort()
+          .join("") === "MS"
+    );
+    if (isX) part2++;
   }
 }
 
