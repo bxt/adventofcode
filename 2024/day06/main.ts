@@ -14,44 +14,79 @@ const file = await Deno.readTextFile("input.txt");
 
 const parsedInput = parse(file);
 
-const distinctPositions = new Set<string>();
-
-let guardPosition: readonly [number, number] | undefined;
+let initialGuardPosition: readonly [number, number] | undefined;
 for (let y = 0; y < parsedInput.length; y++) {
   const x = parsedInput[y].indexOf(guard);
   if (x !== -1) {
-    guardPosition = [x, y] as const;
+    initialGuardPosition = [x, y] as const;
     break;
   }
 }
+if (initialGuardPosition === undefined) throw new Error("Guard not found");
 
 const directions = ["up", "right", "down", "left"] as const;
+type Direction = (typeof directions)[number];
 
-let directionIndex = 0;
+const walk = (input: string[]): "loop" | string[] => {
+  const seen: Record<string, Direction[]> = {};
 
-while (true) {
-  if (guardPosition === undefined) throw new Error("Guard not found");
-  distinctPositions.add(guardPosition.toString());
+  let directionIndex = 0;
+  let guardPosition = initialGuardPosition;
 
-  const [x, y] = guardPosition;
-  const possibleNewPositions = {
-    up: [x, y - 1],
-    down: [x, y + 1],
-    left: [x - 1, y],
-    right: [x + 1, y],
-  } as const;
-  const newPosition = possibleNewPositions[directions[directionIndex]];
+  while (true) {
+    {
+      const guardPositionString = guardPosition.toString();
+      seen[guardPositionString] ??= [];
+      if (seen[guardPositionString].includes(directions[directionIndex])) {
+        return "loop";
+      }
+      seen[guardPositionString].push(directions[directionIndex]);
+    }
 
-  const [newX, newY] = newPosition;
-  const newTile = parsedInput[newY]?.[newX];
+    const [x, y] = guardPosition;
+    const possibleNewPositions = {
+      up: [x, y - 1],
+      down: [x, y + 1],
+      left: [x - 1, y],
+      right: [x + 1, y],
+    } as const;
+    const newPosition = possibleNewPositions[directions[directionIndex]];
 
-  if (newTile === undefined) break;
+    const [newX, newY] = newPosition;
+    const newTile = input[newY]?.[newX];
 
-  if (newTile === obstacle) {
-    directionIndex = (directionIndex + 1) % directions.length;
-  } else {
-    guardPosition = newPosition;
+    if (newTile === undefined) break; // reached the end of the map
+
+    if (newTile === obstacle) {
+      directionIndex = (directionIndex + 1) % directions.length;
+    } else {
+      guardPosition = newPosition;
+    }
+  }
+
+  return Object.keys(seen);
+};
+
+const distinctPositions = walk(parsedInput);
+
+if (distinctPositions === "loop") throw new Error("Loop found");
+
+console.log(`Part 1: ${distinctPositions.length}`);
+
+let possibleObstaclePositions = 0;
+
+for (const obstaclePosition of distinctPositions) {
+  if (obstaclePosition === initialGuardPosition.toString()) continue;
+  const [x, y] = obstaclePosition.split(",").map((s) => parseInt(s, 10));
+  const modifiedInput = structuredClone(parsedInput);
+  modifiedInput[y] =
+    modifiedInput[y].substring(0, x) +
+    obstacle +
+    modifiedInput[y].substring(x + 1);
+
+  if (walk(modifiedInput) === "loop") {
+    possibleObstaclePositions++;
   }
 }
 
-console.log(`Part 1: ${distinctPositions.size}`);
+console.log(`Part 2: ${possibleObstaclePositions}`);
