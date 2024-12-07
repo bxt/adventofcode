@@ -19,27 +19,23 @@ const parse = (input: string): Equation[] => {
   return lines.map(parseEquation);
 };
 
-const operators = ["+", "*"] as const;
+type StepFunction = (a: number, b: number) => number[];
 
-const couldFinish = (equation: Equation): boolean => {
+const stepPart1: StepFunction = (a, b) => {
+  return [a + b, a * b];
+}
+
+const stepPart2: StepFunction = (a, b) => {
+  return [...stepPart1(a, b), parseInt(`${a}${b}`, 10)];
+}
+
+const couldFinish = (step: StepFunction) => (equation: Equation): boolean => {
   const { result, inputs } = equation;
   let currentResults = [inputs[0]];
   for (let i = 1; i < inputs.length; i++) {
-    const newResults = [];
-    for (const operator of operators) {
-      for (const currentResult of currentResults) {
-        if (operator === "+") {
-          newResults.push(currentResult + inputs[i]);
-
-        } else if (operator === "*") {
-          newResults.push(currentResult * inputs[i]);
-        } else {
-          const unknownOperator: never = operator;
-          throw new Error(`Unknown operator ${unknownOperator}`);
-        }
-      }
-    }
-    currentResults = newResults;
+    currentResults = currentResults.flatMap((currentResult) =>
+      step(currentResult, inputs[i])
+    );
   }
   return currentResults.includes(result);
 }
@@ -59,7 +55,7 @@ const couldFinish = (equation: Equation): boolean => {
   const parsedInput = parse(example);
   assertEquals(parsedInput[0].result, 190);
   assertEquals(parsedInput[0].inputs, [10, 19]);
-  assertEquals(parsedInput.map(couldFinish), [
+  assertEquals(parsedInput.map(couldFinish(stepPart1)), [
     true,
     true,
     false,
@@ -70,14 +66,26 @@ const couldFinish = (equation: Equation): boolean => {
     false,
     true,
   ]);
+  assertEquals(parsedInput.map(couldFinish(stepPart2)), [
+    true,
+    true,
+    false,
+    true,
+    true,
+    false,
+    true,
+    false,
+    true,
+  ]);
 }
 
 const file = await Deno.readTextFile("input.txt");
 
 const parsedInput = parse(file);
 
-const part1 = parsedInput.filter(couldFinish)
-  .map((equation) => equation.result)
-  .reduce((acc, i) => acc + i, 0);
-
-console.log(`Part 1: ${part1}`);
+[stepPart1, stepPart2].forEach((step, index) => {
+  const part = parsedInput.filter(couldFinish(step))
+    .map((equation) => equation.result)
+    .reduce((acc, i) => acc + i, 0);
+  console.log(`Part ${index + 1}: ${part}`);
+});
