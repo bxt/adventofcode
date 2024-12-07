@@ -32,9 +32,12 @@ const example = `
 97,13,75,29,47
 `;
 
+type Rules = Record<number, Record<number, boolean>>;
+type Update = number[];
+
 type ParsedInput = {
-  rules: Record<number, Record<number, boolean>>;
-  updates: number[][];
+  rules: Rules;
+  updates: Update[];
 };
 
 const parse = (input: string): ParsedInput => {
@@ -54,11 +57,9 @@ const parse = (input: string): ParsedInput => {
   return { rules, updates };
 };
 
-const correctlyOrderedUpdates = ({
-  rules,
-  updates,
-}: ParsedInput): ParsedInput["updates"] =>
-  updates.filter((update) => {
+const isCorrectlyOrdered =
+  (rules: Rules) =>
+  (update: Update): boolean => {
     for (let i = 0; i < update.length; i++) {
       const first = update[i];
       const forbiddenPrecursors = rules[first];
@@ -70,9 +71,12 @@ const correctlyOrderedUpdates = ({
     }
 
     return true;
-  });
+  };
 
-const middlePageNumber = (update: ParsedInput["updates"][number]): number =>
+const correctlyOrderedUpdates = ({ rules, updates }: ParsedInput): Update[] =>
+  updates.filter(isCorrectlyOrdered(rules));
+
+const middlePageNumber = (update: Update): number =>
   update[Math.floor(update.length / 2)];
 
 {
@@ -98,3 +102,43 @@ const part1 = correctlyOrderedUpdates(parsedInput)
   .reduce((acc, i) => acc + i, 0);
 
 console.log(`Part 1: ${part1}`);
+
+const repairOrder =
+  (rules: Rules) =>
+  (update: Update): Update => {
+    const predicate = isCorrectlyOrdered(rules);
+
+    const fixedUpdate = [...update];
+    fixing: while (!predicate(fixedUpdate)) {
+      for (let i = 0; i < fixedUpdate.length; i++) {
+        const first = fixedUpdate[i];
+        const forbiddenPrecursors = rules[first];
+        if (!forbiddenPrecursors) continue;
+        for (let k = 0; k < i; k++) {
+          const second = fixedUpdate[k];
+          if (forbiddenPrecursors[second]) {
+            fixedUpdate[i] = second;
+            fixedUpdate[k] = first;
+            continue fixing;
+          }
+        }
+      }
+    }
+
+    return fixedUpdate;
+  };
+
+const fixedIncorrectlyOrderedUpdates = ({
+  rules,
+  updates,
+}: ParsedInput): Update[] => {
+  const predicate = isCorrectlyOrdered(rules);
+  const incorrectlyOrdered = updates.filter((update) => !predicate(update));
+  return incorrectlyOrdered.map(repairOrder(rules));
+};
+
+const part2 = fixedIncorrectlyOrderedUpdates(parsedInput)
+  .map(middlePageNumber)
+  .reduce((acc, i) => acc + i, 0);
+
+console.log(`Part 2: ${part2}`);
