@@ -1,44 +1,39 @@
 // run with `deno run --allow-read=input.txt main.ts`
 import { assertEquals } from "jsr:@std/assert";
 
-type Equation = {
-  result: number;
-  inputs: number[];
-}
+type Equation = { result: number; inputs: number[] };
 
-const parseEquation = (input: string): Equation => {
+export const parseEquation = (input: string): Equation => {
   const [resultString, inputsString] = input.trim().split(": ");
   const result = parseInt(resultString, 10);
   const inputs = inputsString.split(" ").map((s) => parseInt(s, 10));
   return { result, inputs };
 };
 
-
 const parse = (input: string): Equation[] => {
-  const lines = input.trim().split("\n");
-  return lines.map(parseEquation);
+  return input.trim().split("\n").map(parseEquation);
 };
 
 type StepFunction = (a: number, b: number) => number[];
 
-const stepPart1: StepFunction = (a, b) => {
-  return [a + b, a * b];
-}
+const stepBasic: StepFunction = (a, b) => [a + b, a * b];
 
-const stepPart2: StepFunction = (a, b) => {
-  return [...stepPart1(a, b), parseInt(`${a}${b}`, 10)];
-}
+const stepWithConcatenation: StepFunction = (a, b) => {
+  return [...stepBasic(a, b), parseInt(`${a}${b}`, 10)];
+};
 
-const couldFinish = (step: StepFunction) => (equation: Equation): boolean => {
-  const { result, inputs } = equation;
-  let currentResults = [inputs[0]];
-  for (let i = 1; i < inputs.length; i++) {
-    currentResults = currentResults.flatMap((currentResult) =>
-      step(currentResult, inputs[i])
-    );
-  }
-  return currentResults.includes(result);
-}
+const couldFinish =
+  (step: StepFunction) =>
+  (equation: Equation): boolean => {
+    const { result, inputs } = equation;
+    let currentResults = [inputs[0]];
+    for (let i = 1; i < inputs.length; i++) {
+      currentResults = currentResults.flatMap((currentResult) =>
+        step(currentResult, inputs[i])
+      );
+    }
+    return currentResults.includes(result);
+  };
 
 {
   const example = `
@@ -55,7 +50,7 @@ const couldFinish = (step: StepFunction) => (equation: Equation): boolean => {
   const parsedInput = parse(example);
   assertEquals(parsedInput[0].result, 190);
   assertEquals(parsedInput[0].inputs, [10, 19]);
-  assertEquals(parsedInput.map(couldFinish(stepPart1)), [
+  assertEquals(parsedInput.map(couldFinish(stepBasic)), [
     true,
     true,
     false,
@@ -66,7 +61,7 @@ const couldFinish = (step: StepFunction) => (equation: Equation): boolean => {
     false,
     true,
   ]);
-  assertEquals(parsedInput.map(couldFinish(stepPart2)), [
+  assertEquals(parsedInput.map(couldFinish(stepWithConcatenation)), [
     true,
     true,
     false,
@@ -83,8 +78,9 @@ const file = await Deno.readTextFile("input.txt");
 
 const parsedInput = parse(file);
 
-[stepPart1, stepPart2].forEach((step, index) => {
-  const part = parsedInput.filter(couldFinish(step))
+[stepBasic, stepWithConcatenation].forEach((step, index) => {
+  const part = parsedInput
+    .filter(couldFinish(step))
     .map((equation) => equation.result)
     .reduce((acc, i) => acc + i, 0);
   console.log(`Part ${index + 1}: ${part}`);
