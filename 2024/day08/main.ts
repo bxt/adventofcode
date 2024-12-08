@@ -1,5 +1,7 @@
 // run with `deno run --allow-read=input.txt main.ts`
 
+type Position = [number, number];
+
 const blankSpace = ".";
 
 const parse = (input: string): string[] => {
@@ -13,7 +15,7 @@ const file = await Deno.readTextFile("input.txt");
 
 const parsedInput = parse(file);
 
-const antennasByFrequency: Record<string, [number, number][]> = {};
+const antennasByFrequency: Record<string, Position[]> = {};
 
 parsedInput.forEach((line, y) => {
   for (let x = 0; x < line.length; x++) {
@@ -26,17 +28,20 @@ parsedInput.forEach((line, y) => {
 
 const antinodePositions = new Set<string>();
 
-const isInBounds = ([x, y]: readonly [number, number]) => {
+const isInBounds = ([x, y]: Position) => {
   return (x >= 0 && y >= 0 && x < parsedInput[0].length && y < parsedInput.length);
 }
 
+const subtract = ([x1, y1]: Position, [x2, y2]: Position): Position => {
+  return [x1 - x2, y1 - y2];
+}
+
 for (const [_frequency, positions] of Object.entries(antennasByFrequency)) {
-  for (const [x, y] of positions) {
-    for (const [otherX, otherY] of positions) {
-      if (x === otherX && y === otherY) continue;
-      const deltaX = otherX - x;
-      const deltaY = otherY - y;
-      const antinode = [x - deltaX, y - deltaY] as const;
+  for (const position of positions) {
+    for (const other of positions) {
+      if (position === other) continue;
+      const delta = subtract(other, position);
+      const antinode = subtract(position, delta);
       if (isInBounds(antinode)) {
         antinodePositions.add(antinode.toString());
       }
@@ -49,16 +54,14 @@ console.log(`Part 1: ${antinodePositions.size}`);
 const harmonicAntinodePositions = new Set<string>();
 
 for (const [_frequency, positions] of Object.entries(antennasByFrequency)) {
-  for (const [x, y] of positions) {
-    for (const [otherX, otherY] of positions) {
-      if (x === otherX && y === otherY) continue;
-      const deltaX = otherX - x;
-      const deltaY = otherY - y;
-      const antinode: [number, number] = [x, y];
+  for (const position of positions) {
+    for (const other of positions) {
+      if (position === other) continue;
+      const delta = subtract(other, position);
+      let antinode = position;
       while (isInBounds(antinode)) {
         harmonicAntinodePositions.add(antinode.toString());
-        antinode[0] -= deltaX;
-        antinode[1] -= deltaY;
+        antinode = subtract(antinode, delta);
       }
     }
   }
