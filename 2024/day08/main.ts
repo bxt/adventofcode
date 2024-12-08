@@ -26,10 +26,8 @@ parsedInput.forEach((line, y) => {
 
 const antinodePositions = new Set<string>();
 
-const addToAntinodePositionsIfInBounds = (x: number, y: number) => {
-  if (x >= 0 && y >= 0 && x < parsedInput[0].length && y < parsedInput.length) {
-    antinodePositions.add(`${x},${y}`);
-  }
+const isInBounds = ([x, y]: readonly [number, number]) => {
+  return (x >= 0 && y >= 0 && x < parsedInput[0].length && y < parsedInput.length);
 }
 
 for (const [_frequency, positions] of Object.entries(antennasByFrequency)) {
@@ -38,10 +36,32 @@ for (const [_frequency, positions] of Object.entries(antennasByFrequency)) {
       if (x === otherX && y === otherY) continue;
       const deltaX = otherX - x;
       const deltaY = otherY - y;
-      addToAntinodePositionsIfInBounds(x - deltaX, y - deltaY);
-      addToAntinodePositionsIfInBounds(otherX + deltaX, otherY + deltaY);
+      const antinode = [x - deltaX, y - deltaY] as const;
+      if (isInBounds(antinode)) {
+        antinodePositions.add(antinode.toString());
+      }
     }
   }
 }
 
 console.log(`Part 1: ${antinodePositions.size}`);
+
+const harmonicAntinodePositions = new Set<string>();
+
+for (const [_frequency, positions] of Object.entries(antennasByFrequency)) {
+  for (const [x, y] of positions) {
+    for (const [otherX, otherY] of positions) {
+      if (x === otherX && y === otherY) continue;
+      const deltaX = otherX - x;
+      const deltaY = otherY - y;
+      const antinode: [number, number] = [x, y];
+      while (isInBounds(antinode)) {
+        harmonicAntinodePositions.add(antinode.toString());
+        antinode[0] -= deltaX;
+        antinode[1] -= deltaY;
+      }
+    }
+  }
+}
+
+console.log(`Part 2: ${harmonicAntinodePositions.size}`);
