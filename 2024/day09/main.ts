@@ -16,34 +16,31 @@ const calculateChecksum = (numbers: number[]): number => {
   let lastNumberIndex = numbers.length + 1;
   let leftoverLast = 0;
 
+  const addToResult = (fileId: number, amount: number): void => {
+    result += amount * fileId * (diskPointer + (amount - 1) / 2);
+    diskPointer += amount;
+  };
+
   for (let i = 0; i < lastNumberIndex; i++) {
+    let size = numbers[i];
     if (i % 2 === 0) {
-      // file
-      const fileId = i / 2;
-      for (let j = 0; j < numbers[i]; j++) {
-        result += diskPointer * fileId;
-        diskPointer++;
-      }
+      addToResult(i / 2, size);
     } else {
-      // free space
-      for (let j = 0; j < numbers[i]; j++) {
+      while (size > 0) {
         if (leftoverLast === 0) {
           lastNumberIndex -= 2;
           leftoverLast = numbers[lastNumberIndex];
         }
-        leftoverLast--;
-        const fileId = lastNumberIndex / 2;
-        result += diskPointer * fileId;
-        diskPointer++;
+        const nip = Math.min(size, leftoverLast);
+        leftoverLast -= nip;
+        size -= nip;
+        addToResult(lastNumberIndex / 2, nip);
       }
     }
   }
 
-  while (leftoverLast !== 0) {
-    leftoverLast--;
-    const fileId = lastNumberIndex / 2;
-    result += diskPointer * fileId;
-    diskPointer++;
+  if (leftoverLast !== 0) {
+    addToResult(lastNumberIndex / 2, leftoverLast);
   }
 
   return result;
