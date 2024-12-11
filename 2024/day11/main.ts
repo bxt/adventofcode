@@ -5,26 +5,49 @@ const input = (await Deno.readTextFile("input.txt")).trim();
 
 const parse = (input: string): number[] => input.split(" ").map(Number);
 
-const numbers = parse(input);
+type Frequencies = Record<string, number>;
 
-const blink = (numbers: number[]): number[] => {
-  return numbers.flatMap((number) => {
-    if (number === 0) return [1];
-
-    const numberString = number.toString();
-    if (numberString.length % 2 === 0) {
-      const half = numberString.length / 2;
-      return [
-        parseInt(numberString.slice(0, half), 10),
-        parseInt(numberString.slice(half), 10),
-      ];
-    }
-
-    return [number * 2024];
+const frequencies = (numbers: number[]): Frequencies => {
+  const result: Frequencies = {};
+  numbers.forEach((number) => {
+    result[number] ??= 0;
+    result[number]++;
   });
+  return result;
 };
 
-const blinkTimes = (numbers: number[], times: number): number[] => {
+const sumFrequencies = (numbers: Frequencies): number => {
+  return Object.values(numbers).reduce((acc, count) => acc + count, 0);
+};
+
+const numbers = frequencies(parse(input));
+
+const blink = (numbers: Frequencies): Frequencies => {
+  const result: Frequencies = {};
+
+  for (const [numberString, count] of Object.entries(numbers)) {
+    const add = (number: string): void => {
+      result[number] ??= 0;
+      result[number] += count;
+    };
+
+    if (numberString === "0") {
+      add("1");
+    } else {
+      if (numberString.length % 2 === 0) {
+        const half = numberString.length / 2;
+        add(numberString.slice(0, half));
+        add(numberString.slice(half).replace(/^0+(.)/, '$1'));
+      } else {
+        add((parseInt(numberString, 10) * 2024).toString());
+      }
+    }
+  }
+
+  return result;
+};
+
+const blinkTimes = (numbers: Frequencies, times: number): Frequencies => {
   let result = numbers;
   for (let i = 0; i < times; i++) {
     result = blink(result);
@@ -33,33 +56,34 @@ const blinkTimes = (numbers: number[], times: number): number[] => {
 };
 
 {
-  const example1 = parse("0 1 10 99 999");
-  const example2 = parse("125 17");
+  const example1 = frequencies(parse("0 1 10 99 999"));
+  const example2 = frequencies(parse("125 17"));
 
-  assertEquals(blink(example1), [1, 2024, 1, 0, 9, 9, 2021976]);
-  assertEquals(blink(example2), [253000, 1, 7]);
-  assertEquals(blinkTimes(example2, 2), [253, 0, 2024, 14168]);
-  assertEquals(blinkTimes(example2, 2), [253, 0, 2024, 14168]);
-  assertEquals(blinkTimes(example2, 3), [512072, 1, 20, 24, 28676032]);
+  assertEquals(blink(example1), frequencies([1, 2024, 1, 0, 9, 9, 2021976]));
+  assertEquals(blink(example2), frequencies([253000, 1, 7]));
+  assertEquals(blinkTimes(example2, 2), frequencies([253, 0, 2024, 14168]));
+  assertEquals(blinkTimes(example2, 2), frequencies([253, 0, 2024, 14168]));
+  assertEquals(blinkTimes(example2, 3), frequencies([512072, 1, 20, 24, 28676032]));
 
   assertEquals(
     blinkTimes(example2, 4),
-    [512, 72, 2024, 2, 0, 2, 4, 2867, 6032]
+    frequencies([512, 72, 2024, 2, 0, 2, 4, 2867, 6032])
   );
 
   assertEquals(
     blinkTimes(example2, 5),
-    [1036288, 7, 2, 20, 24, 4048, 1, 4048, 8096, 28, 67, 60, 32]
+    frequencies([1036288, 7, 2, 20, 24, 4048, 1, 4048, 8096, 28, 67, 60, 32])
   );
 
   assertEquals(
     blinkTimes(example2, 6),
-    [
+    frequencies([
       2097446912, 14168, 4048, 2, 0, 2, 4, 40, 48, 2024, 40, 48, 80, 96, 2, 8,
       6, 7, 6, 0, 3, 2,
-    ]
+    ])
   );
-  assertEquals(blinkTimes(example2, 25).length, 55312);
+  assertEquals(sumFrequencies(blinkTimes(example2, 25)), 55312);
 }
 
-console.log(`Part 1: ${blinkTimes(numbers, 25).length}`);
+console.log(`Part 1: ${sumFrequencies(blinkTimes(numbers, 25))}`);
+console.log(`Part 2: ${sumFrequencies(blinkTimes(numbers, 75))}`);
