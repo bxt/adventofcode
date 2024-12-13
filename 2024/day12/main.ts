@@ -1,5 +1,185 @@
 // run with `deno run --allow-read=input.txt main.ts`
 
+const justAllTheCasesListedOutIGuess = `
+
+|## |
+| X |
+|   |  -> 0
+
+|# #|
+| X |
+|   |  -> 0
+
+| ##|
+| X |
+|   |  -> 0
+
+|###|
+| X |
+|   |  -> 0
+
+| # |
+|#X |
+|   |  -> 0
+
+|## |
+|#X |
+|   |  -> 0
+
+|  #|
+|#X |
+|   |  -> 0
+
+|# #|
+|#X |
+|   |  -> 0
+
+| ##|
+|#X |
+|   |  -> 0
+
+|###|
+|#X |
+|   |  -> 0
+
+|#  |
+| X#|
+|   |  -> 0
+
+|## |
+| X#|
+|   |  -> 0
+
+|# #|
+| X#|
+|   |  -> 0
+
+|###|
+| X#|
+|   |  -> 0
+
+|   |
+|#X#|
+|   |  -> 0
+
+|#  |
+|#X#|
+|   |  -> 0
+
+| # |
+|#X#|
+|   |  -> 0
+
+|  #|
+|#X#|
+|   |  -> 0
+
+|# #|
+|#X#|
+|   |  -> 0
+
+| ##|
+|#X#|
+|   |  -> 0
+
+|###|
+|#X#|
+|   |  -> 0
+
+|#  |
+| X |
+|#  |  -> 0
+
+|  #|
+| X |
+|#  |  -> 0
+
+|# #|
+| X |
+|#  |  -> 0
+
+| ##|
+| X |
+|#  |  -> 0
+
+|###|
+| X |
+|#  |  -> 0
+
+|  #|
+|#X |
+|#  |  -> 0
+
+|# #|
+|#X |
+|#  |  -> 0
+
+| ##|
+|#X |
+|#  |  -> 0
+
+|# #|
+|#X |
+|#  |  -> 0
+
+|###|
+|#X |
+|#  |  -> 0
+
+|#  |
+| X#|
+|#  |  -> 0
+
+| # |
+| X#|
+|#  |  -> 0
+
+|  #|
+| X#|
+|#  |  -> 0
+
+|# #|
+| X#|
+|#  |  -> 0
+
+| ##|
+| X#|
+|#  |  -> 0
+
+|###|
+| X#|
+|#  |  -> 0
+
+|   |
+|#X#|
+|#  |  -> 0
+
+|#  |
+|#X#|
+|#  |  -> 0
+
+|## |
+|#X#|
+|#  |  -> 0
+
+|  #|
+|#X#|
+|#  |  -> 0
+
+|# #|
+|#X#|
+|#  |  -> 0
+
+| ##|
+|#X#|
+|#  |  -> 0
+
+|###|
+|#X#|
+|#  |  -> 0
+
+`;
+
 type Position = readonly [number, number];
 
 const parse = (input: string): string[] => {
@@ -14,10 +194,10 @@ const add = ([x1, y1]: Position, [x2, y2]: Position): Position => {
 };
 
 const fourDirections = [
-  [1, 0],
-  [0, 1],
-  [-1, 0],
-  [0, -1],
+  [1, 0], // S
+  [0, 1], // E
+  [-1, 0], // N
+  [0, -1], // W
 ] as const;
 
 const file = await Deno.readTextFile("input.txt");
@@ -30,9 +210,11 @@ const get = ([x, y]: Position): string | undefined => {
 
 const seen = new Set<string>();
 
-let result = 0;
+let resultPart1 = 0;
+let resultPart2 = 0;
 let currentArea = 0;
 let currentBoundary = 0;
+let currentSides = 0;
 
 const process = (position: Position): void => {
   const positionString = position.toString();
@@ -43,24 +225,38 @@ const process = (position: Position): void => {
 
   const value = get(position);
 
-  for (const direction of fourDirections) {
-    const nextPosition = add(position, direction);
-    const nextValue = get(nextPosition);
-    if (nextValue === value) {
-      process(nextPosition);
-    } else {
-      currentBoundary++;
+  const neighbours = fourDirections.map((direction) => add(position, direction));
+  const matches = neighbours.map((neighbour) => get(neighbour) === value);
+
+  const matchCount = matches.filter(m => m).length;
+
+  currentBoundary += neighbours.length - matchCount;
+
+  if (matchCount === 0) {
+    currentSides+= 4;
+  } else if (matchCount === 1) {
+    currentSides+= 2;
+  } else {
+
+  }
+
+  for (let i = 0; i < neighbours.length; i++) {
+    if (matches[i]) {
+      process(neighbours[i]);
     }
   }
+
 };
 
 parsedInput.forEach((line, y) => {
   for (let x = 0; x < line.length; x++) {
     process([x, y]);
-    result += currentArea * currentBoundary;
+    resultPart1 += currentArea * currentBoundary;
+    resultPart2 += currentArea * currentSides;
     currentArea = 0;
     currentBoundary = 0;
   }
 });
 
-console.log(`Part 1: ${result}`);
+console.log(`Part 1: ${resultPart1}`);
+console.log(`Part 2: ${resultPart2}`);
