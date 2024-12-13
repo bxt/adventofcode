@@ -1,185 +1,5 @@
 // run with `deno run --allow-read=input.txt main.ts`
 
-const justAllTheCasesListedOutIGuess = `
-
-|## |
-| X |
-|   |  -> 0
-
-|# #|
-| X |
-|   |  -> 0
-
-| ##|
-| X |
-|   |  -> 0
-
-|###|
-| X |
-|   |  -> 0
-
-| # |
-|#X |
-|   |  -> 0
-
-|## |
-|#X |
-|   |  -> 0
-
-|  #|
-|#X |
-|   |  -> 0
-
-|# #|
-|#X |
-|   |  -> 0
-
-| ##|
-|#X |
-|   |  -> 0
-
-|###|
-|#X |
-|   |  -> 0
-
-|#  |
-| X#|
-|   |  -> 0
-
-|## |
-| X#|
-|   |  -> 0
-
-|# #|
-| X#|
-|   |  -> 0
-
-|###|
-| X#|
-|   |  -> 0
-
-|   |
-|#X#|
-|   |  -> 0
-
-|#  |
-|#X#|
-|   |  -> 0
-
-| # |
-|#X#|
-|   |  -> 0
-
-|  #|
-|#X#|
-|   |  -> 0
-
-|# #|
-|#X#|
-|   |  -> 0
-
-| ##|
-|#X#|
-|   |  -> 0
-
-|###|
-|#X#|
-|   |  -> 0
-
-|#  |
-| X |
-|#  |  -> 0
-
-|  #|
-| X |
-|#  |  -> 0
-
-|# #|
-| X |
-|#  |  -> 0
-
-| ##|
-| X |
-|#  |  -> 0
-
-|###|
-| X |
-|#  |  -> 0
-
-|  #|
-|#X |
-|#  |  -> 0
-
-|# #|
-|#X |
-|#  |  -> 0
-
-| ##|
-|#X |
-|#  |  -> 0
-
-|# #|
-|#X |
-|#  |  -> 0
-
-|###|
-|#X |
-|#  |  -> 0
-
-|#  |
-| X#|
-|#  |  -> 0
-
-| # |
-| X#|
-|#  |  -> 0
-
-|  #|
-| X#|
-|#  |  -> 0
-
-|# #|
-| X#|
-|#  |  -> 0
-
-| ##|
-| X#|
-|#  |  -> 0
-
-|###|
-| X#|
-|#  |  -> 0
-
-|   |
-|#X#|
-|#  |  -> 0
-
-|#  |
-|#X#|
-|#  |  -> 0
-
-|## |
-|#X#|
-|#  |  -> 0
-
-|  #|
-|#X#|
-|#  |  -> 0
-
-|# #|
-|#X#|
-|#  |  -> 0
-
-| ##|
-|#X#|
-|#  |  -> 0
-
-|###|
-|#X#|
-|#  |  -> 0
-
-`;
-
 type Position = readonly [number, number];
 
 const parse = (input: string): string[] => {
@@ -225,24 +45,26 @@ const process = (position: Position): void => {
 
   const value = get(position);
 
-  const neighbours = fourDirections.map((direction) => add(position, direction));
-  const matches = neighbours.map((neighbour) => get(neighbour) === value);
+  const neighbors = fourDirections.map((direction) => add(position, direction));
+  const matches = neighbors.map((neighbor) => get(neighbor) === value);
 
-  const matchCount = matches.filter(m => m).length;
-
-  currentBoundary += neighbours.length - matchCount;
-
-  if (matchCount === 0) {
-    currentSides+= 4;
-  } else if (matchCount === 1) {
-    currentSides+= 2;
-  } else {
-
-  }
-
-  for (let i = 0; i < neighbours.length; i++) {
+  for (let i = 0; i < 4; i++) {
+    const nextI = (i + 1) % 4;
     if (matches[i]) {
-      process(neighbours[i]);
+      process(neighbors[i]);
+
+      if (matches[nextI]) { // possible convex corner
+        const diagonal = add(neighbors[i], fourDirections[nextI]);
+        if (get(diagonal) !== value) {
+          currentSides++;
+        }
+      }
+    } else {
+      currentBoundary++;
+
+      if (!matches[nextI]) {
+        currentSides++; // concave corner
+      }
     }
   }
 
