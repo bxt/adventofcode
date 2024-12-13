@@ -77,6 +77,7 @@ parsedInput.forEach((line, y) => {
     resultPart2 += currentArea * currentSides;
     currentArea = 0;
     currentBoundary = 0;
+    currentSides = 0;
   }
 });
 
