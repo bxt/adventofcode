@@ -1,10 +1,10 @@
 // run with `deno run --allow-read=input.txt main.ts`
 
-type Position = readonly [number, number];
+type Pair = [number, number];
 type ClawMachine = {
-  buttonA: Position;
-  buttonB: Position;
-  prize: Position;
+  buttonA: Pair;
+  buttonB: Pair;
+  prize: Pair;
 };
 
 const regex =
@@ -19,9 +19,9 @@ const parse = (input: string): ClawMachine[] => {
       if (!match) throw new Error(`Invalid block: ${block}`);
       const [, ax, ay, bx, by, px, py] = match;
       return {
-        buttonA: [parseInt(ax), parseInt(ay)] as Position,
-        buttonB: [parseInt(bx), parseInt(by)] as Position,
-        prize: [parseInt(px), parseInt(py)] as Position,
+        buttonA: [parseInt(ax, 10), parseInt(ay, 10)],
+        buttonB: [parseInt(bx, 10), parseInt(by, 10)],
+        prize: [parseInt(px, 10), parseInt(py, 10)],
       };
     });
 };
@@ -30,30 +30,42 @@ const file = await Deno.readTextFile("input.txt");
 
 const parsedInput = parse(file);
 
-const getTokens = ([a, b]: Position): number => a * 3 + b;
+const sum = (numbers: number[]): number => {
+  return numbers.reduce((acc, number) => acc + number, 0);
+};
 
-let tokensTotal = 0;
+const addScalar = ([x, y]: Pair, scalar: number): Pair => {
+  return [x + scalar, y + scalar];
+};
 
-const combinations = Array.from({ length: 100 })
-  .flatMap((_, a) => Array.from({ length: 100 }, (_, b) => [a, b] as const))
-  .sort((x, y) => {
-    return getTokens(x) - getTokens(y);
-  });
-
-for (const clawMachine of parsedInput) {
+const getTokenSolution = (clawMachine: ClawMachine): number => {
   const { buttonA, buttonB, prize } = clawMachine;
-  for (const combination of combinations) {
-    const [a, b] = combination;
-    if (
-      a * buttonA[0] + b * buttonB[0] === prize[0] &&
-      a * buttonA[1] + b * buttonB[1] === prize[1]
-    ) {
-      tokensTotal += getTokens(combination);
-      break;
-    }
-  }
-}
+
+  const bDividend = prize[1] * buttonA[0] - prize[0] * buttonA[1];
+  const bDivisor = buttonB[1] * buttonA[0] - buttonB[0] * buttonA[1];
+
+  if (bDividend % bDivisor !== 0) return 0;
+
+  const b = bDividend / bDivisor;
+
+  const a = (prize[0] - b * buttonB[0]) / buttonA[0];
+
+  return a * 3 + b;
+};
+
+const tokensTotal = sum(parsedInput.map(getTokenSolution));
 
 console.log(`Part 1: ${tokensTotal}`);
 
-console.log(`Part 2: ${"???"}`);
+const adjustment = 10000000000000;
+
+const adjusted = parsedInput.map((clawMachine): ClawMachine => {
+  return {
+    ...clawMachine,
+    prize: addScalar(clawMachine.prize, adjustment),
+  };
+});
+
+const tokensTotalAdjusted = sum(adjusted.map(getTokenSolution));
+
+console.log(`Part 2: ${tokensTotalAdjusted}`);
