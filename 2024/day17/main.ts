@@ -32,7 +32,7 @@ const runWithA = (a: bigint): bigint[] => {
 
   const output = [];
 
-  while (ic < program.length && ic >= 0 && output.length < program.length) {
+  while (ic < program.length && ic >= 0) {
     const opCode = program[ic];
     const operand = program[ic + 1];
     switch (opCode) {
@@ -50,13 +50,13 @@ const runWithA = (a: bigint): bigint[] => {
       }
       case 2: {
         // bst
-        registerB = resolveCombo(operand) & BigInt(7);
+        registerB = resolveCombo(operand) & 7n;
         ic += 2;
         break;
       }
       case 3: {
         // jnz
-        if (registerA !== BigInt(0)) {
+        if (registerA !== 0n) {
           ic = operand;
         } else {
           ic += 2;
@@ -71,7 +71,7 @@ const runWithA = (a: bigint): bigint[] => {
       }
       case 5: {
         // out
-        output.push(resolveCombo(operand) & BigInt(7));
+        output.push(resolveCombo(operand) & 7n);
         ic += 2;
         break;
       }
@@ -95,18 +95,66 @@ const runWithA = (a: bigint): bigint[] => {
 
 console.log(`Part 1: ${runWithA(originalRegisterA).join(",")}`);
 
-const needle = program;
+const loopTemplate: (number | "*")[] = [1, "*", 7, 5, 1, "*", 0, 3, 4, 6];
+const template: (number | "*")[] = [2, 4, ...loopTemplate, 5, 5, 3, 0];
 
-for (let a = BigInt(136904920099220); true; a++) {
-  const output = runWithA(a);
-  if (output.length === needle.length) {
-    if (output.every((n, i) => n === BigInt(needle[i]))) {
-      console.log(`Part 2: ${a}`);
-      break;
+if (template.length !== program.length) {
+  throw new Error("Program did not match template by length");
+}
+
+const [positionShift, secondShift] = template
+  .map((n, i) => {
+    const programValue = program[i];
+    if (n === "*") return BigInt(programValue);
+    if (n !== program[i]) {
+      throw new Error(`Program does not match template at ${i}`);
+    }
+    return undefined;
+  })
+  .filter((n) => n !== undefined);
+
+const resultShift = positionShift ^ secondShift;
+
+/**
+ * Program from `loopTemplate` re-written in TypeScript.
+ */
+const programLoopContents = (a: bigint, b: bigint): bigint => {
+  const bShift = b ^ positionShift;
+  const c = a >> bShift;
+  const bResult = (b ^ resultShift ^ c) & 0b111n;
+  return bResult;
+};
+
+const searchAnswer = (
+  needle: number[],
+  needleIndex: number,
+  input: bigint
+): bigint | undefined => {
+  input <<= 3n;
+  const current = BigInt(needle[needleIndex]);
+
+  for (let b = 0n; b < 8n; b++) {
+    const newInput = input | b;
+    if (programLoopContents(newInput, b) === current) {
+      if (needleIndex === 0) return newInput;
+      const result = searchAnswer(needle, needleIndex - 1, newInput);
+      if (result !== undefined) return result;
     }
   }
 
-  if (a % BigInt(10000000) === BigInt(0)) {
-    console.log(a);
-  }
+  return undefined;
+};
+
+const reproducesProgram = searchAnswer(program, program.length - 1, 0n);
+if (reproducesProgram === undefined) throw new Error("No answer found.");
+
+const output = runWithA(reproducesProgram);
+
+if (output.length !== program.length) {
+  throw new Error("Program did not reproduce by length");
 }
+if (!output.every((n, i) => n === BigInt(program[i]))) {
+  throw new Error("Program did not reproduce by value");
+}
+
+console.log(`Part 2: ${reproducesProgram}`);
