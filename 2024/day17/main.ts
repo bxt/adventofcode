@@ -30,64 +30,42 @@ const runWithA = (a: bigint): bigint[] => {
   let registerB = originalRegisterB;
   let registerC = originalRegisterC;
 
-  const output = [];
+  const output: bigint[] = [];
+
+  const operations: Array<(operand: number) => void> = [
+    function adv(operand) {
+      registerA >>= resolveCombo(operand);
+    },
+    function bxl(operand) {
+      registerB ^= BigInt(operand);
+    },
+    function bst(operand) {
+      registerB = resolveCombo(operand) & 7n;
+    },
+    function jnz(operand) {
+      if (registerA !== 0n) {
+        ic = operand - 2;
+      }
+    },
+    function bxc() {
+      registerB ^= registerC;
+    },
+    function out(operand) {
+      output.push(resolveCombo(operand) & 7n);
+    },
+    function bdv(operand) {
+      registerB = registerA >> resolveCombo(operand);
+    },
+    function cdv(operand) {
+      registerC = registerA >> resolveCombo(operand);
+    },
+  ];
 
   while (ic < program.length && ic >= 0) {
     const opCode = program[ic];
     const operand = program[ic + 1];
-    switch (opCode) {
-      case 0: {
-        // adv
-        registerA >>= resolveCombo(operand);
-        ic += 2;
-        break;
-      }
-      case 1: {
-        // bxl
-        registerB ^= BigInt(operand);
-        ic += 2;
-        break;
-      }
-      case 2: {
-        // bst
-        registerB = resolveCombo(operand) & 7n;
-        ic += 2;
-        break;
-      }
-      case 3: {
-        // jnz
-        if (registerA !== 0n) {
-          ic = operand;
-        } else {
-          ic += 2;
-        }
-        break;
-      }
-      case 4: {
-        // bxc
-        registerB ^= registerC;
-        ic += 2;
-        break;
-      }
-      case 5: {
-        // out
-        output.push(resolveCombo(operand) & 7n);
-        ic += 2;
-        break;
-      }
-      case 6: {
-        // bdv
-        registerB = registerA >> resolveCombo(operand);
-        ic += 2;
-        break;
-      }
-      case 7: {
-        // cdv
-        registerC = registerA >> resolveCombo(operand);
-        ic += 2;
-        break;
-      }
-    }
+    operations[opCode](operand);
+    ic += 2;
   }
 
   return output;
