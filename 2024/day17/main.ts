@@ -11,15 +11,15 @@ const [, aString, bString, cString, programString] = match;
 
 const program = programString.split(",").map((n) => parseInt(n, 10));
 
-const originalRegisterA = parseInt(aString, 10);
-const originalRegisterB = parseInt(bString, 10);
-const originalRegisterC = parseInt(cString, 10);
+const originalRegisterA = BigInt(aString);
+const originalRegisterB = BigInt(bString);
+const originalRegisterC = BigInt(cString);
 
-const runWithA = (a: number): number[] => {
+const runWithA = (a: bigint): bigint[] => {
   let ic = 0;
 
-  const resolveCombo = (operand: number) => {
-    if (operand >= 0 && operand <= 3) return operand;
+  const resolveCombo = (operand: number): bigint => {
+    if (operand >= 0 && operand <= 3) return BigInt(operand);
     if (operand === 4) return registerA;
     if (operand === 5) return registerB;
     if (operand === 6) return registerC;
@@ -44,19 +44,19 @@ const runWithA = (a: number): number[] => {
       }
       case 1: {
         // bxl
-        registerB ^= operand;
+        registerB ^= BigInt(operand);
         ic += 2;
         break;
       }
       case 2: {
         // bst
-        registerB = resolveCombo(operand) % 8;
+        registerB = resolveCombo(operand) & BigInt(7);
         ic += 2;
         break;
       }
       case 3: {
         // jnz
-        if (registerA !== 0) {
+        if (registerA !== BigInt(0)) {
           ic = operand;
         } else {
           ic += 2;
@@ -71,7 +71,7 @@ const runWithA = (a: number): number[] => {
       }
       case 5: {
         // out
-        output.push(resolveCombo(operand) % 8);
+        output.push(resolveCombo(operand) & BigInt(7));
         ic += 2;
         break;
       }
@@ -95,16 +95,18 @@ const runWithA = (a: number): number[] => {
 
 console.log(`Part 1: ${runWithA(originalRegisterA).join(",")}`);
 
-for (let a = 0; true; a++) {
+const needle = program;
+
+for (let a = BigInt(136904920099220); true; a++) {
   const output = runWithA(a);
-  if (output.length === program.length) {
-    if (output.every((n, i) => n === program[i])) {
+  if (output.length === needle.length) {
+    if (output.every((n, i) => n === BigInt(needle[i]))) {
       console.log(`Part 2: ${a}`);
       break;
     }
   }
 
-  if (a % 10000000 === 0) {
+  if (a % BigInt(10000000) === BigInt(0)) {
     console.log(a);
   }
 }
