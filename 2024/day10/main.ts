@@ -37,7 +37,8 @@ const equals = ([x1, y1]: Position, [x2, y2]: Position): boolean => {
   return x1 === x2 && y1 === y2;
 };
 
-let count = 0;
+let countPart1 = 0;
+let countPart2 = 0;
 
 for (let y = 0; y < parsedInput.length; y++) {
   for (let x = 0; x < parsedInput[y].length; x++) {
@@ -50,12 +51,12 @@ for (let y = 0; y < parsedInput.length; y++) {
         fourDirections.map((direction) => add(position, direction))
       );
       frontier = frontier.filter((position) => get(position) === distance + 1);
-      frontier = frontier.filter((position, index) => frontier.findLastIndex((p) => equals(p, position)) === index);
     }
 
-    count += frontier.length;
+    countPart2 += frontier.length;
+    countPart1 += frontier.filter((position, index) => frontier.findLastIndex((p) => equals(p, position)) === index).length;
   }
 }
 
-console.log(`Part 1: ${count}`);
-console.log(`Part 2: ${"???"}`);
+console.log(`Part 1: ${countPart1}`);
+console.log(`Part 2: ${countPart2}`);
