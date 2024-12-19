@@ -50,41 +50,49 @@ const getKnownDistance = (position: Position, direction: Position): number => {
   return knownDistances[`${position.toString()}-${direction.toString()}`] ?? Infinity;
 }
 
-const openEnds: Array<[number, Position, Position]> = [
-  [0, startPosition, EAST]
+const openEnds: Array<[number, Position, Position, Record<string, boolean>]> = [
+  [0, startPosition, EAST, {[startPosition.toString()]: true}],
 ];
 
 saveKnownDistance(startPosition, EAST, 0);
 
+let bestScore = undefined;
+let visitedBestPath = {};
+
 while(openEnds.length > 0) {
-  const [score, position, direction] = openEnds.shift()!;
+  const [score, position, direction, visited] = openEnds.shift()!;
+
+  if (bestScore !== undefined && score > bestScore) break;
 
   if (equals(position, endPosition)) {
-    console.log(`Part 1: ${score}`);
-    break;
+    bestScore = score;
+    visitedBestPath = {...visitedBestPath, ...visited};
+    continue;
   }
 
   for (const newDirection of fourDirections) {
-    let newScore, newPosition;
+    let newScore, newPosition, newVisited;
 
     if (equals(newDirection, direction)) {
       newScore = score + 1;
       newPosition = add(position, direction);
       const value = get(newPosition);
       if (value !== '.' && value !== 'E') continue;
-
+      newVisited = {...visited, [newPosition.toString()]: true};
     } else {
       newScore = score + 1000;
       newPosition = position;
+      newVisited = visited;
     }
 
     const knownDistance = getKnownDistance(newPosition, newDirection);
-    if (newScore < knownDistance) {
+    if (newScore <= knownDistance) {
       saveKnownDistance(newPosition, newDirection, newScore);
-      openEnds.push([newScore, newPosition, newDirection]);
+      openEnds.push([newScore, newPosition, newDirection, newVisited]);
       openEnds.sort((a, b) => a[0] - b[0]);
     }
   }
 }
 
-console.log(`Part 2: ${'???'}`);
+console.log(`Part 1: ${bestScore}`);
+console.log(`Part 2: ${Object.keys(visitedBestPath).length}`);
