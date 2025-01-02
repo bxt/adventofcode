@@ -23,11 +23,10 @@ const parse = (input: string): Robot[] => {
       const groups = line.match(regex)?.groups;
       if (!groups) throw new Error(`Does not match: ${line}`);
       const { px, py, vx, vy } = groups;
-      const robot: Robot = {
+      return {
         position: [parseInt(px, 10), parseInt(py, 10)],
         velocity: [parseInt(vx, 10), parseInt(vy, 10)],
       };
-      return robot;
     });
 };
 
@@ -40,19 +39,27 @@ const quadrantCounts: [number, number, number, number] = [0, 0, 0, 0];
 const midX = Math.floor(WIDTH / 2);
 const midY = Math.floor(HEIGHT / 2);
 
+const clamp = (size: number) => (value: number) =>
+  ((value % size) + size) % size;
+const clampX = clamp(WIDTH);
+const clampY = clamp(HEIGHT);
+
+const robotPositionAfter = (robot: Robot, steps: number): Position => {
+  const finalX = clampX(robot.position[0] + robot.velocity[0] * steps);
+  const finalY = clampY(robot.position[1] + robot.velocity[1] * steps);
+  return [finalX, finalY];
+}
+
 for (const robot of parsedInput) {
   let quadrantIndex = 0;
 
-  const finalX =
-    (((robot.position[0] + robot.velocity[0] * STEPS) % WIDTH) + WIDTH) % WIDTH;
-  if (finalX === midX) continue;
-  quadrantIndex += Number(finalX > midX);
+  const [x, y] = robotPositionAfter(robot, STEPS);
 
-  const finalY =
-    (((robot.position[1] + robot.velocity[1] * STEPS) % HEIGHT) + HEIGHT) %
-    HEIGHT;
-  if (finalY === midY) continue;
-  quadrantIndex += Number(finalY > midY) * 2;
+  if (x === midX) continue;
+  quadrantIndex += Number(x > midX);
+
+  if (y === midY) continue;
+  quadrantIndex += Number(y > midY) * 2;
 
   quadrantCounts[quadrantIndex]++;
 }
