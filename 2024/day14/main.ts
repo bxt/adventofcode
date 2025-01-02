@@ -48,7 +48,7 @@ const robotPositionAfter = (robot: Robot, steps: number): Position => {
   const finalX = clampX(robot.position[0] + robot.velocity[0] * steps);
   const finalY = clampY(robot.position[1] + robot.velocity[1] * steps);
   return [finalX, finalY];
-}
+};
 
 for (const robot of parsedInput) {
   let quadrantIndex = 0;
@@ -70,3 +70,48 @@ const safetyFactor = quadrantCounts.reduce(
 );
 
 console.log(`Part 1: ${safetyFactor}`);
+
+let longestHorizontalLineSoFar = 0;
+
+for (let steps = 0; steps < 10000; steps++) {
+  const occupied = new Set<string>();
+
+  for (const robot of parsedInput) {
+    const position = robotPositionAfter(robot, steps);
+    occupied.add(position.toString());
+  }
+
+  let longestHorizontalLine = 0;
+
+  for (let y = 0; y < HEIGHT; y++) {
+    let lineLength = 0;
+    for (let x = 0; x < WIDTH; x++) {
+      const position: Position = [x, y];
+      const hasRobot = occupied.has(position.toString());
+      if (hasRobot) {
+        lineLength++;
+        if (lineLength > longestHorizontalLine) {
+          longestHorizontalLine = lineLength;
+        }
+      } else {
+        lineLength = 0;
+      }
+    }
+  }
+
+  if (longestHorizontalLine < longestHorizontalLineSoFar) continue;
+
+  longestHorizontalLineSoFar = longestHorizontalLine;
+
+  console.log(`------`);
+  console.log(`After ${steps} steps with line of ${longestHorizontalLine}:`);
+  for (let y = 0; y < HEIGHT; y++) {
+    for (let x = 0; x < WIDTH; x++) {
+      const position: Position = [x, y];
+      const hasRobot = occupied.has(position.toString());
+      const icon = hasRobot ? "#" : ".";
+      Deno.stdout.writeSync(new TextEncoder().encode(icon));
+    }
+    Deno.stdout.writeSync(new TextEncoder().encode("\n"));
+  }
+}
