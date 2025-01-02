@@ -22,65 +22,74 @@ const file = await Deno.readTextFile("input.txt");
 
 const [fieldString, movesString] = file.split("\n\n");
 
-const field = fieldString.split("\n").map((row) => row.split(""));
-
-const get = ([x, y]: Position): string | undefined => field[y]?.[x];
-const set = ([x, y]: Position, value: string): void => {
-  field[y][x] = value;
-};
-
 const moves = movesString.split("").flatMap((move) => {
   const result = directions[move];
   if (!result) return [];
   return [result];
 });
 
-let robotPosition = ((): Position => {
+type FieldHelpers = {
+  get: (position: Position) => string | undefined;
+  set: (position: Position, value: string) => void;
+  robotPosition: Position;
+};
+
+const makeFieldHelpers = (field: string[][]): FieldHelpers => {
+  const get: FieldHelpers["get"] = ([x, y]) => field[y]?.[x];
+  const set: FieldHelpers["set"] = ([x, y], value) => {
+    field[y][x] = value;
+  };
+
   for (let y = 0; y < field.length; y++) {
     for (let x = 0; x < field[y].length; x++) {
       if (field[y][x] === ROBOT) {
-        return [x, y];
+        return { get, set, robotPosition: [x, y] };
       }
     }
   }
   throw new Error("Robot not found?");
-})();
+};
 
-withNextMove: for (const move of moves) {
-  const nextRobotPosition = add(robotPosition, move);
+{
+  const field = fieldString.split("\n").map((row) => row.split(""));
+  let { get, set, robotPosition } = makeFieldHelpers(field);
 
-  if (get(nextRobotPosition) === FREE) {
+  withNextMove: for (const move of moves) {
+    const nextRobotPosition = add(robotPosition, move);
+
+    if (get(nextRobotPosition) === FREE) {
+      set(nextRobotPosition, ROBOT);
+      set(robotPosition, FREE);
+      robotPosition = nextRobotPosition;
+      continue;
+    }
+
+    let nextBoxPosition = nextRobotPosition;
+    let nextBoxPositionValue = get(nextBoxPosition);
+
+    while (nextBoxPositionValue !== FREE) {
+      if (nextBoxPositionValue === WALL) continue withNextMove;
+      if (nextBoxPositionValue !== BOX) throw new Error("?");
+      nextBoxPosition = add(nextBoxPosition, move);
+      nextBoxPositionValue = get(nextBoxPosition);
+    }
+
     set(nextRobotPosition, ROBOT);
     set(robotPosition, FREE);
     robotPosition = nextRobotPosition;
-    continue;
+
+    set(nextBoxPosition, BOX);
   }
 
-  let nextBoxPosition = nextRobotPosition;
-  let nextBoxPositionValue = get(nextBoxPosition);
+  let boxCoordinateSum = 0;
 
-  while (nextBoxPositionValue !== FREE) {
-    if (nextBoxPositionValue === WALL) continue withNextMove;
-    if (nextBoxPositionValue !== BOX) throw new Error("?");
-    nextBoxPosition = add(nextBoxPosition, move);
-    nextBoxPositionValue = get(nextBoxPosition);
-  }
-
-  set(nextRobotPosition, ROBOT);
-  set(robotPosition, FREE);
-  robotPosition = nextRobotPosition;
-
-  set(nextBoxPosition, BOX);
-}
-
-let boxCoordinateSum = 0;
-
-for (let y = 0; y < field.length; y++) {
-  for (let x = 0; x < field[y].length; x++) {
-    if (field[y][x] === BOX) {
-      boxCoordinateSum += x + y * 100;
+  for (let y = 0; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] === BOX) {
+        boxCoordinateSum += x + y * 100;
+      }
     }
   }
-}
 
-console.log(`Part 1: ${boxCoordinateSum}`);
+  console.log(`Part 1: ${boxCoordinateSum}`);
+}
