@@ -85,10 +85,7 @@ const solve = (field: string[][]): number => {
 
     for (let i = placesToMove.length - 1; i >= 0; i--) {
       const place = placesToMove[i];
-      const placeValue = get(place);
-      if (!placeValue) throw new Error("No place value? Should be impossible");
-      const nextPlace = add(place, move);
-      set(nextPlace, placeValue);
+      set(add(place, move), get(place)!);
       set(place, FREE);
     }
   }
