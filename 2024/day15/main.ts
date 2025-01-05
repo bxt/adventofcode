@@ -6,6 +6,8 @@ const ROBOT = "@";
 const FREE = ".";
 const WALL = "#";
 const BOX = "O";
+const BOX_LEFT = "[";
+const BOX_RIGHT = "]";
 
 const add = ([x1, y1]: Position, [x2, y2]: Position): Position => {
   return [x1 + x2, y1 + y2];
@@ -28,68 +30,90 @@ const moves = movesString.split("").flatMap((move) => {
   return [result];
 });
 
-type FieldHelpers = {
-  get: (position: Position) => string | undefined;
-  set: (position: Position, value: string) => void;
-  robotPosition: Position;
-};
-
-const makeFieldHelpers = (field: string[][]): FieldHelpers => {
-  const get: FieldHelpers["get"] = ([x, y]) => field[y]?.[x];
-  const set: FieldHelpers["set"] = ([x, y], value) => {
+const solve = (field: string[][]): number => {
+  const get = ([x, y]: Position): string | undefined => field[y]?.[x];
+  const set = ([x, y]: Position, value: string): void => {
     field[y][x] = value;
   };
+
+  let robotPosition: Position | null = null;
 
   for (let y = 0; y < field.length; y++) {
     for (let x = 0; x < field[y].length; x++) {
       if (field[y][x] === ROBOT) {
-        return { get, set, robotPosition: [x, y] };
+        robotPosition = [x, y];
       }
     }
   }
-  throw new Error("Robot not found?");
-};
-
-{
-  const field = fieldString.split("\n").map((row) => row.split(""));
-  let { get, set, robotPosition } = makeFieldHelpers(field);
+  if (!robotPosition) throw new Error("Robot not found?");
 
   withNextMove: for (const move of moves) {
-    const nextRobotPosition = add(robotPosition, move);
+    const placesFound = new Set<string>();
+    const placesToMove: Position[] = [];
 
-    if (get(nextRobotPosition) === FREE) {
-      set(nextRobotPosition, ROBOT);
-      set(robotPosition, FREE);
-      robotPosition = nextRobotPosition;
-      continue;
+    const enqueue = (position: Position): void => {
+      const positionString = position.toString();
+      if (placesFound.has(positionString)) return;
+      placesFound.add(positionString);
+      placesToMove.push(position);
+    };
+
+    enqueue(robotPosition);
+
+    for (let i = 0; i < placesToMove.length; i++) {
+      const nextPlace = add(placesToMove[i], move);
+      const nextPlaceValue = get(nextPlace);
+
+      if (!nextPlaceValue) continue withNextMove;
+      if (nextPlaceValue === WALL) continue withNextMove;
+      if (nextPlaceValue === FREE) {
+        // cool!
+      } else if (nextPlaceValue === BOX) {
+        enqueue(nextPlace);
+      } else if (nextPlaceValue === BOX_LEFT) {
+        enqueue(nextPlace);
+        enqueue(add(nextPlace, directions[">"]));
+      } else if (nextPlaceValue === BOX_RIGHT) {
+        enqueue(nextPlace);
+        enqueue(add(nextPlace, directions["<"]));
+      } else {
+        throw new Error(`Not sure what do do with "${nextPlaceValue}"`);
+      }
     }
 
-    let nextBoxPosition = nextRobotPosition;
-    let nextBoxPositionValue = get(nextBoxPosition);
+    robotPosition = add(robotPosition, move);
 
-    while (nextBoxPositionValue !== FREE) {
-      if (nextBoxPositionValue === WALL) continue withNextMove;
-      if (nextBoxPositionValue !== BOX) throw new Error("?");
-      nextBoxPosition = add(nextBoxPosition, move);
-      nextBoxPositionValue = get(nextBoxPosition);
+    for (let i = placesToMove.length - 1; i >= 0; i--) {
+      const place = placesToMove[i];
+      const placeValue = get(place);
+      if (!placeValue) throw new Error("No place value? Should be impossible");
+      const nextPlace = add(place, move);
+      set(nextPlace, placeValue);
+      set(place, FREE);
     }
-
-    set(nextRobotPosition, ROBOT);
-    set(robotPosition, FREE);
-    robotPosition = nextRobotPosition;
-
-    set(nextBoxPosition, BOX);
   }
 
   let boxCoordinateSum = 0;
 
   for (let y = 0; y < field.length; y++) {
     for (let x = 0; x < field[y].length; x++) {
-      if (field[y][x] === BOX) {
+      if (field[y][x] === BOX_LEFT || field[y][x] === BOX) {
         boxCoordinateSum += x + y * 100;
       }
     }
   }
 
-  console.log(`Part 1: ${boxCoordinateSum}`);
-}
+  return boxCoordinateSum;
+};
+
+const fieldPart1 = fieldString.split("\n").map((row) => row.split(""));
+console.log(`Part 1: ${solve(fieldPart1)}`);
+
+const fieldPart2 = fieldString.split("\n").map((row) =>
+  row.split("").flatMap((s) => {
+    if (s === ROBOT) return [ROBOT, FREE];
+    if (s === BOX) return [BOX_LEFT, BOX_RIGHT];
+    return [s, s];
+  })
+);
+console.log(`Part 2: ${solve(fieldPart2)}`);
