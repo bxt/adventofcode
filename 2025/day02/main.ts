@@ -19,6 +19,10 @@ for (const [from, to] of ranges) {
   withNextId: for (let id = from; id <= to; id++) {
     const idString = id.toString();
 
+    // This also works but is around half as fast:
+    // if (/^(.+)\1$/.test(idString)) part1 += id;
+    // if (/^(.+)\1+$/.test(idString)) part2 += id;
+
     withNextPieceCount: for (
       let pieces = 2;
       pieces <= idString.length;
