@@ -13,19 +13,38 @@ const ranges = file.split(",").map((entry) => {
 });
 
 let part1 = 0;
+let part2 = 0;
 
 for (const [from, to] of ranges) {
-  for (let id = from; id <= to; id++) {
+  withNextId: for (let id = from; id <= to; id++) {
     const idString = id.toString();
-    if (idString.length % 2 !== 0) continue;
 
-    const mid = idString.length / 2;
-    const firstHalf = idString.slice(0, mid);
-    const secondHalf = idString.slice(mid);
-    if (firstHalf === secondHalf) {
-      part1 += id;
+    withNextPieceCount: for (
+      let pieces = 2;
+      pieces <= idString.length;
+      pieces++
+    ) {
+      if (idString.length % pieces !== 0) continue withNextPieceCount;
+      const pieceLength = idString.length / pieces;
+
+      const reference = idString.slice(0, pieceLength);
+
+      for (let piece = 1; piece < pieces; piece++) {
+        const pieceString = idString.slice(
+          pieceLength * piece,
+          pieceLength * (piece + 1),
+        );
+        if (pieceString !== reference) continue withNextPieceCount;
+      }
+
+      if (pieces === 2) {
+        part1 += id;
+      }
+      part2 += id;
+      continue withNextId;
     }
   }
 }
 
 console.log(`Part 1: ${part1}`);
+console.log(`Part 2: ${part2}`);
