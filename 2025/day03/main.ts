@@ -4,25 +4,36 @@ const file = (await Deno.readTextFile("input.txt")).trim();
 
 const lines = file.split("\n");
 
-let part1 = 0;
+const sum = (numbers: number[]): number => {
+  return numbers.reduce((acc, number) => acc + number, 0);
+};
 
-for (const line of lines) {
-  let largestNumber = -Infinity;
-  let afterwardsLargestNumber = -Infinity;
+const getJoltage = (digits: number) => (line: string): number => {
+  const selectedDigits = new Array(digits).fill(-Infinity);
 
   for (let charIndex = 0; charIndex < line.length; charIndex++) {
     const char = line.charAt(charIndex);
     const number = parseInt(char, 10);
+    const leftoverChars = line.length - charIndex;
 
-    if (number > largestNumber && charIndex !== line.length - 1) {
-      afterwardsLargestNumber = -Infinity;
-      largestNumber = number;
-    } else if (number > afterwardsLargestNumber) {
-      afterwardsLargestNumber = number;
+    for (let i = 0; i < selectedDigits.length; i++) {
+      const isImprovement = number > selectedDigits[i];
+      const enoughRemaining = (selectedDigits.length - i) <= leftoverChars;
+
+      if (isImprovement && enoughRemaining) {
+        selectedDigits[i] = number;
+
+        for (let k = i + 1; k < selectedDigits.length; k++) {
+          selectedDigits[k] = -Infinity;
+        }
+
+        break;
+      }
     }
   }
 
-  part1 += largestNumber * 10 + afterwardsLargestNumber;
-}
+  return parseInt(selectedDigits.join(""), 10);
+};
 
-console.log(`Part 1: ${part1}`);
+console.log(`Part 1: ${sum(lines.map(getJoltage(2)))}`);
+console.log(`Part 2: ${sum(lines.map(getJoltage(12)))}`);
