@@ -29,42 +29,25 @@ while (true) {
     const line = field[lineIndex];
 
     for (let charIndex = 0; charIndex < line.length; charIndex++) {
-      if (!line[charIndex]) {
-        Deno.stdout.writeSync(new TextEncoder().encode("."));
-        continue;
-      }
+      if (!line[charIndex]) continue;
 
-      let occupiedNeighbors = 0;
-
-      for (const [lineOffset, charOffset] of eightNeighbors) {
-        const neighborLine = lineIndex + lineOffset;
-        const neighborChar = charIndex + charOffset;
-        if (field?.[neighborLine]?.[neighborChar]) {
-          occupiedNeighbors++;
-        }
-      }
+      const occupiedNeighbors =
+        eightNeighbors.filter(([lineOffset, charOffset]) =>
+          field?.[lineIndex + lineOffset]?.[charIndex + charOffset]
+        ).length;
 
       if (occupiedNeighbors < 4) {
         toRemove.push([lineIndex, charIndex]);
-        Deno.stdout.writeSync(new TextEncoder().encode("x"));
-      } else {
-        Deno.stdout.writeSync(new TextEncoder().encode("@"));
       }
     }
-
-    console.log("");
   }
 
   for (const [lineIndex, charIndex] of toRemove) {
     field[lineIndex][charIndex] = false;
   }
 
-  console.log(`\nRemoved: ${toRemove.length}\n\n\n`);
-
   if (part1 === undefined) part1 = toRemove.length;
-
   part2 += toRemove.length;
-
   if (toRemove.length === 0) break;
 }
 
