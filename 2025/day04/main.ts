@@ -23,7 +23,7 @@ let part1: undefined | number = undefined;
 let part2: number = 0;
 
 while (true) {
-  let removedCount = 0;
+  const toRemove = [];
 
   for (let lineIndex = 0; lineIndex < field.length; lineIndex++) {
     const line = field[lineIndex];
@@ -45,8 +45,7 @@ while (true) {
       }
 
       if (occupiedNeighbors < 4) {
-        removedCount++;
-        line[charIndex] = false;
+        toRemove.push([lineIndex, charIndex]);
         Deno.stdout.writeSync(new TextEncoder().encode("x"));
       } else {
         Deno.stdout.writeSync(new TextEncoder().encode("@"));
@@ -56,13 +55,17 @@ while (true) {
     console.log("");
   }
 
-  console.log(`\nRemoved: ${removedCount}\n\n\n`);
+  for (const [lineIndex, charIndex] of toRemove) {
+    field[lineIndex][charIndex] = false;
+  }
 
-  if (part1 === undefined) part1 = removedCount;
+  console.log(`\nRemoved: ${toRemove.length}\n\n\n`);
 
-  part2 += removedCount;
+  if (part1 === undefined) part1 = toRemove.length;
 
-  if (removedCount === 0) break;
+  part2 += toRemove.length;
+
+  if (toRemove.length === 0) break;
 }
 
 console.log(`Part 1: ${part1}`);
