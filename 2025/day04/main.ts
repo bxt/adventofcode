@@ -4,8 +4,6 @@ const file = (await Deno.readTextFile("input.txt")).trim();
 
 const lines = file.split("\n");
 
-let part1 = 0;
-
 const eightNeighbors = [
   [-1, -1],
   [-1, 0],
@@ -17,34 +15,55 @@ const eightNeighbors = [
   [1, 1],
 ];
 
-for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-  const line = lines[lineIndex];
+const field = lines.map((line) =>
+  Array.from(line).map((char) => (char === "@" ? true : false))
+);
 
-  for (let charIndex = 0; charIndex < line.length; charIndex++) {
-    if (line.charAt(charIndex) !== "@") {
-      Deno.stdout.writeSync(new TextEncoder().encode("."));
-      continue;
-    }
+let part1: undefined | number = undefined;
+let part2: number = 0;
 
-    let occupiedNeighbors = 0;
+while (true) {
+  let removedCount = 0;
 
-    for (const [lineOffset, charOffset] of eightNeighbors) {
-      const neighborLine = lineIndex + lineOffset;
-      const neighborChar = charIndex + charOffset;
-      if (lines?.[neighborLine]?.charAt(neighborChar) === "@") {
-        occupiedNeighbors++;
+  for (let lineIndex = 0; lineIndex < field.length; lineIndex++) {
+    const line = field[lineIndex];
+
+    for (let charIndex = 0; charIndex < line.length; charIndex++) {
+      if (!line[charIndex]) {
+        Deno.stdout.writeSync(new TextEncoder().encode("."));
+        continue;
+      }
+
+      let occupiedNeighbors = 0;
+
+      for (const [lineOffset, charOffset] of eightNeighbors) {
+        const neighborLine = lineIndex + lineOffset;
+        const neighborChar = charIndex + charOffset;
+        if (field?.[neighborLine]?.[neighborChar]) {
+          occupiedNeighbors++;
+        }
+      }
+
+      if (occupiedNeighbors < 4) {
+        removedCount++;
+        line[charIndex] = false;
+        Deno.stdout.writeSync(new TextEncoder().encode("x"));
+      } else {
+        Deno.stdout.writeSync(new TextEncoder().encode("@"));
       }
     }
 
-    if (occupiedNeighbors < 4) {
-      part1++;
-      Deno.stdout.writeSync(new TextEncoder().encode("x"));
-    } else {
-      Deno.stdout.writeSync(new TextEncoder().encode("@"));
-    }
+    console.log("");
   }
 
-  console.log("");
+  console.log(`\nRemoved: ${removedCount}\n\n\n`);
+
+  if (part1 === undefined) part1 = removedCount;
+
+  part2 += removedCount;
+
+  if (removedCount === 0) break;
 }
 
-console.log(`Part 1: ${part1}`); // 2070 too high
+console.log(`Part 1: ${part1}`);
+console.log(`Part 2: ${part2}`);
