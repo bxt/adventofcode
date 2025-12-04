@@ -5,28 +5,56 @@ import { field, findRemovals } from "./main.ts";
 let part1: undefined | number = undefined;
 let part2: number = 0;
 
+const offsetMap = {
+  "0,0": 0x01,
+  "1,0": 0x02,
+  "2,0": 0x04,
+  "3,0": 0x40,
+  "0,1": 0x08,
+  "1,1": 0x10,
+  "2,1": 0x20,
+  "3,1": 0x80,
+};
+
+const magentize = (text: string) => `\x1b[35m${text}\x1b[0m`;
+
 while (true) {
   console.clear();
-  console.log(`Part 1: ${part1 ?? '????'} – Part 2: ${part2}\n`);
 
   const toRemove = findRemovals();
+  const toRemoveSet = new Set(
+    toRemove.map(([lineIndex, charIndex]) => `${lineIndex},${charIndex}`),
+  );
 
-    for (let lineIndex = 0; lineIndex < field.length; lineIndex++) {
-      const line = field[lineIndex];
+  const addition = toRemove.length ? magentize(` (-${toRemove.length})`) : "";
+  console.log(`Part 1: ${part1 ?? "????"} – Part 2: ${part2}${addition}\n`);
 
-      for (let charIndex = 0; charIndex < line.length; charIndex++) {
-        if (line[charIndex]) {
-          if (toRemove.some(([l, c]) => l === lineIndex && c === charIndex)) {
-            Deno.stdout.writeSync(new TextEncoder().encode("x"));
-          } else {
-            Deno.stdout.writeSync(new TextEncoder().encode("@"));
+  for (let lineIndex = 0; lineIndex < field.length; lineIndex += 4) {
+    const line = field[lineIndex];
+
+    const lineStrings = [];
+
+    for (let charIndex = 0; charIndex < line.length; charIndex += 2) {
+      let offset = 0;
+      let isRemoved = false;
+
+      for (const subLine of [0, 1, 2, 3] as const) {
+        for (const subChar of [0, 1] as const) {
+          const currentLine = lineIndex + subLine;
+          const currentChar = charIndex + subChar;
+          if (field?.[currentLine]?.[currentChar]) {
+            offset += offsetMap[`${subLine},${subChar}`];
+            isRemoved ||= toRemoveSet.has(`${currentLine},${currentChar}`);
           }
-        } else {
-          Deno.stdout.writeSync(new TextEncoder().encode("."));
         }
       }
+
+      const brailleBlock = String.fromCodePoint(0x2800 + offset);
+      lineStrings.push(isRemoved ? magentize(brailleBlock) : brailleBlock);
     }
 
+    console.log(lineStrings.join(""));
+  }
 
   for (const [lineIndex, charIndex] of toRemove) {
     field[lineIndex][charIndex] = false;
@@ -35,6 +63,6 @@ while (true) {
   if (part1 === undefined) part1 = toRemove.length;
   part2 += toRemove.length;
   if (toRemove.length === 0) break;
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const sleepTime = Math.log(toRemove.length) * 20 + 30;
+  await new Promise((resolve) => setTimeout(resolve, sleepTime));
 }
-
