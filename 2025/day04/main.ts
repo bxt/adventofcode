@@ -15,14 +15,11 @@ const eightNeighbors = [
   [1, 1],
 ];
 
-const field = lines.map((line) =>
+export const field = lines.map((line) =>
   Array.from(line).map((char) => (char === "@" ? true : false))
 );
 
-let part1: undefined | number = undefined;
-let part2: number = 0;
-
-while (true) {
+export const findRemovals = () => {
   const toRemove = [];
 
   for (let lineIndex = 0; lineIndex < field.length; lineIndex++) {
@@ -42,14 +39,25 @@ while (true) {
     }
   }
 
-  for (const [lineIndex, charIndex] of toRemove) {
-    field[lineIndex][charIndex] = false;
+  return toRemove;
+};
+
+if (import.meta.main) {
+  let part1: undefined | number = undefined;
+  let part2: number = 0;
+
+  while (true) {
+    const toRemove = findRemovals();
+
+    for (const [lineIndex, charIndex] of toRemove) {
+      field[lineIndex][charIndex] = false;
+    }
+
+    if (part1 === undefined) part1 = toRemove.length;
+    part2 += toRemove.length;
+    if (toRemove.length === 0) break;
   }
 
-  if (part1 === undefined) part1 = toRemove.length;
-  part2 += toRemove.length;
-  if (toRemove.length === 0) break;
+  console.log(`Part 1: ${part1}`);
+  console.log(`Part 2: ${part2}`);
 }
-
-console.log(`Part 1: ${part1}`);
-console.log(`Part 2: ${part2}`);
