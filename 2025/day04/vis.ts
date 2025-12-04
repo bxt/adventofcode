@@ -5,16 +5,7 @@ import { field, findRemovals } from "./main.ts";
 let part1: undefined | number = undefined;
 let part2: number = 0;
 
-const offsetMap = {
-  "0,0": 0x01,
-  "1,0": 0x02,
-  "2,0": 0x04,
-  "3,0": 0x40,
-  "0,1": 0x08,
-  "1,1": 0x10,
-  "2,1": 0x20,
-  "3,1": 0x80,
-};
+const offsetMap = [0, 1, 2, 6, 3, 4, 5, 7];
 
 const magentize = (text: string) => `\x1b[35m${text}\x1b[0m`;
 
@@ -43,7 +34,7 @@ while (true) {
           const currentLine = lineIndex + subLine;
           const currentChar = charIndex + subChar;
           if (field?.[currentLine]?.[currentChar]) {
-            offset += offsetMap[`${subLine},${subChar}`];
+            offset += 1 << offsetMap[subLine + 4 * subChar];
             isRemoved ||= toRemoveSet.has(`${currentLine},${currentChar}`);
           }
         }
