@@ -7,34 +7,36 @@ const lines = file.trim().split("\n");
 const problemLines = lines.slice(0, -1);
 const operatorsLine = lines[lines.length - 1];
 
+const parseOperator = (char: string): "+" | "*" => {
+  if (char === "+" || char === "*") {
+    return char;
+  } else {
+    throw new Error(`Unknown operator: ${char}`);
+  }
+};
+
+const operatorFunctions = {
+  "+": (a: number, b: number) => a + b,
+  "*": (a: number, b: number) => a * b,
+};
+
 const parsedProblemLines = problemLines.map((line) =>
   line.matchAll(/\d+/g).map(([numberString]) => parseInt(numberString, 10))
     .toArray()
 );
-const parsedOperatorsLine = operatorsLine.matchAll(/[+*]/g).map(([operator]) =>
-  operator
+const parsedOperatorsLine = operatorsLine.matchAll(/[+*]/g).map((match) =>
+  [parseOperator(match[0]), match.index] as const
 ).toArray();
-
-console.log(parsedProblemLines.map((l) => l.length));
-console.log(parsedOperatorsLine.length);
 
 let part1 = 0;
 
 for (let i = 0; i < parsedOperatorsLine.length; i++) {
-  const operator = parsedOperatorsLine[i];
+  const [operator] = parsedOperatorsLine[i];
 
   let result = operator === "+" ? 0 : 1;
 
   for (const problemLine of parsedProblemLines) {
-    const nextNumber = problemLine[i];
-
-    if (operator === "+") {
-      result += nextNumber;
-    } else if (operator === "*") {
-      result *= nextNumber;
-    } else {
-      throw new Error(`Unknown operator: ${operator}`);
-    }
+    result = operatorFunctions[operator](result, problemLine[i]);
   }
 
   part1 += result;
