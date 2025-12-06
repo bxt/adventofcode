@@ -43,3 +43,32 @@ for (let i = 0; i < parsedOperatorsLine.length; i++) {
 }
 
 console.log(`Part 1: ${part1}`);
+
+const problemLinesMaxLength = problemLines.reduce(
+  (max, line) => Math.max(max, line.length),
+  0,
+);
+
+let part2 = 0;
+
+for (let i = 0; i < parsedOperatorsLine.length; i++) {
+  const [operator, index] = parsedOperatorsLine[i];
+  const [_, lastIndex] = parsedOperatorsLine[i + 1] ||
+    [null, problemLinesMaxLength + 1];
+
+  let result = operator === "+" ? 0 : 1;
+
+  for (let k = index; k < lastIndex - 1; k++) {
+    let nextNumberString = "";
+    for (const problemLine of problemLines) {
+      nextNumberString += problemLine[k];
+    }
+    const nextNumber = parseInt(nextNumberString, 10);
+
+    result = operatorFunctions[operator](result, nextNumber);
+  }
+
+  part2 += result;
+}
+
+console.log(`Part 2: ${part2}`);
