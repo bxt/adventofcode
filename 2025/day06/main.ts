@@ -20,55 +20,68 @@ const operatorFunctions = {
   "*": (a: number, b: number) => a * b,
 };
 
-const parsedProblemLines = problemLines.map((line) =>
-  line.matchAll(/\d+/g).map(([numberString]) => parseInt(numberString, 10))
-    .toArray()
-);
 const parsedOperatorsLine = operatorsLine.matchAll(/[+*]/g).map((match) =>
   [parseOperator(match[0]), match.index] as const
 ).toArray();
 
-let part1 = 0;
+const parsedProblemLines = problemLines.map((line) =>
+  line.matchAll(/\d+/g).map(([numberString]) => parseInt(numberString, 10))
+    .toArray()
+);
 
-for (let i = 0; i < parsedOperatorsLine.length; i++) {
-  const [operator] = parsedOperatorsLine[i];
+const doCephalopodMath = (
+  getNumbers: (
+    op: { operatorIndex: number; operatorPosition: number },
+  ) => number[],
+) => {
+  let total = 0;
 
-  let result = operator === "+" ? 0 : 1;
+  for (let i = 0; i < parsedOperatorsLine.length; i++) {
+    const [operator, operatorPosition] = parsedOperatorsLine[i];
 
-  for (const problemLine of parsedProblemLines) {
-    result = operatorFunctions[operator](result, problemLine[i]);
+    let result = operator === "+" ? 0 : 1;
+
+    for (const number of getNumbers({ operatorIndex: i, operatorPosition })) {
+      result = operatorFunctions[operator](result, number);
+    }
+
+    total += result;
   }
 
-  part1 += result;
-}
+  return total;
+};
 
-console.log(`Part 1: ${part1}`);
+console.log(
+  `Part 1: ${
+    doCephalopodMath(({ operatorIndex }) =>
+      parsedProblemLines.map((line) => line[operatorIndex]!)
+    )
+  }`,
+);
 
 const problemLinesMaxLength = problemLines.reduce(
   (max, line) => Math.max(max, line.length),
   0,
 );
 
-let part2 = 0;
+console.log(
+  `Part 2: ${
+    doCephalopodMath(({ operatorIndex, operatorPosition }) => {
+      const [_, nextPosition] = parsedOperatorsLine[operatorIndex + 1] ||
+        [null, problemLinesMaxLength + 1];
+      const numbers: number[] = [];
 
-for (let i = 0; i < parsedOperatorsLine.length; i++) {
-  const [operator, index] = parsedOperatorsLine[i];
-  const [_, lastIndex] = parsedOperatorsLine[i + 1] ||
-    [null, problemLinesMaxLength + 1];
+      for (let k = operatorPosition; k < nextPosition - 1; k++) {
+        let nextNumberString = "";
+        for (const problemLine of problemLines) {
+          nextNumberString += problemLine[k];
+        }
+        const nextNumber = parseInt(nextNumberString, 10);
 
-  let result = operator === "+" ? 0 : 1;
+        numbers.push(nextNumber);
+      }
 
-  for (let k = index; k < lastIndex - 1; k++) {
-    let nextNumberString = "";
-    for (const problemLine of problemLines) {
-      nextNumberString += problemLine[k];
-    }
-    const nextNumber = parseInt(nextNumberString, 10);
-
-    result = operatorFunctions[operator](result, nextNumber);
-  }
-
-  part2 += result;
-}
-
-console.log(`Part 2: ${part2}`);
+      return numbers;
+    })
+  }`,
+);
