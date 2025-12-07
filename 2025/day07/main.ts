@@ -13,9 +13,9 @@ let beamPositions: Record<number, number> = { [startPosition]: 1 };
 
 for (const line of manifoldLines) {
   const newBeamPositions: Record<number, number> = {};
-  const add = (pos: number, count: number) => {
-    newBeamPositions[pos] ||= 0;
-    newBeamPositions[pos] += count;
+  const add = (position: number, count: number) => {
+    newBeamPositions[position] ||= 0;
+    newBeamPositions[position] += count;
   };
 
   for (const [positionString, count] of Object.entries(beamPositions)) {
