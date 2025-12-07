@@ -28,8 +28,8 @@ type OperatorInfo = { operatorIndex: number; operatorPosition: number };
 type NumbersExtractor = (operatorInfo: OperatorInfo) => number[];
 
 const doCephalopodMath = (getNumbers: NumbersExtractor) => {
-  const results = range(0, parsedOperatorsLine.length).map((operatorIndex) => {
-    const { operator, operatorPosition } = parsedOperatorsLine[operatorIndex];
+  const results = parsedOperatorsLine.map((operatorData, operatorIndex) => {
+    const { operator, operatorPosition } = operatorData;
     const numbers = getNumbers({ operatorIndex, operatorPosition });
     return operatorFunctions[operator](numbers);
   });
