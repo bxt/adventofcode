@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-write --allow-read --allow-net
-import { slidingWindows } from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { slidingWindows } from "jsr:@std/collections@1.1.3"
 import {
   COLOR_BLUE_1,
   COLOR_BLUE_2,

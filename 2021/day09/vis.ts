@@ -2,7 +2,7 @@
 import {
   chunk,
   sortBy,
-} from "https://deno.land/std@0.116.0/collections/mod.ts";
+} from "jsr:@std/collections@1.1.3"
 import { Coord, CoordSet, indexWithCoord } from "../../2020/utils.ts";
 import {
   COLOR_BLUE_1,

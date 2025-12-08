@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "jsr:@std/assert@1.0.16";
-import { mapValues } from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { mapValues } from "jsr:@std/collections@1.1.3"
 import { Coord, matchGroups, range } from "../../2020/utils.ts";
 
 type Input = { x1: number; x2: number; y1: number; y2: number };

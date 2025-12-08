@@ -1,6 +1,6 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "jsr:@std/assert@1.0.16";
-import { slidingWindows } from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { slidingWindows } from "jsr:@std/collections@1.1.3"
 import { sum } from "../../2020/utils.ts";
 
 const parseInput = (string: string): number[] =>

@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-write --allow-read --allow-net
-import { minBy } from "https://deno.land/std@0.116.0/collections/mod.ts";
+import { minBy } from "jsr:@std/collections@1.1.3"
 import { input, parseCoord, setupPart2, stringifyCoord } from "./main.ts";
 import {
   COLOR_BLUE_1,

@@ -1,10 +1,9 @@
 #!/usr/bin/env deno run --allow-read
 import { assertEquals } from "jsr:@std/assert@1.0.16";
 import {
-  groupBy,
   maxWith,
   minWith,
-} from "https://deno.land/std@0.116.0/collections/mod.ts";
+} from "jsr:@std/collections@1.1.3"
 
 const parseInput = (
   string: string,
@@ -41,8 +40,8 @@ const getBestGroupBy = (
   aggregator: Aggregator<Group>,
 ): Group => {
   const groups: Group[] = Object.entries(
-    groupBy(elements, (element) => element.charAt(position)),
-  );
+    Object.groupBy(elements, (element) => element.charAt(position)),
+  ).filter((arg): arg is Group => arg[1] !== undefined);
 
   const bestGroup = aggregator(groups, compareGroups);
 
