@@ -66,19 +66,19 @@ Takeaways
   * Adding all the types means writing more code and I guess does not make it easier to get to the leaderboard in the end.
   * TypeScript is very clever and can figure out surprisingly many things at compile-time already. E.g. [in this switch statement](day14/main.ts#L152-L164) it knows that the variable is changed from `null` in all branches and that always one of the `case`es is called, and would complain otherwise.
   * Since TS can figure out so many things it's frustrating when it can not, and you run into issues like inferring just one type parameter is [not yet](https://github.com/microsoft/TypeScript/pull/26349) possible, or [`Array.includes` can not "filter" types](https://github.com/microsoft/TypeScript/issues/26255).
-* JavaScript (and thus also TypeScript) had a bad reupatation for missing a good standard library. While it is not huge still, I found nowadays it comes reasonably equipped, especially for the kind of programming you tend to do for AoC. While things like classes, getters/setters, async, promises, generators are not so interesting, I used some new features extensively:
+* JavaScript (and thus also TypeScript) had a bad reputation for missing a good standard library. While it is not huge still, I found nowadays it comes reasonably equipped, especially for the kind of programming you tend to do for AoC. While things like classes, getters/setters, async, promises, generators are not so interesting, I used some new features extensively:
   * From ES2015: string template literals, arrow functions, object destructuring and spreads, `Set`s, `String.startsWith`, `class`es (only in [day 11][deno11] though)
   * From ES2016 `Array.includes`
   * From ES2017 `Object.values`, and hey: `String​.pad​Start` replaces the infamous `left-pad`
   * From ES2018 spreads and named capture groups
   * From ES2019 `Array.flat` and `Array.flatMap`
-* I did end up writing a small library of things I found missing and would expect in a "JS standard libarary", like basic `sum`, `product` helpers, and some set operations. Implementing those was acutally fun, because I could use some OOP, abstract base class, inheritance, getter methods, generators, iterators etc. which I normally try to avoid, as in high level React code they are usually unjustified complexity.
+* I did end up writing a small library of things I found missing and would expect in a "JS standard library", like basic `sum`, `product` helpers, and some set operations. Implementing those was actually fun, because I could use some OOP, abstract base class, inheritance, getter methods, generators, iterators etc. which I normally try to avoid, as in high level React code they are usually unjustified complexity.
 * Seems like days 22, 18, 15, 12, 5 might be suitable for bf/piet
 
 Completion
 ----------
 
-This is the 3rd year after 2015 and 2016 where I was able to complete all the puzzles in time 🎉🎄 I also started some of the riddles at 6am (MEZ) when they are released, but I could not make it to the leaderboard. To be fair there's around 10x more people competing this year compared to 2016 when I made it to the leaderboard a few times. I also tried to enjoy the process and that usually means not hurring through it. Anyways, I was relatively fast on day 20, with spot 781 for part 1, and spot 743 for part two. And on day 8 I made spot 801 on part 2. Otherwise I was always above 1k.
+This is the 3rd year after 2015 and 2016 where I was able to complete all the puzzles in time 🎉🎄 I also started some of the riddles at 6am (MEZ) when they are released, but I could not make it to the leaderboard. To be fair there's around 10x more people competing this year compared to 2016 when I made it to the leaderboard a few times. I also tried to enjoy the process and that usually means not hurrying through it. Anyways, I was relatively fast on day 20, with spot 781 for part 1, and spot 743 for part two. And on day 8 I made spot 801 on part 2. Otherwise I was always above 1k.
 
 Other solutions
 ---------------
