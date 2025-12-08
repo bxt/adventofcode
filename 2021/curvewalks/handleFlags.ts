@@ -1,4 +1,4 @@
-import { parseFlags } from "./deps.ts";
+import { parseArgs } from "./deps.ts";
 
 import * as curves from "./lindenmayerSystems.ts";
 
@@ -22,7 +22,7 @@ const descriptions = {
   curve: `Which curve to draw`,
 };
 
-const parseFlagsOptions = {
+const parseArgsOptions = {
   string: ["curve"],
   boolean: ["drawLine", "help"],
   alias: {
@@ -78,14 +78,14 @@ export function handleFlags(flags: string[]): HandleFlagsResult {
     margin,
     recursion,
     width,
-  } = parseFlags(flags, parseFlagsOptions);
+  } = parseArgs(flags, parseArgsOptions);
 
   if (help) {
     let helpText = "Renders some nice curves\n\nOptions:\n\n";
 
-    for (const [short, long] of Object.entries(parseFlagsOptions.alias)) {
-      const def = parseFlagsOptions
-        .default[long as keyof typeof parseFlagsOptions.default];
+    for (const [short, long] of Object.entries(parseArgsOptions.alias)) {
+      const def = parseArgsOptions
+        .default[long as keyof typeof parseArgsOptions.default];
       const spec = specs[long as keyof typeof specs];
 
       helpText += `  -${short}, --${long}:\n`;

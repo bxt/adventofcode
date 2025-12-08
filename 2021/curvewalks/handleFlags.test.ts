@@ -4,13 +4,13 @@ import { handleFlags } from "./handleFlags.ts";
 const defaultFlags = ["--curve", "hilbert"];
 
 const defaultOptions = {
-  curve: "hilbert",
+  curve: "hilbert" as const,
   dotFraction: 3,
   drawLine: false,
   height: 500,
   margin: 20,
   recursion: 5,
-  result: "success",
+  result: "success" as const,
   width: 500,
 };
 
