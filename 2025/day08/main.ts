@@ -25,48 +25,39 @@ for (let from = 0; from < positions.length; from++) {
 
 connections.sort((a, b) => a.distance - b.distance);
 
-const closestConnections = connections.slice(0, 1000);
+const componentIds = positions.map((_, index) => index);
 
-console.log(closestConnections.length);
+let componentCount = componentIds.length;
 
-const seen = positions.map(() => false);
-const connectedComponentSizes = [];
+for (let connectionId = 0; connectionId < connections.length; connectionId++) {
+  const { from, to } = connections[connectionId];
+  const fromComponentId = componentIds[from];
+  const toComponentId = componentIds[to];
 
-for (let from = 0; from < positions.length; from++) {
-  if (seen[from]) continue;
-  seen[from] = true;
-
-  const queue = [from];
-  let componentSize = 1;
-  while (queue.length > 0) {
-    const current = queue.pop();
-
-    if (current === undefined) throw new Error("Unexpected empty item");
-
-    for (const connection of closestConnections) {
-      let to = undefined;
-      if (connection.from === current) {
-        to = connection.to;
-      } else if (connection.to === current) {
-        to = connection.from;
+  if (fromComponentId !== toComponentId) {
+    componentCount--;
+    for (let i = 0; i < componentIds.length; i++) {
+      if (componentIds[i] === toComponentId) {
+        componentIds[i] = fromComponentId;
       }
-
-      if (to === undefined) continue;
-
-      if (seen[to]) continue;
-      seen[to] = true;
-
-      queue.push(to);
-      componentSize++;
     }
   }
 
-  connectedComponentSizes.push(componentSize);
+  if (connectionId === 999) {
+    const connectedComponents = Object.groupBy(componentIds, (id) => id);
+
+    const connectedComponentSizes = Object.values(connectedComponents).map(
+      (members) => members?.length || 0,
+    );
+
+    const part1 = connectedComponentSizes.sort((a, b) => b - a).slice(0, 3)
+      .reduce((a, b) => a * b, 1);
+
+    console.log(`Part 1: ${part1}`);
+  }
+
+  if (componentCount === 1) {
+    console.log(`Part 2: ${positions[from][0] * positions[to][0]}`);
+    break;
+  }
 }
-
-const part1 = connectedComponentSizes.sort((a, b) => b - a).slice(0, 3).reduce(
-  (a, b) => a * b,
-  1,
-);
-
-console.log(`Part 1: ${part1}`);
