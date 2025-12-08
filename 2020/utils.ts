@@ -267,7 +267,7 @@ export abstract class StringifySinkSet<T> {
  */
 export abstract class StringifySet<T> extends StringifySinkSet<T>
   implements Set<T> {
-  *[Symbol.iterator](): IterableIterator<T> {
+  *[Symbol.iterator](): SetIterator<T> {
     for (const stringItem of this.set) {
       yield this.parse(stringItem);
     }
@@ -279,22 +279,45 @@ export abstract class StringifySet<T> extends StringifySinkSet<T>
     }
   }
 
-  *entries(): IterableIterator<[T, T]> {
+  *entries(): SetIterator<[T, T]> {
     for (const stringItem of this.set) {
       const item = this.parse(stringItem);
       yield [item, item];
     }
   }
 
-  keys(): IterableIterator<T> {
+  keys(): SetIterator<T> {
     return this[Symbol.iterator]();
   }
 
-  values(): IterableIterator<T> {
+  values(): SetIterator<T> {
     return this[Symbol.iterator]();
   }
 
   protected abstract parse(string: string): T;
+
+
+  union<U>(_: ReadonlySetLike<U>): Set<T | U> {
+    throw new Error("Method not implemented.");
+  }
+  intersection<U>(_: ReadonlySetLike<U>): Set<T & U> {
+    throw new Error("Method not implemented.");
+  }
+  difference<U>(_: ReadonlySetLike<U>): Set<T> {
+    throw new Error("Method not implemented.");
+  }
+  symmetricDifference<U>(_: ReadonlySetLike<U>): Set<T | U> {
+    throw new Error("Method not implemented.");
+  }
+  isSubsetOf(_: ReadonlySetLike<unknown>): boolean {
+    throw new Error("Method not implemented.");
+  }
+  isSupersetOf(_: ReadonlySetLike<unknown>): boolean {
+    throw new Error("Method not implemented.");
+  }
+  isDisjointFrom(_: ReadonlySetLike<unknown>): boolean {
+    throw new Error("Method not implemented.");
+  }
 }
 
 /**
