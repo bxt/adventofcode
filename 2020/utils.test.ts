@@ -1,7 +1,7 @@
 #!/usr/bin/env deno test --allow-read
 
 /*
- * To check coverage, run: deno test --allow-read --coverage=coverage --unstable utils.test.ts; deno coverage coverage; rm -R coverage/
+ * To check coverage, run: deno test --allow-read --coverage=coverage utils.test.ts; deno coverage coverage; rm -R coverage/
  */
 
 import {
