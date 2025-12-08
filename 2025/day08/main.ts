@@ -11,14 +11,13 @@ const positions = lines.map((line) => {
 
 const connections: { from: number; to: number; distance: number }[] = [];
 
-for (let from = 0; from < positions.length; from++) {
-  const [fromX, fromY, fromZ] = positions[from];
+type Coord = readonly [number, number, number];
+const calculateDistance = ([x1, y1, z1]: Coord, [x2, y2, z2]: Coord) =>
+  Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2);
 
+for (let from = 0; from < positions.length; from++) {
   for (let to = from + 1; to < positions.length; to++) {
-    const [toX, toY, toZ] = positions[to];
-    const distance = Math.sqrt(
-      (toX - fromX) ** 2 + (toY - fromY) ** 2 + (toZ - fromZ) ** 2,
-    );
+    const distance = calculateDistance(positions[from], positions[to]);
     connections.push({ from, to, distance });
   }
 }
