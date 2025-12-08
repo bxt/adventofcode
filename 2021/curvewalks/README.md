@@ -41,7 +41,7 @@ Development
 When developing it is probably best to keep the tests running in the background:
 
 ```sh
-deno test --watch --allow-net ----allow-read
+deno test --watch --allow-net --allow-read
 ```
 
 Other than that just make sure the following commands still work:
