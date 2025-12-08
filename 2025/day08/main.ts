@@ -30,33 +30,39 @@ export const getFrequencyCounts = (numbers: number[]): number[] =>
     (members) => members?.length || 0,
   ).sort((a, b) => b - a);
 
-const componentIds = positions.map((_, index) => index);
+if (import.meta.main) {
+  const componentIds = positions.map((_, index) => index);
 
-let componentCount = componentIds.length;
+  let componentCount = componentIds.length;
 
-for (let connectionId = 0; connectionId < connections.length; connectionId++) {
-  const { from, to } = connections[connectionId];
-  const fromComponentId = componentIds[from];
-  const toComponentId = componentIds[to];
+  for (
+    let connectionId = 0;
+    connectionId < connections.length;
+    connectionId++
+  ) {
+    const { from, to } = connections[connectionId];
+    const fromComponentId = componentIds[from];
+    const toComponentId = componentIds[to];
 
-  if (fromComponentId !== toComponentId) {
-    componentCount--;
-    for (let i = 0; i < componentIds.length; i++) {
-      if (componentIds[i] === toComponentId) {
-        componentIds[i] = fromComponentId;
+    if (fromComponentId !== toComponentId) {
+      componentCount--;
+      for (let i = 0; i < componentIds.length; i++) {
+        if (componentIds[i] === toComponentId) {
+          componentIds[i] = fromComponentId;
+        }
       }
     }
-  }
 
-  if (connectionId === 999) {
-    const part1 = getFrequencyCounts(componentIds).slice(0, 3)
-      .reduce((a, b) => a * b, 1);
+    if (connectionId === 999) {
+      const part1 = getFrequencyCounts(componentIds).slice(0, 3)
+        .reduce((a, b) => a * b, 1);
 
-    console.log(`Part 1: ${part1}`);
-  }
+      console.log(`Part 1: ${part1}`);
+    }
 
-  if (componentCount === 1) {
-    console.log(`Part 2: ${positions[from][0] * positions[to][0]}`);
-    break;
+    if (componentCount === 1) {
+      console.log(`Part 2: ${positions[from][0] * positions[to][0]}`);
+      break;
+    }
   }
 }
