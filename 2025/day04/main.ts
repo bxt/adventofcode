@@ -1,4 +1,4 @@
-// run with `deno run --allow-read=input.txt main.ts`
+#!/usr/bin/env deno run --allow-read=input.txt
 
 const file = (await Deno.readTextFile("input.txt")).trim();
 

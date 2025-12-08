@@ -1,4 +1,4 @@
-// run with `deno run --allow-read=input.txt vis.ts`
+#!/usr/bin/env deno run --allow-read=input.txt
 
 import { field, findRemovals } from "./main.ts";
 

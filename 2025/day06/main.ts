@@ -1,4 +1,4 @@
-// run with `deno run --allow-read=input.txt main.ts`
+#!/usr/bin/env deno run --allow-read=input.txt
 
 const range = (from: number, to: number): number[] =>
   Array.from({ length: to - from }, (_, i) => i + from);

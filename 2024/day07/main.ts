@@ -1,4 +1,4 @@
-// run with `deno run --allow-read=input.txt main.ts`
+#!/usr/bin/env deno run --allow-read=input.txt
 import { assertEquals } from "jsr:@std/assert";
 
 type Equation = { result: number; inputs: number[] };
