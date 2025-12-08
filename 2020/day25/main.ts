@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-read
-import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert@1.0.16";
 
 const parseInput = (string: string): [number, number] => {
   const numbers = string.trim().split("\n").map(Number);

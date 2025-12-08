@@ -2,4 +2,4 @@ export {
   assertEquals,
   AssertionError,
   assertMatch,
-} from "https://deno.land/std@0.116.0/testing/asserts.ts";
+} from "jsr:@std/assert@1.0.16";

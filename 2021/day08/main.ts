@@ -1,5 +1,5 @@
 #!/usr/bin/env deno run --allow-read
-import { assertEquals } from "https://deno.land/std@0.116.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert@1.0.16";
 import { ensureElementOf, sum } from "../../2020/utils.ts";
 
 const segments = ["a", "b", "c", "d", "e", "f", "g"] as const;
