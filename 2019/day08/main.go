@@ -15,7 +15,7 @@ func check(e error) {
 	}
 }
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if !reflect.DeepEqual(expected, actual) {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",
@@ -45,8 +45,8 @@ reading_layers:
 		number_of_ones := 0
 		number_of_twos := 0
 
-		for y := 0; y < height; y++ {
-			for x := 0; x < width; x++ {
+		for y := range height {
+			for x := range width {
 				b, err := reader.ReadByte()
 				if errors.Is(err, io.EOF) {
 					break reading_layers
@@ -83,15 +83,16 @@ reading_layers:
 	fmt.Printf("Part 1: %d\n", result)
 	fmt.Printf("Part 2:\n")
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			if image[x][y] == 3 {
+	for y := range height {
+		for x := range width {
+			switch image[x][y] {
+			case 3:
 				fmt.Printf(".")
-			} else if image[x][y] == 4 {
+			case 4:
 				fmt.Printf("#")
-			} else if image[x][y] == 0 {
+			case 0:
 				fmt.Printf("?")
-			} else {
+			default:
 				panic("Yikes!")
 			}
 		}

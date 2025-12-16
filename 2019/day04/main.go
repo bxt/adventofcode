@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if !reflect.DeepEqual(expected, actual) {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",

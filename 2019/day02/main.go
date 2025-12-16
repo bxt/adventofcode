@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -13,7 +13,7 @@ func check(e error) {
 	}
 }
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if expected != actual {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",
@@ -50,7 +50,7 @@ func main() {
 	assertEquals(int64(9801), runProgram([]int64{2, 4, 4, 5, 99, 0}, 5))
 	assertEquals(int64(30), runProgram([]int64{1, 1, 1, 4, 99, 5, 6, 0, 99}, 0))
 
-	dat, err := ioutil.ReadFile("input.txt")
+	dat, err := os.ReadFile("input.txt")
 	check(err)
 
 	programStrings := strings.Split(string(dat), ",")
@@ -61,23 +61,23 @@ func main() {
 		program = append(program, int64(i))
 	}
 
-	programmWithNounAndVerb := append(program[:0:0], program...)
+	programWithNounAndVerb := append(program[:0:0], program...)
 
-	programmWithNounAndVerb[1] = 12
-	programmWithNounAndVerb[2] = 2
+	programWithNounAndVerb[1] = 12
+	programWithNounAndVerb[2] = 2
 
-	part1 := runProgram(programmWithNounAndVerb, 0)
+	part1 := runProgram(programWithNounAndVerb, 0)
 
 	fmt.Printf("Part 1: %d\n", part1)
 
-	for noun := int64(0); noun < 100; noun++ {
-		for verb := int64(0); verb < 100; verb++ {
-			programmWithNounAndVerb := append(program[:0:0], program...)
+	for noun := range int64(100) {
+		for verb := range int64(100) {
+			programWithNounAndVerb := append(program[:0:0], program...)
 
-			programmWithNounAndVerb[1] = noun
-			programmWithNounAndVerb[2] = verb
+			programWithNounAndVerb[1] = noun
+			programWithNounAndVerb[2] = verb
 
-			result := runProgram(programmWithNounAndVerb, 0)
+			result := runProgram(programWithNounAndVerb, 0)
 
 			if result == 19690720 {
 				fmt.Printf("Part 2: %d\n", 100*noun+verb)

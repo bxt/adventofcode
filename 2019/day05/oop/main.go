@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if !reflect.DeepEqual(expected, actual) {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",
@@ -73,7 +73,7 @@ func (m *machine) getOperation() operation {
 func (m *machine) getRawOperandMode(position int) int {
 	instruction := m.getInstruction()
 	instruction /= 10
-	for i := 0; i < position; i++ {
+	for range position {
 		instruction /= 10
 	}
 	return instruction % 10
@@ -195,7 +195,7 @@ func main() {
 	assertEquals([]int{102}, runProgram([]int{1001, 6, 3, 7, 4, 7, 99, -1}, []int{}))
 	assertEquals([]int{102}, runProgram([]int{101, 3, 6, 7, 4, 7, 99, -1}, []int{}))
 
-	dat, err := ioutil.ReadFile("../input.txt")
+	dat, err := os.ReadFile("../input.txt")
 	check(err)
 
 	programStrings := strings.Split(string(dat), ",")
@@ -229,30 +229,30 @@ func main() {
 	assertEquals([]int{0}, runProgram(programLessThanPositionMode, []int{8}))
 	assertEquals([]int{0}, runProgram(programLessThanPositionMode, []int{9}))
 
-	programmEqualImmediateMode := []int{3, 3, 1108, -1, 8, 3, 4, 3, 99}
-	assertEquals([]int{0}, runProgram(programmEqualImmediateMode, []int{7}))
-	assertEquals([]int{1}, runProgram(programmEqualImmediateMode, []int{8}))
-	assertEquals([]int{0}, runProgram(programmEqualImmediateMode, []int{9}))
+	programEqualImmediateMode := []int{3, 3, 1108, -1, 8, 3, 4, 3, 99}
+	assertEquals([]int{0}, runProgram(programEqualImmediateMode, []int{7}))
+	assertEquals([]int{1}, runProgram(programEqualImmediateMode, []int{8}))
+	assertEquals([]int{0}, runProgram(programEqualImmediateMode, []int{9}))
 
-	programmLessThanImmediateMode := []int{3, 3, 1107, -1, 8, 3, 4, 3, 99}
-	assertEquals([]int{1}, runProgram(programmLessThanImmediateMode, []int{7}))
-	assertEquals([]int{0}, runProgram(programmLessThanImmediateMode, []int{8}))
-	assertEquals([]int{0}, runProgram(programmLessThanImmediateMode, []int{9}))
+	programLessThanImmediateMode := []int{3, 3, 1107, -1, 8, 3, 4, 3, 99}
+	assertEquals([]int{1}, runProgram(programLessThanImmediateMode, []int{7}))
+	assertEquals([]int{0}, runProgram(programLessThanImmediateMode, []int{8}))
+	assertEquals([]int{0}, runProgram(programLessThanImmediateMode, []int{9}))
 
-	programmJumpTestPositionMode := []int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}
-	assertEquals([]int{0}, runProgram(programmJumpTestPositionMode, []int{0}))
-	assertEquals([]int{1}, runProgram(programmJumpTestPositionMode, []int{3}))
-	assertEquals([]int{1}, runProgram(programmJumpTestPositionMode, []int{-2}))
+	programJumpTestPositionMode := []int{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9}
+	assertEquals([]int{0}, runProgram(programJumpTestPositionMode, []int{0}))
+	assertEquals([]int{1}, runProgram(programJumpTestPositionMode, []int{3}))
+	assertEquals([]int{1}, runProgram(programJumpTestPositionMode, []int{-2}))
 
-	programmJumpTestImmediateMode := []int{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}
-	assertEquals([]int{0}, runProgram(programmJumpTestImmediateMode, []int{0}))
-	assertEquals([]int{1}, runProgram(programmJumpTestImmediateMode, []int{3}))
-	assertEquals([]int{1}, runProgram(programmJumpTestImmediateMode, []int{-2}))
+	programJumpTestImmediateMode := []int{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1}
+	assertEquals([]int{0}, runProgram(programJumpTestImmediateMode, []int{0}))
+	assertEquals([]int{1}, runProgram(programJumpTestImmediateMode, []int{3}))
+	assertEquals([]int{1}, runProgram(programJumpTestImmediateMode, []int{-2}))
 
-	programmLargerExample := []int{3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99}
-	assertEquals([]int{999}, runProgram(programmLargerExample, []int{7}))
-	assertEquals([]int{1000}, runProgram(programmLargerExample, []int{8}))
-	assertEquals([]int{1001}, runProgram(programmLargerExample, []int{9}))
+	programLargerExample := []int{3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99}
+	assertEquals([]int{999}, runProgram(programLargerExample, []int{7}))
+	assertEquals([]int{1000}, runProgram(programLargerExample, []int{8}))
+	assertEquals([]int{1001}, runProgram(programLargerExample, []int{9}))
 
 	inputPart2 := []int{5}
 	outputPart2 := runProgram(program, inputPart2)

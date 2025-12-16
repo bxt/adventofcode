@@ -18,7 +18,7 @@ func check(e error) {
 	}
 }
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if !reflect.DeepEqual(expected, actual) {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",
@@ -43,10 +43,10 @@ type point struct {
 	y int
 }
 
-func parseInstructons(instructionList string) []instruction {
+func parseInstructions(instructionList string) []instruction {
 	var instructions []instruction
-	for _, piece := range strings.Split(instructionList, ",") {
-		length, err := strconv.Atoi(piece[1:len(piece)])
+	for piece := range strings.SplitSeq(instructionList, ",") {
+		length, err := strconv.Atoi(piece[1:])
 		check(err)
 		instructions = append(instructions, instruction{
 			direction: piece[0:1],
@@ -200,8 +200,8 @@ func visualizeLinesAndIntersections(wireLines [][]line, intersections []point) {
 	})
 
 	colors := []color.RGBA{
-		color.RGBA{100, 200, 200, 0xff},
-		color.RGBA{200, 200, 100, 0xff},
+		{100, 200, 200, 0xff},
+		{200, 200, 100, 0xff},
 	}
 
 	for wireIndex, lines := range wireLines {
@@ -303,18 +303,18 @@ func wiresOptimalIntersectionDistance(wires [][]instruction) int {
 }
 
 func main() {
-	assertEquals([]instruction{{"U", 3}, {"L", 5}}, parseInstructons("U3,L5"))
+	assertEquals([]instruction{{"U", 3}, {"L", 5}}, parseInstructions("U3,L5"))
 	assertEquals([]line{{0, 0, 0, 3}, {0, 3, -5, 3}, {-5, 3, -5, 1}, {-5, 1, 4, 1}},
-		convertInstructionsToLines(parseInstructons("U3,L5,D2,R9")))
+		convertInstructionsToLines(parseInstructions("U3,L5,D2,R9")))
 	assertEquals(point{3, 3}, closestPoint(wiresIntersectionPoints([][]instruction{
-		parseInstructons("R8,U5,L5,D3"), parseInstructons("U7,R6,D4,L4")})))
+		parseInstructions("R8,U5,L5,D3"), parseInstructions("U7,R6,D4,L4")})))
 	assertEquals(159, closestPoint(wiresIntersectionPoints([][]instruction{
-		parseInstructons("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
-		parseInstructons("U62,R66,U55,R34,D71,R55,D58,R83"),
+		parseInstructions("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
+		parseInstructions("U62,R66,U55,R34,D71,R55,D58,R83"),
 	})).mag())
 	assertEquals(135, closestPoint(wiresIntersectionPoints([][]instruction{
-		parseInstructons("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
-		parseInstructons("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
+		parseInstructions("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
+		parseInstructions("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
 	})).mag())
 
 	file, err := os.Open("input.txt")
@@ -325,21 +325,21 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		wires = append(wires, parseInstructons(scanner.Text()))
+		wires = append(wires, parseInstructions(scanner.Text()))
 	}
 	check(scanner.Err())
 
 	fmt.Printf("Part 1: %d\n", closestPoint(wiresIntersectionPoints(wires)).mag()) // 316
 
 	assertEquals(30, wiresOptimalIntersectionDistance([][]instruction{
-		parseInstructons("R8,U5,L5,D3"), parseInstructons("U7,R6,D4,L4")}))
+		parseInstructions("R8,U5,L5,D3"), parseInstructions("U7,R6,D4,L4")}))
 	assertEquals(610, wiresOptimalIntersectionDistance([][]instruction{
-		parseInstructons("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
-		parseInstructons("U62,R66,U55,R34,D71,R55,D58,R83")},
+		parseInstructions("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
+		parseInstructions("U62,R66,U55,R34,D71,R55,D58,R83")},
 	))
 	assertEquals(410, wiresOptimalIntersectionDistance([][]instruction{
-		parseInstructons("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
-		parseInstructons("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
+		parseInstructions("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
+		parseInstructions("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
 	}))
 
 	fmt.Printf("Part 2: %d\n", wiresOptimalIntersectionDistance(wires)) // ?

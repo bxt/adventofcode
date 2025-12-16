@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func assertEquals(expected interface{}, actual interface{}) {
+func assertEquals(expected any, actual any) {
 	if !reflect.DeepEqual(expected, actual) {
 		panic(fmt.Sprintf(
 			"expected = %[1]v : %[1]T != actual = %[2]v : %[2]T",
@@ -132,19 +132,19 @@ Loop:
 
 func maxThrusterSignal(program []int64) (topValue int64, topSequence []int64) {
 	topValue = int64(0)
-	for a := int64(0); a < 5; a++ {
-		for b := int64(0); b < 5; b++ {
+	for a := range int64(5) {
+		for b := range int64(5) {
 			if b == a {
 				continue
 			}
-			for c := int64(0); c < 5; c++ {
+			for c := range int64(5) {
 				if c == a {
 					continue
 				}
 				if c == b {
 					continue
 				}
-				for d := int64(0); d < 5; d++ {
+				for d := range int64(5) {
 					if d == a {
 						continue
 					}
@@ -154,7 +154,7 @@ func maxThrusterSignal(program []int64) (topValue int64, topSequence []int64) {
 					if d == c {
 						continue
 					}
-					for e := int64(0); e < 5; e++ {
+					for e := range int64(5) {
 						if e == a {
 							continue
 						}
@@ -199,7 +199,7 @@ func main() {
 	assertEquals([]int64{1, 0, 4, 3, 2}, topSequence)
 	assertEquals(int64(65210), topValue)
 
-	dat, err := ioutil.ReadFile("input.txt")
+	dat, err := os.ReadFile("input.txt")
 	check(err)
 
 	programStrings := strings.Split(string(dat), ",")
