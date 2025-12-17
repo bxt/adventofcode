@@ -47,6 +47,32 @@ func gcd(a int, b int) int {
 	return a
 }
 
+func equals(a, b coord) bool {
+	return a.x == b.x && a.y == b.y
+}
+
+func minus(a, b coord) coord {
+	return coord{x: a.x - b.x, y: a.y - b.y}
+}
+
+func divide(a coord, divisor int) coord {
+	return coord{x: a.x / divisor, y: a.y / divisor}
+}
+
+func (c coord) directionFrom(to coord) coord {
+	d := minus(c, to)
+	divisor := gcd(abs(d.x), abs(d.y))
+	return divide(d, divisor)
+}
+
+func (c coord) manhattanMagnitude() int {
+	return abs(c.x) + abs(c.y)
+}
+
+func (c coord) angle() float64 {
+	return -math.Atan2(float64(c.x), float64(c.y))
+}
+
 func main() {
 	var grid [][]bool
 
@@ -81,26 +107,21 @@ reading:
 	}
 
 	var bestVisible int
-	var bestX int
-	var bestY int
+	var bestCoord coord
 
 	for baseY, line := range grid {
 		for baseX, base := range line {
 			if base {
+				baseCoord := coord{x: baseX, y: baseY}
 				visible := 0
 				for asteroidY, asteroidLine := range grid {
 				asteroid_checking:
 					for asteroidX, asteroid := range asteroidLine {
-						if asteroid && !(asteroidX == baseX && asteroidY == baseY) {
-							dx := asteroidX - baseX
-							dy := asteroidY - baseY
+						asteroidCoord := coord{x: asteroidX, y: asteroidY}
+						if asteroid && !equals(asteroidCoord, baseCoord) {
+							direction := asteroidCoord.directionFrom(baseCoord)
 
-							divisor := gcd(abs(dx), abs(dy))
-
-							xStep := dx / divisor
-							yStep := dy / divisor
-
-							for x, y := baseX+xStep, baseY+yStep; x != asteroidX || y != asteroidY; x, y = x+xStep, y+yStep {
+							for x, y := baseX+direction.x, baseY+direction.y; x != asteroidX || y != asteroidY; x, y = x+direction.x, y+direction.y {
 								if grid[y][x] {
 									continue asteroid_checking
 								}
@@ -113,8 +134,7 @@ reading:
 
 				if visible > bestVisible {
 					bestVisible = visible
-					bestX = baseX
-					bestY = baseY
+					bestCoord = baseCoord
 				}
 			}
 		}
@@ -126,16 +146,10 @@ reading:
 
 	for asteroidY, asteroidLine := range grid {
 		for asteroidX, asteroid := range asteroidLine {
-			if asteroid && !(asteroidX == bestX && asteroidY == bestY) {
-				dx := asteroidX - bestX
-				dy := asteroidY - bestY
+			asteroidCoord := coord{x: asteroidX, y: asteroidY}
 
-				divisor := gcd(abs(dx), abs(dy))
-
-				xStep := dx / divisor
-				yStep := dy / divisor
-
-				direction := coord{x: xStep, y: yStep}
+			if asteroid && !equals(asteroidCoord, bestCoord) {
+				direction := asteroidCoord.directionFrom(bestCoord)
 
 				asteroids[direction] = append(asteroids[direction], coord{x: asteroidX, y: asteroidY})
 			}
@@ -145,20 +159,14 @@ reading:
 	directions := slices.Collect(maps.Keys(asteroids))
 
 	slices.SortFunc(directions, func(a, b coord) int {
-		da := math.Atan2(float64(a.x), float64(a.y))
-		db := math.Atan2(float64(b.x), float64(b.y))
-		return cmp.Compare(db, da)
+		return cmp.Compare(a.angle(), b.angle())
 	})
 
 	for _, direction := range directions {
 		slices.SortFunc(asteroids[direction], func(a, b coord) int {
-			dxA := a.x - bestX
-			dyA := a.y - bestY
-			dxB := b.x - bestX
-			dyB := b.y - bestY
-			distA := abs(dxA) + abs(dyA)
-			distB := abs(dxB) + abs(dyB)
-			return cmp.Compare(distA, distB)
+			dA := minus(a, bestCoord)
+			dB := minus(b, bestCoord)
+			return cmp.Compare(dA.manhattanMagnitude(), dB.manhattanMagnitude())
 		})
 	}
 
@@ -178,9 +186,10 @@ vaporizing:
 
 				for y, line := range grid {
 					for x, cell := range line {
-						if x == vaporizedAsteroid.x && y == vaporizedAsteroid.y {
+						coord := coord{x: x, y: y}
+						if equals(coord, vaporizedAsteroid) {
 							fmt.Print("\033[31m#\033[0m")
-						} else if x == bestX && y == bestY {
+						} else if equals(coord, bestCoord) {
 							fmt.Print("\033[32mX\033[0m")
 						} else if cell {
 							fmt.Print("#")
