@@ -22,154 +22,188 @@ func assertEquals(expected any, actual any) {
 	}
 }
 
-func ensureLen[T any](slice []T, n int) []T {
-	if len(slice) < n {
-		slice = append(slice, make([]T, n-len(slice))...)
+type machine struct {
+	state          []int64
+	input          []int64
+	programCounter int64
+	relativeBase   int64
+	output         []int64
+}
+
+type mode int
+
+const (
+	positional mode = iota
+	immediate
+	relative
+)
+
+type operation int
+
+const (
+	noop operation = iota
+	add
+	mul
+	in
+	out
+	jnz
+	jz
+	lt
+	eq
+	disp
+	hlt operation = 99
+)
+
+func makeMachine(program []int64, input []int64) *machine {
+	return &machine{
+		state: append(program[:0:0], program...),
+		input: input,
 	}
-	return slice
 }
 
-func decodeInstruction(instruction int64) (opCode, modeOperandA, modeOperandB, modeOperandC int64) {
-	opCode = instruction % 100
-	instruction /= 100
-	modeOperandA = instruction % 10
-	instruction /= 10
-	modeOperandB = instruction % 10
-	instruction /= 10
-	modeOperandC = instruction % 10
-	return
+func (m *machine) getRawOperand(position int64) int64 {
+	return m.state[m.programCounter+position]
 }
 
-func resolveOperand(state []int64, relativeBase int64, value int64, mode int64) int64 {
+func (m *machine) getInstruction() int64 {
+	return m.getRawOperand(0)
+}
+
+func (m *machine) getOperation() operation {
+	return operation(m.getInstruction() % 100)
+}
+
+func (m *machine) getRawOperandMode(position int64) int64 {
+	instruction := m.getInstruction()
+	for range position + 1 {
+		instruction /= 10
+	}
+	return instruction % 10
+}
+
+func (m *machine) getOperandMode(position int64) mode {
+	return mode(m.getRawOperandMode(position))
+}
+
+func (m *machine) writeOperand(position int64, value int64) {
+	address := m.getRawOperand(position)
+	mode := m.getOperandMode(position)
 	switch mode {
-	case 0:
-		if int(value) >= len(state) {
-			return 0
+	case relative:
+		address += m.relativeBase
+		fallthrough
+	case positional:
+		if int64(len(m.state)) <= address {
+			m.state = append(m.state, make([]int64, int(address)-len(m.state)+1)...)
 		}
-		return state[value]
-	case 1:
-		return value
-	case 2:
-		if int(value+relativeBase) >= len(state) {
-			return 0
-		}
-		return state[value+relativeBase]
+		m.state[address] = value
 	default:
-		panic(fmt.Sprintf("Unknown operand mode: %d", mode))
+		panic(fmt.Sprintf("Unknown operand mode for write: %d", mode))
 	}
 }
 
-func runProgram(program []int64, input []int64) []int64 {
-	state := append(program[:0:0], program...)
-	pc := 0
-	relativeBase := int64(0)
-	var output []int64
+func (m *machine) resolveOperand(position int64) int64 {
+	address := m.getRawOperand(position)
+	mode := m.getOperandMode(position)
+	switch mode {
+	case relative:
+		address += m.relativeBase
+		fallthrough
+	case positional:
+		if address >= int64(len(m.state)) {
+			return 0
+		}
+		return m.state[address]
+	case immediate:
+		return address
+	default:
+		panic(fmt.Sprintf("Unknown operand mod for read: %d", mode))
+	}
+}
 
+func (m *machine) emitOutput(value int64) {
+	m.output = append(m.output, value)
+}
+
+func (m *machine) dequeueInput() int64 {
+	value := m.input[0]
+	m.input = m.input[1:]
+	return value
+}
+
+func (m *machine) advanceProgramCounter(by int64) {
+	m.programCounter += by
+}
+
+func (m *machine) jumpProgramCounter(to int64) {
+	m.programCounter = to
+}
+
+func (m *machine) moveRelativeBase(by int64) {
+	m.relativeBase += by
+}
+
+func (m *machine) run() {
 Loop:
 	for {
-		opCode, modeOperandA, modeOperandB, modeOperandC :=
-			decodeInstruction(state[pc])
-		// fmt.Printf("Op: %d, pc: %d, rB: %d, mA: %d, mB: %d, st: %v, out: %v\n", opCode, pc, relativeBase, modeOperandA, modeOperandB, state, output)
-		switch opCode {
-		case 1:
-			operandA, operandB := state[pc+1], state[pc+2]
-			rPointer := state[pc+3]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-			if modeOperandC == 2 {
-				rPointer += relativeBase
-			}
-			state = ensureLen(state, int(rPointer)+1)
-			state[rPointer] = a + b
-
-			pc += 4
-		case 2:
-			operandA, operandB := state[pc+1], state[pc+2]
-			rPointer := state[pc+3]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-			if modeOperandC == 2 {
-				rPointer += relativeBase
-			}
-			state = ensureLen(state, int(rPointer)+1)
-			state[rPointer] = a * b
-			pc += 4
-		case 3:
-			rPointer := state[pc+1]
-			a := input[0]
-			input = input[1:]
-			state = ensureLen(state, int(rPointer)+1)
-			if modeOperandA == 2 {
-				rPointer += relativeBase
-			}
-			state[rPointer] = a
-			pc += 2
-		case 4:
-			operandA := state[pc+1]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			output = append(output, a)
-			pc += 2
-		case 5:
-			operandA, operandB := state[pc+1], state[pc+2]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			if a != 0 {
-				b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-				pc = int(b)
+		operation := m.getOperation()
+		// fmt.Printf("Op: %d, pc: %d, mA: %d, mB: %d, st: %v\n", operation, m.programCounter, m.getOperandMode(1), m.getOperandMode(2), m.state)
+		switch operation {
+		case add:
+			m.writeOperand(3, m.resolveOperand(1)+m.resolveOperand(2))
+			m.advanceProgramCounter(4)
+		case mul:
+			m.writeOperand(3, m.resolveOperand(1)*m.resolveOperand(2))
+			m.advanceProgramCounter(4)
+		case in:
+			m.writeOperand(1, m.dequeueInput())
+			m.advanceProgramCounter(2)
+		case out:
+			m.emitOutput(m.resolveOperand(1))
+			m.advanceProgramCounter(2)
+		case jnz:
+			if m.resolveOperand(1) != 0 {
+				m.jumpProgramCounter(m.resolveOperand(2))
 			} else {
-				pc += 3
+				m.advanceProgramCounter(3)
 			}
-		case 6:
-			operandA, operandB := state[pc+1], state[pc+2]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			if a == 0 {
-				b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-				pc = int(b)
+		case jz:
+			if m.resolveOperand(1) == 0 {
+				m.jumpProgramCounter(m.resolveOperand(2))
 			} else {
-				pc += 3
+				m.advanceProgramCounter(3)
 			}
-		case 7:
-			operandA, operandB := state[pc+1], state[pc+2]
-			rPointer := state[pc+3]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-			if modeOperandC == 2 {
-				rPointer += relativeBase
-			}
-			state = ensureLen(state, int(rPointer)+1)
-			if a < b {
-				state[rPointer] = 1
+		case lt:
+			if m.resolveOperand(1) < m.resolveOperand(2) {
+				m.writeOperand(3, 1)
 			} else {
-				state[rPointer] = 0
+				m.writeOperand(3, 0)
 			}
-			pc += 4
-		case 8:
-			operandA, operandB := state[pc+1], state[pc+2]
-			rPointer := state[pc+3]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			b := resolveOperand(state, relativeBase, operandB, modeOperandB)
-			if modeOperandC == 2 {
-				rPointer += relativeBase
-			}
-			state = ensureLen(state, int(rPointer)+1)
-			if a == b {
-				state[rPointer] = 1
+			m.advanceProgramCounter(4)
+		case eq:
+			if m.resolveOperand(1) == m.resolveOperand(2) {
+				m.writeOperand(3, 1)
 			} else {
-				state[rPointer] = 0
+				m.writeOperand(3, 0)
 			}
-			pc += 4
-		case 9:
-			operandA := state[pc+1]
-			a := resolveOperand(state, relativeBase, operandA, modeOperandA)
-			relativeBase += a
-			pc += 2
-		case 99:
+			m.advanceProgramCounter(4)
+		case disp:
+			a := m.resolveOperand(1)
+			m.moveRelativeBase(a)
+			m.advanceProgramCounter(2)
+		case hlt:
 			break Loop
 		default:
-			panic(fmt.Sprintf("Unknown op code: %d", opCode))
+			panic(fmt.Sprintf("Unknown operation: %d", operation))
 		}
 	}
 	// fmt.Printf("st: %v\n", state)
-	return output
+}
+
+func runProgram(program []int64, input []int64) []int64 {
+	m := makeMachine(program, input)
+	m.run()
+	return m.output
 }
 
 func main() {
