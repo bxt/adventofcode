@@ -244,8 +244,9 @@ func (c coord) turnRight() coord {
 	return coord{x: -c.y, y: c.x}
 }
 
-func runProgram(program []int64) map[coord]int64 {
+func runProgram(program []int64, initialColor int64) map[coord]int64 {
 	m := makeMachine(program)
+	m.tileColors[coord{x: 0, y: 0}] = initialColor
 	m.run()
 	return m.tileColors
 }
@@ -262,7 +263,42 @@ func main() {
 		program = append(program, int64(i))
 	}
 
-	tileColors := runProgram(program)
+	tileColors := runProgram(program, 0)
 
 	fmt.Printf("Part 1: %d\n", len(tileColors)) // 1709
+
+	fmt.Printf("Part 2:\n")
+
+	tileColorsPart2 := runProgram(program, 1)
+
+	minX, maxX := 0, 0
+	minY, maxY := 0, 0
+	for c := range tileColorsPart2 {
+		if c.x < minX {
+			minX = c.x
+		}
+		if c.x > maxX {
+			maxX = c.x
+		}
+		if c.y < minY {
+			minY = c.y
+		}
+		if c.y > maxY {
+			maxY = c.y
+		}
+	}
+
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			c := coord{x: x, y: y}
+			color, exists := tileColorsPart2[c]
+			if exists && color == 1 {
+				fmt.Print("##")
+			} else {
+				fmt.Print("  ")
+			}
+		}
+		fmt.Println()
+	}
+
 }
