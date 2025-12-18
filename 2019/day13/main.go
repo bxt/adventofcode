@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"reflect"
@@ -31,13 +32,127 @@ const (
 	taskCount
 )
 
-type machine struct {
-	state           []int64
-	programCounter  int64
-	relativeBase    int64
+type io interface {
+	emitOutput(value int64)
+	dequeueInput() int64
+}
+
+type painter struct {
 	task            task
+	score           int64
 	currentPosition coord
 	tileColors      map[coord]int64
+}
+
+func makePainter() painter {
+	return painter{
+		task:            x,
+		currentPosition: coord{x: 0, y: 0},
+		tileColors:      make(map[coord]int64),
+	}
+}
+
+func (p *painter) emitOutput(value int64) {
+	switch p.task {
+	case paint:
+		if p.currentPosition.x == -1 && p.currentPosition.y == 0 {
+			p.score = value
+		} else {
+			p.tileColors[p.currentPosition] = value
+		}
+	case x:
+		p.currentPosition = coord{x: int(value), y: p.currentPosition.y}
+	case y:
+		p.currentPosition = coord{x: p.currentPosition.x, y: int(value)}
+	default:
+		panic(fmt.Sprintf("Unknown task: %d", p.task))
+	}
+	p.task = (p.task + 1) % taskCount
+}
+
+type sittingDuckPainter struct {
+	painter
+}
+
+func (p *sittingDuckPainter) dequeueInput() int64 {
+	return 0
+}
+
+type interactivePainter struct {
+	painter
+	part1Result int
+}
+
+func (p *interactivePainter) dequeueInput() int64 {
+	fmt.Print("\033[H\033[2J")
+
+	fmt.Printf("Part 1: %d\n", p.part1Result)
+
+	minX, maxX := 0, 0
+	minY, maxY := 0, 0
+	for c := range p.tileColors {
+		if c.x < minX {
+			minX = c.x
+		}
+		if c.x > maxX {
+			maxX = c.x
+		}
+		if c.y < minY {
+			minY = c.y
+		}
+		if c.y > maxY {
+			maxY = c.y
+		}
+	}
+
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			c := coord{x: x, y: y}
+			color, exists := p.tileColors[c]
+			if !exists {
+				fmt.Print(" ")
+				continue
+			}
+			switch color {
+			case 0:
+				fmt.Print(" ")
+			case 1:
+				fmt.Print("#")
+			case 2:
+				fmt.Print("\033[33m#\033[0m")
+			case 3:
+				fmt.Print("\033[31m=\033[0m")
+			case 4:
+				fmt.Print("\033[32mO\033[0m")
+			default:
+				panic(fmt.Sprintf("Unknown color: %d", color))
+			}
+		}
+		fmt.Println()
+	}
+
+	fmt.Printf("\n\nPart 2: %d\n", p.score)
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter text: ")
+	text, _ := reader.ReadString('\n')
+	fmt.Println(text)
+
+	if strings.Contains(text, "a") {
+		return -1
+	}
+	if strings.Contains(text, "d") {
+		return 1
+	}
+
+	return 0
+}
+
+type machine struct {
+	state          []int64
+	programCounter int64
+	relativeBase   int64
+	io             io
 }
 
 type mode int
@@ -64,12 +179,10 @@ const (
 	hlt operation = 99
 )
 
-func makeMachine(program []int64) *machine {
+func makeMachine(program []int64, io io) *machine {
 	return &machine{
-		state:           append(program[:0:0], program...),
-		task:            x,
-		currentPosition: coord{x: 0, y: 0},
-		tileColors:      make(map[coord]int64),
+		state: append(program[:0:0], program...),
+		io:    io,
 	}
 }
 
@@ -133,24 +246,6 @@ func (m *machine) resolveOperand(position int64) int64 {
 	}
 }
 
-func (m *machine) emitOutput(value int64) {
-	switch m.task {
-	case paint:
-		m.tileColors[m.currentPosition] = value
-	case x:
-		m.currentPosition = coord{x: int(value), y: m.currentPosition.y}
-	case y:
-		m.currentPosition = coord{x: m.currentPosition.x, y: int(value)}
-	default:
-		panic(fmt.Sprintf("Unknown task: %d", m.task))
-	}
-	m.task = (m.task + 1) % taskCount
-}
-
-func (m *machine) dequeueInput() int64 {
-	return m.tileColors[m.currentPosition]
-}
-
 func (m *machine) advanceProgramCounter(by int64) {
 	m.programCounter += by
 }
@@ -176,10 +271,10 @@ Loop:
 			m.writeOperand(3, m.resolveOperand(1)*m.resolveOperand(2))
 			m.advanceProgramCounter(4)
 		case in:
-			m.writeOperand(1, m.dequeueInput())
+			m.writeOperand(1, m.io.dequeueInput())
 			m.advanceProgramCounter(2)
 		case out:
-			m.emitOutput(m.resolveOperand(1))
+			m.io.emitOutput(m.resolveOperand(1))
 			m.advanceProgramCounter(2)
 		case jnz:
 			if m.resolveOperand(1) != 0 {
@@ -225,12 +320,6 @@ type coord struct {
 	y int
 }
 
-func runProgram(program []int64) map[coord]int64 {
-	m := makeMachine(program)
-	m.run()
-	return m.tileColors
-}
-
 func main() {
 	dat, err := os.ReadFile("input.txt")
 	check(err)
@@ -243,15 +332,29 @@ func main() {
 		program = append(program, int64(i))
 	}
 
-	tileColors := runProgram(program)
+	ioPart1 := &sittingDuckPainter{
+		painter: makePainter(),
+	}
+	mPart1 := makeMachine(program, ioPart1)
+	mPart1.run()
 
 	blockCount := 0
-	for _, tileType := range tileColors {
+	for _, tileType := range ioPart1.tileColors {
 		if tileType == 2 {
 			blockCount++
 		}
 	}
 
 	fmt.Printf("Part 1: %d\n", blockCount) // 309
+
+	ioPart2 := &interactivePainter{
+		painter:     makePainter(),
+		part1Result: blockCount,
+	}
+	mPart2 := makeMachine(program, ioPart2)
+	mPart2.state[0] = 2
+	mPart2.run()
+
+	fmt.Printf("Part 2: %d\n", ioPart2.score) // 12341
 
 }
