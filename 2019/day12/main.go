@@ -83,13 +83,13 @@ func main() {
 			}
 		}
 		// Apply velocity
-		for i, _ := range positions {
+		for i := range positions {
 			positions[i] = add(positions[i], velocities[i])
 		}
 	}
 
 	totalEnergy := 0
-	for i, _ := range positions {
+	for i := range positions {
 		potentialEnergy := positions[i].manhattanMagnitude()
 		kineticEnergy := velocities[i].manhattanMagnitude()
 		totalEnergy += potentialEnergy * kineticEnergy
